@@ -4,12 +4,14 @@ import { projects } from "@/data/projects"
 import { getAllPosts } from "@/lib/blog"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { GradientBg } from "@/components/gradient-bg"
 
 export default function Home() {
   const posts = getAllPosts().slice(0, 3)
 
   return (
     <div className="space-y-16">
+      <GradientBg />
       <section className="space-y-4">
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{site.name}</h1>
         <p className="text-xl text-muted-foreground">{site.title}</p>
