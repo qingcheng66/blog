@@ -5,28 +5,16 @@ import { getAllPosts } from "@/lib/blog"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { GradientBg } from "@/components/gradient-bg"
+import { HeroSection } from "@/components/hero-section"
 
 export default function Home() {
   const posts = getAllPosts().slice(0, 3)
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-20">
       <GradientBg />
-      <section className="space-y-4">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{site.name}</h1>
-        <p className="text-xl text-muted-foreground">{site.title}</p>
-        <p className="max-w-2xl text-muted-foreground">
-          热爱用 AI 和全栈技术解决问题。这个网站是我的作品集和博客，记录技术探索与项目实践。
-        </p>
-        <div className="flex gap-3">
-          <Link href={site.social.github} className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground">
-            GitHub
-          </Link>
-          <Link href={`mailto:${site.social.email}`} className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground">
-            Email
-          </Link>
-        </div>
-      </section>
+
+      <HeroSection />
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
