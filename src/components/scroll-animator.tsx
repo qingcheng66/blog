@@ -41,7 +41,6 @@ export function ScrollAnimator({
   useGSAP(() => {
     const dir = directionMap[direction]
     const vars: GSAPTweenVars = {
-      opacity: 0,
       duration: 0.7,
       ease: easing,
       stagger,

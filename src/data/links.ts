@@ -5,8 +5,8 @@ export interface ShortLink {
 }
 
 const links: ShortLink[] = [
-  { slug: "gh", url: "https://github.com/你的用户名", title: "GitHub" },
-  { slug: "blog", url: "https://yourdomain.com/blog", title: "博客" },
+  { slug: "gh", url: "https://github.com/qingcheng66", title: "GitHub" },
+  { slug: "blog", url: "https://blog.084623224.xyz/blog", title: "博客" },
 ]
 
 export function getLink(slug: string): ShortLink | undefined {
