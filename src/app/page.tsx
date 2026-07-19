@@ -8,7 +8,6 @@ import { HeroSection } from "@/components/hero-section"
 import { ScrollAnimator } from "@/components/scroll-animator"
 import { TiltCard } from "@/components/tilt-card"
 import { SplitText } from "@/components/split-text"
-import { CountUp } from "@/components/count-up"
 
 export default function Home() {
   const posts = getAllPosts().slice(0, 3)
@@ -17,14 +16,7 @@ export default function Home() {
     <div className="space-y-20">
       <GradientBg />
 
-      <HeroSection />
-
-      {/* Stats */}
-      <section className="flex justify-center gap-12 md:gap-20 py-8">
-        <CountUp end={getAllPosts().length} label="篇文章" />
-        <CountUp end={projects.length} label="个项目" />
-        <CountUp end={2} suffix="+" label="年经验" />
-      </section>
+      <HeroSection postCount={getAllPosts().length} projectCount={projects.length} />
 
       <ScrollAnimator sectionId="projects" sectionClass="space-y-4">
         <div className="flex items-center justify-between">

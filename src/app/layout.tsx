@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import { Noto_Sans_SC } from "next/font/google"
 import { ThemeGlow } from "@/components/theme-glow"
 import { StarField } from "@/components/star-field"
 import { ScrollToTop } from "@/components/scroll-to-top"
@@ -8,13 +7,6 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { site } from "@/data/site"
 import "./globals.css"
-
-const notoSans = Noto_Sans_SC({
-  subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-sans",
-  display: "swap",
-})
 
 export const metadata: Metadata = {
   title: { default: site.name, template: `%s · ${site.name}` },
@@ -38,7 +30,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning className={notoSans.variable}>
+    <html lang="zh-CN" suppressHydrationWarning>
       <body className="min-h-screen flex flex-col bg-background font-sans antialiased">
         <ThemeProvider>
           <StarField />
