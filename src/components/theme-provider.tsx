@@ -1,7 +1,7 @@
 "use client"
 
-import { ThemeProvider as NextThemesProvider } from "next-themes"
+import { ThemeProvider as CustomThemeProvider } from "@/hooks/use-theme"
 
-export function ThemeProvider({ children, ...props }: React.ComponentProps<typeof NextThemesProvider>) {
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>
+export function ThemeProvider({ children, ..._props }: { children: React.ReactNode }) {
+  return <CustomThemeProvider>{children}</CustomThemeProvider>
 }

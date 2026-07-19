@@ -3,11 +3,12 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Moon, Sun, Menu } from "lucide-react"
-import { useTheme } from "next-themes"
+import { useTheme } from "@/hooks/use-theme"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { site } from "@/data/site"
 import { cn } from "@/lib/utils"
+import { MagneticWrapper } from "@/components/magnetic-wrapper"
 
 const nav = [
   { href: "/", label: "首页" },
@@ -18,7 +19,7 @@ const nav = [
 
 export function Header() {
   const pathname = usePathname()
-  const { setTheme, theme } = useTheme()
+  const { setTheme, theme, resolvedTheme } = useTheme()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
@@ -29,19 +30,20 @@ export function Header() {
 
         <nav className="hidden items-center gap-6 md:flex">
           {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "text-sm transition-colors hover:text-foreground",
-                pathname === item.href ? "text-foreground font-medium" : "text-muted-foreground",
-              )}
-              aria-current={pathname === item.href ? "page" : undefined}
-            >
-              {item.label}
-            </Link>
+            <MagneticWrapper key={item.href} strength={0.2}>
+              <Link
+                href={item.href}
+                className={cn(
+                  "text-sm transition-colors hover:text-foreground",
+                  pathname === item.href ? "text-foreground font-medium" : "text-muted-foreground",
+                )}
+                aria-current={pathname === item.href ? "page" : undefined}
+              >
+                {item.label}
+              </Link>
+            </MagneticWrapper>
           ))}
-          <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="切换主题">
+          <Button variant="ghost" size="icon" onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")} aria-label="切换主题">
             <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </Button>
@@ -69,9 +71,9 @@ export function Header() {
               <Button
                 variant="ghost"
                 className="justify-start px-0"
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
               >
-                {theme === "dark" ? "亮色模式" : "暗色模式"}
+                {resolvedTheme === "dark" ? "亮色模式" : "暗色模式"}
               </Button>
             </nav>
           </SheetContent>

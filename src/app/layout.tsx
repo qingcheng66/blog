@@ -1,5 +1,8 @@
 import type { Metadata } from "next"
 import { Noto_Sans_SC } from "next/font/google"
+import { ThemeGlow } from "@/components/theme-glow"
+import { StarField } from "@/components/star-field"
+import { ScrollToTop } from "@/components/scroll-to-top"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -37,7 +40,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="zh-CN" suppressHydrationWarning className={notoSans.variable}>
       <body className="min-h-screen flex flex-col bg-background font-sans antialiased">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider>
+          <StarField />
+          <ThemeGlow />
+          <ScrollToTop />
           <Header />
           <main className="flex-1 mx-auto w-full max-w-4xl px-4 py-8">{children}</main>
           <Footer />

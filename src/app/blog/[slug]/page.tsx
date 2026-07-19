@@ -6,6 +6,11 @@ import { getPost, getAllPosts } from "@/lib/blog"
 import { Badge } from "@/components/ui/badge"
 import { site } from "@/data/site"
 import { TableOfContents } from "@/components/table-of-contents"
+import { ReadingProgress } from "@/components/reading-progress"
+import { CodeBlock } from "@/components/code-block"
+import { ParallaxImage } from "@/components/parallax-image"
+import { LightboxImage } from "@/components/lightbox"
+import { SplitText } from "@/components/split-text"
 import type { Metadata } from "next"
 
 export async function generateStaticParams() {
@@ -52,6 +57,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   return (
     <div className="min-h-screen">
+      <ReadingProgress />
+
       {/* Back navigation */}
       <Link
         href="/blog"
@@ -81,12 +88,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
           {/* Header */}
           <header className="space-y-4">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-tight">
+            <SplitText as="h1" className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-tight" stagger={0.03} delay={0.2} scrollTrigger={false}>
               {post.meta.title}
-            </h1>
+            </SplitText>
 
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
               <time className="font-medium text-foreground">{post.meta.date}</time>
+
+              <span className="hidden sm:inline text-border">·</span>
+              <span className="hidden sm:inline">{Math.max(1, Math.ceil(post.content.length / 500))} 分钟阅读</span>
 
               {post.meta.tags && post.meta.tags.length > 0 && (
                 <>
@@ -105,7 +115,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
           {/* Content */}
           <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:scroll-mt-24 prose-img:rounded-lg prose-a:text-primary prose-a:underline-offset-4 prose-pre:bg-muted prose-pre:rounded-lg prose-pre:mt-6 prose-pre:mb-6">
-            <MDXRemote source={post.content} />
+            <MDXRemote
+              source={post.content}
+              components={{
+                pre: CodeBlock,
+                img: LightboxImage,
+                ParallaxImage,
+              }}
+            />
           </div>
         </article>
 

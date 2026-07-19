@@ -7,27 +7,53 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 gsap.registerPlugin(ScrollTrigger)
 
+type Direction = "up" | "down" | "left" | "right"
+
 interface ScrollAnimatorProps {
   children: ReactNode
   sectionId: string
   sectionClass?: string
+  direction?: Direction
+  /** GSAP ease string, default "back.out(1.2)" */
+  easing?: string
+  distance?: number
+  stagger?: number
 }
 
-export function ScrollAnimator({ children, sectionId, sectionClass = "" }: ScrollAnimatorProps) {
+const directionMap: Record<Direction, { x?: number; y?: number }> = {
+  up: { y: 1 },
+  down: { y: -1 },
+  left: { x: 1 },
+  right: { x: -1 },
+}
+
+export function ScrollAnimator({
+  children,
+  sectionId,
+  sectionClass = "",
+  direction = "up",
+  easing = "back.out(1.2)",
+  distance = 50,
+  stagger = 0.08,
+}: ScrollAnimatorProps) {
   const ref = useRef<HTMLElement>(null)
 
   useGSAP(() => {
-    gsap.from(".scroll-card", {
-      y: 40,
+    const dir = directionMap[direction]
+    const vars: GSAPTweenVars = {
       opacity: 0,
-      stagger: 0.1,
-      duration: 0.6,
-      ease: "power2.out",
+      duration: 0.7,
+      ease: easing,
+      stagger,
       scrollTrigger: {
         trigger: ref.current,
-        start: "top 80%",
+        start: "top 82%",
       },
-    })
+    }
+    if (dir.x) vars.x = dir.x * distance
+    if (dir.y) vars.y = dir.y * distance
+
+    gsap.from(".scroll-card", vars)
   }, { scope: ref })
 
   return (

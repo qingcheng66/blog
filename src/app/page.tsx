@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { site } from "@/data/site"
 import { projects } from "@/data/projects"
 import { getAllPosts } from "@/lib/blog"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
@@ -7,6 +6,9 @@ import { Badge } from "@/components/ui/badge"
 import { GradientBg } from "@/components/gradient-bg"
 import { HeroSection } from "@/components/hero-section"
 import { ScrollAnimator } from "@/components/scroll-animator"
+import { TiltCard } from "@/components/tilt-card"
+import { SplitText } from "@/components/split-text"
+import { CountUp } from "@/components/count-up"
 
 export default function Home() {
   const posts = getAllPosts().slice(0, 3)
@@ -17,37 +19,57 @@ export default function Home() {
 
       <HeroSection />
 
+      {/* Stats */}
+      <section className="flex justify-center gap-12 md:gap-20 py-8">
+        <CountUp end={getAllPosts().length} label="篇文章" />
+        <CountUp end={projects.length} label="个项目" />
+        <CountUp end={2} suffix="+" label="年经验" />
+      </section>
+
       <ScrollAnimator sectionId="projects" sectionClass="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">项目</h2>
+          <SplitText as="h2" className="text-2xl font-bold" stagger={0.04}>项目</SplitText>
           <Link href="/projects" className="text-sm text-muted-foreground hover:text-foreground">
             全部 →
           </Link>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           {projects.slice(0, 2).map((p) => (
-            <Card key={p.title} className="scroll-card">
-              <CardHeader>
-                <h3 className="font-semibold">{p.title}</h3>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">{p.description}</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {p.tech.map((t) => (
-                    <Badge key={t} variant="secondary" className="text-xs">
-                      {t}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <TiltCard key={p.title} className="scroll-card">
+              <Card className="h-full flex flex-col">
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold">{p.title}</h3>
+                    {p.year && (
+                      <span className="shrink-0 text-xs text-muted-foreground font-mono">{p.year}</span>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3 flex-1 flex flex-col">
+                  <p className="text-sm text-muted-foreground leading-relaxed flex-1">{p.description}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {p.tech.map((t) => (
+                      <Badge key={t} variant="secondary" className="text-xs">
+                        {t}
+                      </Badge>
+                    ))}
+                  </div>
+                  {(p.github || p.demo) && (
+                    <div className="flex gap-3 pt-1">
+                      {p.github && <a href={p.github} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors">Source</a>}
+                      {p.demo && <a href={p.demo} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:text-primary/80 underline underline-offset-4 transition-colors">Live Demo</a>}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TiltCard>
           ))}
         </div>
       </ScrollAnimator>
 
       <ScrollAnimator sectionId="posts" sectionClass="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">最新文章</h2>
+          <SplitText as="h2" className="text-2xl font-bold" stagger={0.04}>最新文章</SplitText>
           <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground">
             全部 →
           </Link>

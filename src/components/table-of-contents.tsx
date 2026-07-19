@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useMemo } from "react"
 
 interface TocItem {
   id: string
@@ -9,24 +9,23 @@ interface TocItem {
 }
 
 export function TableOfContents() {
-  const [items, setItems] = useState<TocItem[]>([])
   const [activeId, setActiveId] = useState<string>("")
 
-  useEffect(() => {
+  const items = useMemo<TocItem[]>(() => {
+    if (typeof document === "undefined") return []
     const headings = document.querySelectorAll(".prose h2, .prose h3")
-    const tocItems: TocItem[] = []
+    return Array.from(headings).map((h) => ({
+      id: h.textContent?.toLowerCase().replace(/\s+/g, "-").replace(/[^\w一-龥-]/g, "") ?? "",
+      text: h.textContent ?? "",
+      level: h.tagName === "H2" ? 2 : 3,
+    }))
+  }, [])
 
-    headings.forEach((h) => {
+  useEffect(() => {
+    document.querySelectorAll(".prose h2, .prose h3").forEach((h) => {
       const id = h.textContent?.toLowerCase().replace(/\s+/g, "-").replace(/[^\w一-龥-]/g, "") ?? ""
       h.id = id
-      tocItems.push({
-        id,
-        text: h.textContent ?? "",
-        level: h.tagName === "H2" ? 2 : 3,
-      })
     })
-
-    setItems(tocItems)
   }, [])
 
   const handleClick = useCallback((e: React.MouseEvent, id: string) => {

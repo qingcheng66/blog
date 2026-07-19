@@ -7,6 +7,7 @@ import { Download, Mail } from "lucide-react"
 import { site } from "@/data/site"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"
+import { Hero3DBg } from "./hero-3d-bg"
 
 const TAGLINES = [
   "AI 全栈工程师",
@@ -17,7 +18,6 @@ const TAGLINES = [
 const TYPING_SPEED = 80
 const DELETING_SPEED = 40
 const PAUSE_AFTER_TYPING = 2000
-const PAUSE_AFTER_DELETING = 500
 
 export function HeroSection() {
   const containerRef = useRef<HTMLElement>(null)
@@ -78,7 +78,8 @@ export function HeroSection() {
   }, [charIdx, deleting, taglineIdx])
 
   return (
-    <section className="flex flex-col items-center gap-10 md:flex-row md:items-start md:gap-16" ref={containerRef}>
+    <section className="relative flex flex-col items-center gap-10 md:flex-row md:items-start md:gap-16" ref={containerRef}>
+      <Hero3DBg />
       {/* Avatar */}
       <div className="shrink-0" ref={avatarRef}>
         <div className="relative">

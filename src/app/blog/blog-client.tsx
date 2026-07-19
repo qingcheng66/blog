@@ -8,6 +8,7 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import type { BlogPost } from "@/lib/blog"
 import { Badge } from "@/components/ui/badge"
+import { SplitText } from "@/components/split-text"
 import { ArrowRight, Calendar, Clock, ChevronLeft, ChevronRight } from "lucide-react"
 
 gsap.registerPlugin(ScrollTrigger)
@@ -57,7 +58,7 @@ function BlogContent({ posts }: { posts: BlogPost[] }) {
   return (
     <div className="space-y-8">
       <header className="space-y-2">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight">博客</h1>
+        <SplitText as="h1" className="text-4xl md:text-5xl font-bold tracking-tight" stagger={0.04}>博客</SplitText>
         <p className="text-lg text-muted-foreground max-w-2xl">
           分享技术见解、项目经验和学习笔记
         </p>
