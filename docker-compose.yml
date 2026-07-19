@@ -1,18 +1,17 @@
 services:
-  blog:
+  app:
     build: .
-    container_name: blog
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:3000:3000"
+    expose:
+      - "3000"
     environment:
       - NODE_ENV=production
-      - NEXT_TELEMETRY_DISABLED=1
 
-  cloudflared:
+  tunnel:
     image: cloudflare/cloudflared:latest
-    container_name: blog-tunnel
     restart: unless-stopped
+    depends_on:
+      - app
     command: tunnel run
-    environment:
-      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    volumes:
+      - ./cloudflared:/etc/cloudflared

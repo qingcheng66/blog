@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# cloudflare tunnel credentials
+cloudflared/*.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -1,0 +1,115 @@
+---
+title: "Tailwind CSS 4 正式版使用体验"
+date: "2026-07-08"
+description: "Tailwind CSS 4 带来了全新的 CSS-first 配置范式。从 v3 升级到 v4，除了惊喜也有一些需要适应的变化。"
+tags: ["CSS", "Tailwind", "前端"]
+---
+
+## CSS-first 的范式转变
+
+Tailwind CSS 4 在今年早些时候正式发布，这是这个框架诞生以来最大的一次版本变更。从 v3 的 JavaScript 配置文件（`tailwind.config.js`）到 v4 的 CSS-first 配置，整个使用体验发生了根本性的变化。
+
+用了几个月之后，分享一下我的真实感受。
+
+### 最直观的变化
+
+#### 1. 不需要配置文件了
+
+v4 最大的卖点：**零配置文件启动**。在 v3 里几乎每个项目都要写的 `tailwind.config.js`，在 v4 里变成可选的。
+
+```css
+/* v4 的入口 CSS 文件——就是这么简单 */
+@import "tailwindcss";
+```
+
+就是这么一行。颜色、间距、断点——框架提供了一套完善的默认值，直接可用。
+
+#### 2. `@theme` 替代 `theme` 配置
+
+如果需要自定义设计令牌，不再用 JavaScript 的 `extend` 对象，而是在 CSS 中用 `@theme` 块：
+
+```css
+@theme inline {
+  --color-primary: oklch(0.55 0.15 30);
+  --color-background: var(--background);
+  --radius-lg: 0.625rem;
+}
+```
+
+这种做法有几个好处：
+
+- **设计令牌和样式在一个文件里**，不用 JavaScript/CSS 来回切换
+- 原生 CSS 语法，编辑器的语法提示更友好
+- `@theme inline` 会自动生成对应的 Tailwind 工具类（`bg-primary`、`rounded-lg`）
+
+#### 3. `@variant` 替代变体配置
+
+自定义变体现在也是在 CSS 中定义：
+
+```css
+@custom-variant dark (&:is(.dark *));
+```
+
+这使得变体的含义更清晰，而且可以自由组合。
+
+### 一些值得注意的改进
+
+#### OKLCH 原生支持
+
+Tailwind 4 的默认颜色系统从 HSL 迁移到了 OKLCH。OKLCH 相比 HSL 有几个优势：
+
+- 亮度感知更准确——相同 `lightness` 值的颜色，视觉上确实一样亮
+- 渐变更自然，没有 HSL 常见的"脏"过渡
+- 创建调色板时更可预测
+
+如果你还没接触过 OKLCH，强烈推荐试试。调色体验比 HSL 好太多了。
+
+```css
+--color-warm-bg: oklch(0.99 0.003 60);
+```
+
+这里的三个值分别是**亮度**、**色度**（饱和度）和**色相**。调整色相值就能在整个色环上移动，非常直观。
+
+#### CSS 导入的简化
+
+v4 用原生的 `@import` 替代了 PostCSS 插件导入：
+
+```css
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@plugin "@tailwindcss/typography";
+```
+
+注意 `@plugin` 语法——Tailwind CSS 4 引入了插件系统，官方插件用 `@plugin` 语法导入。
+
+### 迁移中遇到的问题
+
+#### 1. `@apply` 的限制
+
+v4 对 `@apply` 指令有更严格的限制。你不能在 `@apply` 里使用 `hover:`、`dark:` 等变体，也不能跨媒体查询使用。如果你之前大量使用 `@apply`，需要重新考虑组织方式。
+
+#### 2. 类名冲突
+
+v4 的 CSS 重置（preflight）更彻底，可能会影响一些第三方组件的样式。我的表单组件就遇到了样式冲突，需要额外调整。
+
+#### 3. 依赖兼容性
+
+截至 2026 年中，大部分主流 UI 库已经适配了 Tailwind 4。但如果你的项目使用了一些小众组件库，升级前最好确认兼容性。
+
+### 升级建议
+
+从 v3 升级到 v4 可以分步进行：
+
+1. 移除 `tailwind.config.js`，将配置迁移到 CSS `@theme` 块
+2. 更新 PostCSS 配置，移除 `tailwindcss` PostCSS 插件
+3. 将 `tailwindcss` 包升级到 v4
+4. 逐一测试页面，解决类名和样式问题
+
+如果是新项目，直接上 v4 就好了——体验比 v3 流畅很多。
+
+### 总结
+
+Tailwind CSS 4 的 CSS-first 范式是一次有远见的重构。它让设计系统的定义更接近前端技术的本质——CSS，而不是躲在 JavaScript 配置文件后面。对于已经有 CSS 基础的开发者来说，上手几乎零成本。
+
+如果你是 v3 用户，升级是有必要的，但不急于一天之内完成。如果你是新手，直接学 v4 就好——它是未来。

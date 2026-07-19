@@ -8,7 +8,7 @@ export default function ProjectsPage() {
       <h1 className="text-3xl font-bold">项目</h1>
       <div className="grid gap-6 sm:grid-cols-2">
         {projects.map((p) => (
-          <Card key={p.title}>
+          <Card key={p.title} className="transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
             <CardHeader>
               <h2 className="text-xl font-semibold">{p.title}</h2>
             </CardHeader>

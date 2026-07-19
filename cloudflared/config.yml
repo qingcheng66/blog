@@ -1,0 +1,7 @@
+tunnel: 40776df8-d94b-4782-9f42-0a710aec3b38
+credentials-file: /etc/cloudflared/40776df8-d94b-4782-9f42-0a710aec3b38.json
+
+ingress:
+  - hostname: blog.084623224.xyz
+    service: http://app:3000
+  - service: http_status:404

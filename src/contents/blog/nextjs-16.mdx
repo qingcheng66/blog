@@ -1,10 +1,101 @@
 ---
-title: "Next.js 16 新特性"
-date: "2026-07-05"
-description: "聊聊 Next.js 16 的一些变化和迁移体验。"
-tags: ["Next.js", "前端"]
+title: "Next.js 16 新特性与迁移体验"
+date: "2026-07-15"
+description: "从 Next.js 15 升级到 16 的实际体验，包括 Turbopack、React 19 集成和一些值得注意的破坏性变更。"
+tags: ["Next.js", "React", "前端"]
 ---
 
-## Next.js 16
+## 升级到 Next.js 16
 
-一些新特性的探讨。
+Next.js 16 于 2026 年初正式发布，这个版本伴随 React 19 的稳定版一同到来，带来了不少令人兴奋的变化。最近我把自己的项目升级到了 16.2，分享一下实际体验。
+
+### 最重要的变化
+
+#### 1. Turbopack 成为默认开发服务器
+
+这是最直观的变化。`next dev` 现在默认使用 Turbopack（不再需要 `--turbo` 标志）。启动速度确实快了很多——对于中等规模的项目，冷启动从原来的 3-4 秒降到了不到 1 秒。热模块替换（HMR）也更加即时，几乎感觉不到延迟。
+
+```bash
+# Next.js 15 需要显式启用
+next dev --turbo
+
+# Next.js 16 默认就是
+next dev
+```
+
+Turbopack 的稳定版还改进了 CSS 处理，Tailwind CSS 4 的 `@import` 语法和 PostCSS 插件都能正常工作。
+
+#### 2. React 19 深度集成
+
+Next.js 16 要求 React 19，并深度利用了 React 19 的新特性：
+
+- **`use()` Hook**：在 Server Components 中处理异步数据更加简洁。之前需要 `await` 的地方，现在可以直接 `use(promise)`，而且支持在条件语句和循环中使用。
+- **`useActionState`**：替代旧的 `useFormState`，表单处理体验提升了不少。
+- **`ref` 作为 prop**：不再需要 `forwardRef` 包裹组件，ref 可以直接作为 prop 传递。
+
+```tsx
+// React 19: ref 可以直接作为 prop
+function MyInput({ ref, ...props }) {
+  return <input ref={ref} {...props} />
+}
+
+// 之前需要 forwardRef
+const MyInput = forwardRef((props, ref) => {
+  return <input ref={ref} {...props} />
+})
+```
+
+#### 3. 路由处理器的改进
+
+`params` 和 `searchParams` 现在返回 Promise，需要 `await`：
+
+```tsx
+// Next.js 16
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  // ...
+}
+```
+
+这个变化虽然看起来增加了样板代码，但实际上解决了之前的一些并发访问问题，而且更符合 JavaScript 的惯例。
+
+#### 4. `next.config.ts` 的 TypeScript 支持
+
+配置文件现在可以直接用 TypeScript 编写，内置类型支持：
+
+```ts
+import type { NextConfig } from "next"
+
+const nextConfig: NextConfig = {
+  output: "standalone",
+}
+
+export default nextConfig
+```
+
+不再需要 `@type` JSDoc 注释，体验更加现代化。
+
+### 迁移过程中遇到的坑
+
+#### `@next/font` 完全移除
+
+如果你还在用 `@next/font`（不是 `next/font`），需要迁移过来。这个包在 Next.js 13 就被标记为弃用了，16 版本正式移除。
+
+#### 某些 API 废弃
+
+- `next/router` 的一些旧 API 被移除，Pages Router 项目需要留意
+- `next/head` 在 App Router 中不再推荐使用——用内置的 `metadata` 导出替代
+
+### 升级建议
+
+如果你的项目还在 Next.js 14 或 15，升级到 16 的整体体验是平滑的。建议按以下步骤：
+
+1. 先升级到最新的 Next.js 15 版本，确保没有弃用警告
+2. 升级 React 到 19
+3. 升级 Next.js 到 16
+4. 运行 `next build` 检查编译错误
+5. 全面测试路由和页面渲染
+
+### 总结
+
+Next.js 16 是一个扎实的版本升级。React 19 的集成是最大亮点，Turbopack 的默认启用让开发体验上了一个台阶。如果你已经在用 App Router，升级成本相对较低，收益却很实在。

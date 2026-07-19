@@ -13,6 +13,7 @@ const nav = [
   { href: "/", label: "首页" },
   { href: "/blog", label: "博客" },
   { href: "/projects", label: "项目" },
+  { href: "/about", label: "关于" },
 ]
 
 export function Header() {
@@ -35,18 +36,19 @@ export function Header() {
                 "text-sm transition-colors hover:text-foreground",
                 pathname === item.href ? "text-foreground font-medium" : "text-muted-foreground",
               )}
+              aria-current={pathname === item.href ? "page" : undefined}
             >
               {item.label}
             </Link>
           ))}
-          <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+          <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="切换主题">
             <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </Button>
         </nav>
 
         <Sheet>
-          <SheetTrigger className="md:hidden p-2 hover:bg-accent rounded-md cursor-pointer">
+          <SheetTrigger className="md:hidden p-2 hover:bg-accent rounded-md cursor-pointer" aria-label="导航菜单">
             <Menu className="h-5 w-5" />
           </SheetTrigger>
           <SheetContent side="right">
@@ -59,6 +61,7 @@ export function Header() {
                     "text-lg",
                     pathname === item.href ? "font-medium" : "text-muted-foreground",
                   )}
+                  aria-current={pathname === item.href ? "page" : undefined}
                 >
                   {item.label}
                 </Link>

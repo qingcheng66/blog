@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { GradientBg } from "@/components/gradient-bg"
 import { HeroSection } from "@/components/hero-section"
+import { ScrollAnimator } from "@/components/scroll-animator"
 
 export default function Home() {
   const posts = getAllPosts().slice(0, 3)
@@ -16,7 +17,7 @@ export default function Home() {
 
       <HeroSection />
 
-      <section className="space-y-4">
+      <ScrollAnimator sectionId="projects" sectionClass="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">项目</h2>
           <Link href="/projects" className="text-sm text-muted-foreground hover:text-foreground">
@@ -25,7 +26,7 @@ export default function Home() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           {projects.slice(0, 2).map((p) => (
-            <Card key={p.title}>
+            <Card key={p.title} className="scroll-card">
               <CardHeader>
                 <h3 className="font-semibold">{p.title}</h3>
               </CardHeader>
@@ -42,9 +43,9 @@ export default function Home() {
             </Card>
           ))}
         </div>
-      </section>
+      </ScrollAnimator>
 
-      <section className="space-y-4">
+      <ScrollAnimator sectionId="posts" sectionClass="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">最新文章</h2>
           <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground">
@@ -54,7 +55,7 @@ export default function Home() {
         <div className="space-y-4">
           {posts.map((post) => (
             <Link key={post.slug} href={`/blog/${post.slug}`}>
-              <Card className="transition-colors hover:bg-muted/50">
+              <Card className="scroll-card transition-colors hover:bg-muted/50">
                 <CardContent className="py-4">
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold">{post.title}</h3>
@@ -66,7 +67,7 @@ export default function Home() {
             </Link>
           ))}
         </div>
-      </section>
+      </ScrollAnimator>
     </div>
   )
 }
