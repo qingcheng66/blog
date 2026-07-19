@@ -2,6 +2,8 @@
 
 import { useRef, useCallback, type ReactNode } from "react"
 import gsap from "gsap"
+import { useTouchDevice } from "@/hooks/use-touch-device"
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 
 interface TiltCardProps {
   children: ReactNode
@@ -13,9 +15,15 @@ interface TiltCardProps {
 export function TiltCard({ children, className = "", maxTilt = 8, glare = true }: TiltCardProps) {
   const cardRef = useRef<HTMLDivElement>(null)
   const glareRef = useRef<HTMLDivElement>(null)
+  const isTouch = useTouchDevice()
+  const reducedMotion = useReducedMotion()
+
+  // Skip tilt on touch devices or if user prefers reduced motion
+  const tiltDisabled = isTouch || reducedMotion
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent) => {
+      if (tiltDisabled) return
       const card = cardRef.current
       if (!card) return
 
@@ -48,10 +56,11 @@ export function TiltCard({ children, className = "", maxTilt = 8, glare = true }
         })
       }
     },
-    [maxTilt, glare],
+    [maxTilt, glare, tiltDisabled],
   )
 
   const handlePointerLeave = useCallback(() => {
+    if (tiltDisabled) return
     const card = cardRef.current
     if (!card) return
 
@@ -68,19 +77,22 @@ export function TiltCard({ children, className = "", maxTilt = 8, glare = true }
         duration: 0.5,
       })
     }
-  }, [glare])
+  }, [glare, tiltDisabled])
 
   return (
     <div
       ref={cardRef}
       className={`relative ${className}`}
-      style={{ transformStyle: "preserve-3d" }}
+      style={{
+        transformStyle: tiltDisabled ? "flat" : "preserve-3d",
+        touchAction: "manipulation",
+      }}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
     >
       {children}
 
-      {glare && (
+      {glare && !tiltDisabled && (
         <div
           ref={glareRef}
           className="absolute inset-0 rounded-[inherit] pointer-events-none opacity-0"

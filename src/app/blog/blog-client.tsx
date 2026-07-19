@@ -10,6 +10,7 @@ import type { BlogPost } from "@/lib/blog"
 import { Badge } from "@/components/ui/badge"
 import { SplitText } from "@/components/split-text"
 import { ArrowRight, Calendar, Clock, ChevronLeft, ChevronRight } from "lucide-react"
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -43,8 +44,14 @@ function BlogContent({ posts }: { posts: BlogPost[] }) {
   const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   const gridRef = useRef<HTMLDivElement>(null)
+  const reducedMotion = useReducedMotion()
 
   useGSAP(() => {
+    if (reducedMotion) {
+      gsap.set(".blog-card", { opacity: 1, y: 0 })
+      return
+    }
+
     gsap.from(".blog-card", {
       y: 40,
       stagger: 0.08,
@@ -52,7 +59,7 @@ function BlogContent({ posts }: { posts: BlogPost[] }) {
       ease: "power2.out",
       scrollTrigger: { trigger: gridRef.current, start: "top 80%" },
     })
-  })
+  }, { dependencies: [reducedMotion] })
 
   return (
     <div className="space-y-8">
@@ -108,10 +115,10 @@ function BlogContent({ posts }: { posts: BlogPost[] }) {
           const readingTime = calculateReadingTime(post.description)
           return (
             <Link key={post.slug} href={`/blog/${post.slug}`} className="group">
-              <article className="blog-card relative overflow-hidden rounded-xl border bg-card/50 p-6 transition-all duration-300 hover:bg-card hover:shadow-lg hover:-translate-y-0.5">
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/50 to-accent/50 opacity-0 transition-opacity group-hover:opacity-100" />
+              <article className="blog-card relative overflow-hidden rounded-xl border bg-card/50 p-6 transition-all duration-300 hover-media:hover:bg-card hover-media:hover:shadow-lg hover-media:hover:-translate-y-0.5">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/50 to-accent/50 opacity-0 transition-opacity hover-media:group-hover:opacity-100" />
                 <div className="space-y-4">
-                  <h2 className="text-xl font-semibold leading-tight group-hover:text-primary transition-colors">
+                  <h2 className="text-xl font-semibold leading-tight hover-media:group-hover:text-primary transition-colors">
                     {post.title}
                   </h2>
                   <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
@@ -142,7 +149,7 @@ function BlogContent({ posts }: { posts: BlogPost[] }) {
                     </div>
                   </div>
                 </div>
-                <ArrowRight className="absolute bottom-6 right-6 size-4 text-muted-foreground opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
+                <ArrowRight className="absolute bottom-6 right-6 size-4 text-muted-foreground opacity-0 -translate-x-2 transition-all hover-media:group-hover:opacity-100 hover-media:group-hover:translate-x-0" />
               </article>
             </Link>
           )

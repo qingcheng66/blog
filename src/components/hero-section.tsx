@@ -9,6 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"
 import { Hero3DBg } from "./hero-3d-bg"
 import { CountUp } from "./count-up"
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 
 const TAGLINES = [
   "AI 全栈工程师",
@@ -31,8 +32,11 @@ export function HeroSection({ postCount, projectCount }: HeroSectionProps) {
   const textRef = useRef<HTMLDivElement>(null)
   const actionsRef = useRef<HTMLDivElement>(null)
   const typingRef = useRef<HTMLDivElement>(null)
+  const reducedMotion = useReducedMotion()
 
   useGSAP(() => {
+    if (reducedMotion) return
+
     gsap.from(avatarRef.current, {
       scale: 0.6,
       opacity: 0,
@@ -62,7 +66,7 @@ export function HeroSection({ postCount, projectCount }: HeroSectionProps) {
       delay: 0.5,
       ease: "power2.out",
     })
-  }, { scope: containerRef })
+  }, { scope: containerRef, dependencies: [reducedMotion] })
 
   const [taglineIdx, setTaglineIdx] = useState(0)
   const [charIdx, setCharIdx] = useState(0)
@@ -93,7 +97,7 @@ export function HeroSection({ postCount, projectCount }: HeroSectionProps) {
   }, [charIdx, deleting, taglineIdx])
 
   return (
-    <section className="relative space-y-12 md:space-y-16 pt-8 md:pt-12" ref={containerRef}>
+    <section className="relative space-y-8 md:space-y-16 pt-4 md:pt-12" ref={containerRef}>
       <Hero3DBg />
 
       {/* Row 1: Text left, Avatar right */}
@@ -101,10 +105,10 @@ export function HeroSection({ postCount, projectCount }: HeroSectionProps) {
         {/* Text — left 3/5 columns */}
         <div className="space-y-5 text-center md:text-left md:col-span-3 max-w-xl" ref={textRef}>
           <div>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
               {site.name}
             </h1>
-            <p className="mt-1.5 text-xl text-muted-foreground">
+            <p className="mt-1.5 text-lg md:text-xl text-muted-foreground">
               {site.title}
             </p>
           </div>
@@ -113,14 +117,14 @@ export function HeroSection({ postCount, projectCount }: HeroSectionProps) {
           <div ref={typingRef} className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
             {/* Typing effect — left */}
             <div className="h-8 flex items-center gap-0.5" aria-live="polite" aria-atomic="true">
-              <span className="text-lg text-primary font-medium">
+              <span className="text-base md:text-lg text-primary font-medium">
                 {TAGLINES[taglineIdx].slice(0, charIdx)}
               </span>
               <span className="inline-block w-[2px] h-5 bg-primary rounded-full animate-pulse" aria-hidden="true" />
             </div>
 
             {/* Stats — right */}
-            <div className="flex gap-6 md:gap-10 shrink-0">
+            <div className="flex gap-4 sm:gap-6 md:gap-10 shrink-0 justify-center">
               <CountUp end={postCount} label="篇文章" />
               <CountUp end={projectCount} label="个项目" />
               <CountUp end={2} suffix="+" label="年经验" />

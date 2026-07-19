@@ -22,7 +22,10 @@ export function Header() {
   const { setTheme, theme, resolvedTheme } = useTheme()
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
+    <header
+      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur"
+      style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+    >
       <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4">
         <Link href="/" className="text-lg font-bold">
           {site.name}
@@ -50,7 +53,7 @@ export function Header() {
         </nav>
 
         <Sheet>
-          <SheetTrigger className="md:hidden p-2 hover:bg-accent rounded-md cursor-pointer" aria-label="导航菜单">
+          <SheetTrigger className="md:hidden p-3 hover:bg-accent active:bg-accent/70 rounded-md cursor-pointer" aria-label="导航菜单">
             <Menu className="h-5 w-5" />
           </SheetTrigger>
           <SheetContent side="right">
@@ -60,7 +63,7 @@ export function Header() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "text-lg",
+                    "text-lg py-2",
                     pathname === item.href ? "font-medium" : "text-muted-foreground",
                   )}
                   aria-current={pathname === item.href ? "page" : undefined}

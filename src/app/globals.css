@@ -4,6 +4,7 @@
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant hover-media (@media (hover: hover));
 
 @theme inline {
   --color-background: var(--background);
@@ -125,6 +126,7 @@
   body {
     @apply bg-background text-foreground;
     transition: background-color 0.5s ease, color 0.5s ease;
+    touch-action: manipulation;
   }
   /* Smooth theme transition for all themed elements */
   *, *::before, *::after {
@@ -173,6 +175,14 @@ body::before {
   line-height: 1.8;
 }
 
+/* ── Mobile: prevent images/tables from overflowing prose ── */
+.prose img,
+.prose video,
+.prose iframe {
+  max-width: 100%;
+  height: auto;
+}
+
 /* ── Page enter animation ── */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(12px); }
@@ -180,6 +190,13 @@ body::before {
 }
 main {
   animation: fade-up 0.4s ease-out forwards;
+}
+
+/* ── Safe area insets ── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .header-safe {
+    padding-top: env(safe-area-inset-top);
+  }
 }
 
 /* ── Reduced motion ── */

@@ -10,23 +10,35 @@ interface TocItem {
 
 export function TableOfContents() {
   const [activeId, setActiveId] = useState<string>("")
+  const [isDesktop, setIsDesktop] = useState(false)
+
+  // Only run on xl+ screens (1280px+)
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1280px)")
+    setIsDesktop(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
+    mq.addEventListener("change", handler)
+    return () => mq.removeEventListener("change", handler)
+  }, [])
 
   const items = useMemo<TocItem[]>(() => {
-    if (typeof document === "undefined") return []
+    if (!isDesktop || typeof document === "undefined") return []
     const headings = document.querySelectorAll(".prose h2, .prose h3")
     return Array.from(headings).map((h) => ({
       id: h.textContent?.toLowerCase().replace(/\s+/g, "-").replace(/[^\w一-龥-]/g, "") ?? "",
       text: h.textContent ?? "",
       level: h.tagName === "H2" ? 2 : 3,
     }))
-  }, [])
+  }, [isDesktop])
 
+  // Assign IDs to headings
   useEffect(() => {
+    if (!isDesktop) return
     document.querySelectorAll(".prose h2, .prose h3").forEach((h) => {
       const id = h.textContent?.toLowerCase().replace(/\s+/g, "-").replace(/[^\w一-龥-]/g, "") ?? ""
       h.id = id
     })
-  }, [])
+  }, [isDesktop])
 
   const handleClick = useCallback((e: React.MouseEvent, id: string) => {
     e.preventDefault()
@@ -39,7 +51,7 @@ export function TableOfContents() {
 
   // Track active heading
   useEffect(() => {
-    if (items.length === 0) return
+    if (!isDesktop || items.length === 0) return
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -59,9 +71,10 @@ export function TableOfContents() {
     })
 
     return () => observer.disconnect()
-  }, [items])
+  }, [items, isDesktop])
 
-  if (items.length < 2) return null
+  // Don't render at all on non-desktop
+  if (!isDesktop || items.length < 2) return null
 
   return (
     <nav className="hidden xl:block sticky top-24 w-56 shrink-0" aria-label="文章目录">

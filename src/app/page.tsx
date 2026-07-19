@@ -13,7 +13,7 @@ export default function Home() {
   const posts = getAllPosts().slice(0, 3)
 
   return (
-    <div className="space-y-20">
+    <div className="space-y-12 sm:space-y-16 lg:space-y-20">
       <GradientBg />
 
       <HeroSection postCount={getAllPosts().length} projectCount={projects.length} />

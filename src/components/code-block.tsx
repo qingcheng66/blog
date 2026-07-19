@@ -45,7 +45,7 @@ export function CodeBlock({ className, children, ...props }: CodeBlockProps) {
         </span>
         <button
           onClick={handleCopy}
-          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
           aria-label={copied ? "已复制" : "复制代码"}
         >
           {copied ? (
@@ -63,7 +63,7 @@ export function CodeBlock({ className, children, ...props }: CodeBlockProps) {
       </div>
 
       {/* Code with line numbers */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: "touch" }}>
         <pre className="!mt-0 !rounded-t-none !border-0 !bg-transparent" {...props}>
           <code className={className}>
             {lines.map((line, i) => (

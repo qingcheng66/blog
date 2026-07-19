@@ -4,6 +4,7 @@ import { useRef, type ReactNode } from "react"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -37,8 +38,11 @@ export function ScrollAnimator({
   stagger = 0.08,
 }: ScrollAnimatorProps) {
   const ref = useRef<HTMLElement>(null)
+  const reducedMotion = useReducedMotion()
 
   useGSAP(() => {
+    if (reducedMotion) return
+
     const dir = directionMap[direction]
     const vars: GSAPTweenVars = {
       duration: 0.7,
@@ -52,8 +56,12 @@ export function ScrollAnimator({
     if (dir.x) vars.x = dir.x * distance
     if (dir.y) vars.y = dir.y * distance
 
-    gsap.from(".scroll-card", vars)
-  }, { scope: ref })
+    // Scope to this section only — avoids animating cards in other sections
+    const cards = ref.current?.querySelectorAll(".scroll-card")
+    if (cards?.length) {
+      gsap.from(cards, vars)
+    }
+  }, { scope: ref, dependencies: [reducedMotion] })
 
   return (
     <section id={sectionId} className={sectionClass} ref={ref}>

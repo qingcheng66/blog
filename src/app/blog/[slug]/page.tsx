@@ -68,7 +68,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         返回博客
       </Link>
 
-      <div className="flex gap-12">
+      <div className="flex gap-8 lg:gap-12">
         <article className="space-y-8 max-w-3xl flex-1 min-w-0">
           {/* JSON-LD Structured Data */}
           <script
@@ -95,8 +95,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
               <time className="font-medium text-foreground">{post.meta.date}</time>
 
-              <span className="hidden sm:inline text-border">·</span>
-              <span className="hidden sm:inline">{Math.max(1, Math.ceil(post.content.length / 500))} 分钟阅读</span>
+              <span className="text-border">·</span>
+              <span>{Math.max(1, Math.ceil(post.content.length / 500))} 分钟阅读</span>
 
               {post.meta.tags && post.meta.tags.length > 0 && (
                 <>

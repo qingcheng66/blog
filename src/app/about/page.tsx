@@ -26,7 +26,7 @@ const skills = [
 
 export default function AboutPage() {
   return (
-    <div className="space-y-12 max-w-2xl">
+    <div className="space-y-8 md:space-y-12 max-w-2xl">
       {/* Bio */}
       <section className="space-y-4">
         <SplitText as="h1" className="text-3xl font-bold tracking-tight" stagger={0.04}>关于我</SplitText>

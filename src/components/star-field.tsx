@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useTheme } from "@/hooks/use-theme"
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
 
 interface Star {
   x: number
@@ -15,6 +16,7 @@ interface Star {
 export function StarField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { resolvedTheme } = useTheme()
+  const reducedMotion = useReducedMotion()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -34,17 +36,21 @@ export function StarField() {
     let stars: Star[] = []
 
     const resize = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      canvas.width = window.innerWidth * dpr
+      canvas.height = window.innerHeight * dpr
+      canvas.style.width = `${window.innerWidth}px`
+      canvas.style.height = `${window.innerHeight}px`
+      ctx?.setTransform(dpr, 0, 0, dpr, 0, 0)
     }
     resize()
     window.addEventListener("resize", resize)
 
     // Generate stars
-    const count = Math.min(120, Math.floor((canvas.width * canvas.height) / 8000))
+    const count = Math.min(120, Math.floor((window.innerWidth * window.innerHeight) / 8000))
     stars = Array.from({ length: count }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
       size: 0.5 + Math.random() * 1.5,
       opacity: 0.3 + Math.random() * 0.7,
       speed: 0.005 + Math.random() * 0.02,
@@ -55,7 +61,7 @@ export function StarField() {
     const animate = () => {
       if (!canvas || !ctx) return
       time += 0.01
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight)
 
       for (const star of stars) {
         const twinkle = Math.sin(time * star.speed * 10 + star.phase) * 0.4 + 0.6
@@ -67,13 +73,35 @@ export function StarField() {
 
       animId = requestAnimationFrame(animate)
     }
-    animate()
+
+    // If reduced motion, draw once statically
+    if (reducedMotion) {
+      for (const star of stars) {
+        ctx.beginPath()
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity * 0.6})`
+        ctx.fill()
+      }
+    } else {
+      animate()
+    }
+
+    // Pause when tab hidden
+    const handleVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animId)
+      } else if (!reducedMotion) {
+        animId = requestAnimationFrame(animate)
+      }
+    }
+    document.addEventListener("visibilitychange", handleVisibility)
 
     return () => {
       cancelAnimationFrame(animId)
       window.removeEventListener("resize", resize)
+      document.removeEventListener("visibilitychange", handleVisibility)
     }
-  }, [isDark])
+  }, [isDark, reducedMotion])
 
   return (
     <canvas
