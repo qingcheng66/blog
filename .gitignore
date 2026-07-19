@@ -39,6 +39,11 @@ yarn-error.log*
 # cloudflare tunnel credentials
 cloudflared/*.json
 
+# impeccable design skill (tool dependency)
+.agents/skills/impeccable/
+.claude/skills/impeccable/
+.codex/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
