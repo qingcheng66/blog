@@ -26,6 +26,11 @@
 - `src/lib/blog.ts` — 读取 `src/contents/blog/*.mdx`，fs 仅在服务端使用
 - 客户端组件通过 props 接收数据（Server/Client 分离模式）
 
+### 可访问性 & 设备适配 Hooks
+- `src/hooks/use-reduced-motion.ts` — 检测 `prefers-reduced-motion: reduce`，SSR 时返回 false 避免 hydration mismatch。所有 GSAP/rAF 组件都应使用此 hook 跳过或简化动画
+- `src/hooks/use-touch-device.ts` — 检测 `pointer: coarse` + `ontouchstart`，SSR 安全的设备检测。触屏设备上应禁用鼠标跟随效果（tilt card、magnetic hover、3D 视差），改用自动漂移动画作为后备
+- **约定**：新组件如果包含动画或 pointer 交互，必须导入这两个 hook 做适配
+
 ---
 
 ## 关键决策
@@ -39,6 +44,9 @@
 | 2026-07-19 | Warm Precision 首页布局 | Vercel 排版精度 + Stripe 大气层，5 列网格（左 3/5 文字 + 右 2/5 头像） |
 | 2026-07-19 | GSAP 动效移除 opacity，仅保留 Y 轴位移 | 避免 ScrollTrigger 触发前卡片全透明，确保截图/首屏卡片始终可见 |
 | 2026-07-19 | Google Fonts 替换为系统字体栈 | Google Fonts 在中国无法访问，导致构建失败 |
+| 2026-07-19 | 全站可访问性适配 | 新增 useReducedMotion + useTouchDevice hooks，所有动画组件尊重 prefers-reduced-motion，触屏禁用 pointer 跟随改用自动漂移 |
+| 2026-07-19 | ScrollAnimator scope 隔离 | `gsap.from(".scroll-card")` 改为 `ref.current.querySelectorAll(".scroll-card")`，避免跨 section 误触发其他区域的卡片 |
+| 2026-07-19 | Hero3DBg 触屏自动漂移 | 触屏设备上鼠标跟随走 sin/cos 自动漂移（`idlePhaseRef`），桌面端保持 pointer 跟随；添加 visibilitychange 监听以在标签页隐藏时暂停 rAF 省电 |
 
 ---
 
@@ -50,6 +58,10 @@
 - **Avatar 组件**的 `size="lg"` prop 内部有 `data-[size=lg]:size-10`（强制 40px），需移除 size prop 才能用自定义尺寸类
 - **fs 模块**只能在 Server Component 使用，Client Component 需通过 props 获取数据
 - **Google Fonts** 在中国被墙，构建会失败，需用系统字体栈或自托管字体
+- **pointer-events** 必须加在 Hero3DBg 的各层 div 上，不能只靠容器的 `pointer-events-none`——3D 层叠会拦截点击；但有 pointer 交互的子元素（如按钮）需保留 auto
+- **touch-action: manipulation** 应加到 body（全局消双击缩放延迟）和 tilt-card（防止3D倾斜被浏览器手势拦截）
+- **媒体溢出**：`.prose img/video/iframe` 必须设 `max-width: 100%`，否则移动端会撑破布局
+- **safe-area-inset**：有刘海屏/灵动岛的设备需要 `header-safe` 类给 header 加 padding-top，否则内容被遮挡
 
 ---
 
@@ -65,7 +77,11 @@
 
 ## 正在做 / 下一步
 
-Phase 1-3 全部完成。最近完成了 Warm Precision 首页重设计、头像布局调整、GSAP 透明度问题修复。
+Phase 1-3 完成。最近一轮（2026-07-19）：全站可访问性适配（reduced motion + touch device detection）、RAF 省电优化（visibilitychange）、移动端安全区/媒体溢出修复、ScrollAnimator scope 隔离。
+
+下一步方向：
+- MDX 文章内容补充
+- 部署验证（Docker + Tunnel）
 
 ---
 
