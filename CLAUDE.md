@@ -319,3 +319,43 @@ ssh -i ~/Downloads/admin.pem ubuntu@110.42.249.198 \
 **依赖：** `npm install three @types/three`
 
 **边界：** 不影响现有 StarField，两者叠加（天气场景在底层，StarField 在上层）。
+
+---
+
+### Task 5 [P0] 用 Wiki 真实内容填充项目/文章/碎碎念
+
+**问题：** `src/data/articles.ts` 和 `src/data/projects.ts` 中的标题/描述是占位数据，不是用户真实内容。
+
+**数据来源：** Wiki 知识库 `~/knowledge/`
+
+#### 项目数据（替换 `projects.ts`）
+
+| 项目 | 描述 | 技术栈 |
+|------|------|--------|
+| 刷题无忧 | 微信小程序刷题平台，CloudBase 云开发全栈 | 微信原生, CloudBase, Node.js |
+| UHH Mall | Spring Boot 商城系统，Docker Compose 部署，三端（后端+小程序+Vue 后台） | Spring Boot, uni-app, Vue, MySQL, Redis |
+| AI 技术工单平台 | Django B2B SaaS 平台，客户端提交→运营 Kanban→开发执行，三端合一 | Django, PostgreSQL, Bootstrap 5 |
+| Serenity Lab（本博客） | 从 Serenity 主题逆向设计系统，Next.js 16 + GSAP + 玻璃拟态 + Three.js 天气背景 | Next.js 16, React 19, Tailwind v4, GSAP, Three.js, Docker |
+
+#### 文章数据（替换 `articles.ts`，写入 `src/contents/blog/` 的 MDX frontmatter）
+
+| # | 标题 | 描述 | 技术标签 |
+|---|------|------|---------|
+| 1 | Docker 部署 Next.js 全流程指南 | 从 Dockerfile 编写到生产部署，多阶段构建、非 root 用户、Cloudflare Tunnel 内网穿透 | Docker, Next.js, 部署 |
+| 2 | Cloudflare Tunnel：笔记本变公网服务器 | 不买服务器、不配端口映射，用 Cloudflare 加密隧道让外网通过域名访问本地服务 | Cloudflare, Tunnel, 部署 |
+| 3 | Claude Code 配置与优化实战 | 配置路径、关键文件、上下文监控、迁移打包——用好 Claude Code 的完整指南 | Claude Code, AI 编程, 配置 |
+| 4 | OpenHands：自托管 AI Agent 控制中心 | 不是帮你写代码的，是帮你管一群帮你写代码的 AI 的——多 Agent 并行调度平台 | AI Agent, OpenHands, 自托管 |
+| 5 | LLM 路由器/AI 网关对比 | 按请求内容自动分发到最合适模型：文本→便宜模型，图片→视觉模型，推理→强模型。5 款开源方案横评 | LLM, 路由, 网关, 开源 |
+| 6 | Prompt Caching 原理：让 LLM 推理快 30-50% | 第一次请求存 KV Cache，后续相同前缀跳过 prefill 阶段直接生成 | LLM, 性能优化, API |
+| 7 | LLM Wiki：让 AI 维护会生长的知识库 | Karpathy 提出的模式——不是每次检索，而是 AI 帮你读完全部写成精华笔记，标好交叉引用 | 知识管理, LLM, Wiki |
+| 8 | Claude Code + Hermes 双 Agent 协作工作流 | Claude Code 写代码、Hermes 写文档，两个终端并排跑，通过 git 通信的双工具分工模式 | Claude Code, Hermes, 工作流 |
+| 9 | AI 全栈学习路线（大三→大四） | 项目经验、技能树、求职方向的完整规划 | 求职, 学习, AI 全栈 |
+
+#### 碎碎念数据（`streamItems`）
+
+从各项目时间线 + wiki 日志提取真实动态，不用"发布了文章 XXX"这种模板化文案。格式：`{ verb: "操作", target: "目标名", date: "日期" }`，按时间倒序。
+
+**边界：** 
+- 不修改 MDX 文章正文（`src/contents/blog/` 已有 5 篇，新增文章只写 frontmatter，正文先放一句话摘要）
+- projects.ts 中保留 demo/github 链接字段
+- 碎碎念 href 指向真实路由或项目 GitHub
