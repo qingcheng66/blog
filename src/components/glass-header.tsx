@@ -241,6 +241,75 @@ export function GlassHeader() {
                 {item.label}
               </Link>
             ))}
+
+            {/* Mobile: Accent color dots */}
+            <div className="mt-4 pt-4" style={{ borderTop: "1px solid var(--color-border)" }}>
+              <span className="text-xs px-1" style={{ color: "var(--color-text-muted)" }}>
+                主题色
+              </span>
+              <div className="flex items-center gap-2 mt-2">
+                {PRESET_COLORS.map(({ hex, label }) => {
+                  const isActive = hex.toLowerCase() === accent.toLowerCase()
+                  return (
+                    <button
+                      key={hex}
+                      onClick={() => setAccent(hex)}
+                      title={label}
+                      className="rounded-full transition-all duration-200 flex items-center justify-center"
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        backgroundColor: hex,
+                        border: isActive ? "2px solid white" : "2px solid transparent",
+                        boxShadow: isActive ? `0 0 10px ${hex}99` : "none",
+                        outline: "none",
+                      }}
+                      aria-label={`主题色：${label}`}
+                    />
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Mobile: Background sliders */}
+            <div className="mt-3" style={{ borderTop: "1px solid var(--color-border)", paddingTop: "12px" }}>
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                      背景饱和度
+                    </span>
+                    <span className="text-xs font-mono" style={{ color: "var(--color-accent)" }}>
+                      {saturation}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={5}
+                    max={60}
+                    value={saturation}
+                    onChange={(e) => setSaturation(parseInt(e.target.value, 10))}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                      背景亮度
+                    </span>
+                    <span className="text-xs font-mono" style={{ color: "var(--color-accent)" }}>
+                      {lightness}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={3}
+                    max={40}
+                    value={lightness}
+                    onChange={(e) => setLightness(parseInt(e.target.value, 10))}
+                  />
+                </div>
+              </div>
+            </div>
           </nav>
         </div>
       )}
