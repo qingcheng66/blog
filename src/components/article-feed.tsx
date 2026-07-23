@@ -93,6 +93,17 @@ export function ArticleFeed() {
           className="flex flex-col gap-3 h-full overflow-y-auto pr-2 relative z-10"
           style={{ scrollbarWidth: "thin" }}
         >
+          {articles.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-full gap-3">
+              <span className="text-sm" style={{ color: "var(--color-text-muted)" }}>
+                还没有文章
+              </span>
+              <span className="text-xs" style={{ color: "var(--color-text-muted)", opacity: 0.5 }}>
+                在 <code style={{ color: "var(--color-accent)" }}>src/contents/blog/</code> 目录下添加 MDX 文件，
+                在 <code style={{ color: "var(--color-accent)" }}>src/data/articles.ts</code> 中补充文章条目
+              </span>
+            </div>
+          )}
           {articles.map((article, i) => (
             <a
               key={article.slug}

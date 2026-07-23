@@ -53,6 +53,17 @@ export function ProjectsGrid() {
 
       {/* Project cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {projects.length === 0 && (
+          <div className="col-span-full flex flex-col items-center justify-center py-16 gap-3 rounded-2xl" style={{ background: "var(--glass-bg-strong)", border: "1px solid var(--color-border)" }}>
+            <span className="text-sm" style={{ color: "var(--color-text-muted)" }}>
+              还没有项目
+            </span>
+            <span className="text-xs text-center" style={{ color: "var(--color-text-muted)", opacity: 0.5 }}>
+              在 <code style={{ color: "var(--color-accent)" }}>src/data/projects.ts</code> 的
+              <code style={{ color: "var(--color-accent)" }}>projects</code> 数组中添加项目
+            </span>
+          </div>
+        )}
         {projects.map((project) => (
           <div
             key={project.title}

@@ -91,6 +91,17 @@ export function StreamTimeline() {
           className="flex flex-col h-full overflow-y-auto py-4 pl-8 pr-4 relative z-10"
           style={{ scrollbarWidth: "thin" }}
         >
+          {streamItems.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-full gap-3">
+              <span className="text-sm" style={{ color: "var(--color-text-muted)" }}>
+                还没有动态
+              </span>
+              <span className="text-xs" style={{ color: "var(--color-text-muted)", opacity: 0.5 }}>
+                在 <code style={{ color: "var(--color-accent)" }}>src/data/articles.ts</code> 的
+                <code style={{ color: "var(--color-accent)" }}>streamItems</code> 数组中添加动态
+              </span>
+            </div>
+          )}
           {streamItems.map((item, i) => (
             <div
               key={i}
