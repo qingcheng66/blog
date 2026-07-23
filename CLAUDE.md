@@ -207,3 +207,38 @@ Serenity 的玻璃效果模式：
 - 不复制 HTML/CSS/图片/文案
 - 不引入 Halo 生态
 - 不修改 `~/Documents/blog/` 的文件
+
+---
+
+## 2026-07-23 Hermes 改动记录
+
+### 移动端主题色 + 背景调节修复
+
+**文件：** `src/components/glass-header.tsx`
+
+**问题：** 色相色块和饱和度/亮度滑块只在桌面端 `hidden md:flex` 导航栏中可见，手机端完全无法调节。
+
+**改动：** 在移动端抽屉菜单 `<nav>` 中添加了：
+- 6 个主题色色块（24px，`PRESET_COLORS`，带白色选中边框+发光）
+- 背景饱和度滑块（5-60%，`useAccentHue` 管理，localStorage 持久化）
+- 背景亮度滑块（3-40%，同上）
+
+### 部署方式变更
+
+服务器 SSH 密码登录已不可用，改用密钥：
+
+```bash
+# 部署命令（在项目根目录执行）
+git push
+ssh -i ~/Downloads/admin.pem ubuntu@110.42.249.198 \
+  "cd /www/wwwroot/blog && sudo git pull && sudo docker compose up -d --build app"
+```
+
+- 服务器代码位置：`/www/wwwroot/blog/`
+- git remote：`git@github.com:qingcheng66/blog.git`（SSH 协议）
+- 服务器 GitHub SSH key 已配置
+- Docker 容器用 `sudo` 操作（ubuntu 用户有 sudo 权限）
+
+### 简历
+
+`public/resume.pdf` 已更新为最新版本。
