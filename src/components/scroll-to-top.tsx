@@ -5,6 +5,7 @@ import { ArrowUp } from "lucide-react"
 
 export function ScrollToTop() {
   const [visible, setVisible] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -12,6 +13,13 @@ export function ScrollToTop() {
     }
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
   }, [])
 
   const scrollToTop = () => {
@@ -25,7 +33,9 @@ export function ScrollToTop() {
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
       }`}
       style={{
-        bottom: `calc(1.5rem + env(safe-area-inset-bottom, 0px))`,
+        bottom: isMobile
+          ? `calc(1.5rem + env(safe-area-inset-bottom, 0px) + 56px)`
+          : `calc(1.5rem + env(safe-area-inset-bottom, 0px))`,
         right: `calc(1.5rem + env(safe-area-inset-right, 0px))`,
       }}
       aria-label="回到顶部"

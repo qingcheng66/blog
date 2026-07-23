@@ -6,6 +6,7 @@ import { ScrollToTop } from "@/components/scroll-to-top"
 import { GlassHeader } from "@/components/glass-header"
 import { Footer } from "@/components/footer"
 import { MusicPlayer } from "@/components/music-player"
+import { WeatherSceneLoader } from "@/components/weather-scene-loader"
 import { site } from "@/data/site"
 import "./globals.css"
 
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             />
           </div>
           <SearchModal />
+          <WeatherSceneLoader />
           <StarField />
           <ScrollToTop />
           <GlassHeader />

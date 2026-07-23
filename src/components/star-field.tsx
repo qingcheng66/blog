@@ -49,7 +49,7 @@ export function StarField() {
     // Generate stars — fewer on mobile for performance
     const isMobile = window.innerWidth < 768
     const count = isMobile
-      ? Math.min(40, Math.floor((window.innerWidth * window.innerHeight) / 15000))
+      ? Math.min(80, Math.floor((window.innerWidth * window.innerHeight) / 8000))
       : Math.min(120, Math.floor((window.innerWidth * window.innerHeight) / 8000))
     stars = Array.from({ length: count }, () => ({
       x: Math.random() * window.innerWidth,

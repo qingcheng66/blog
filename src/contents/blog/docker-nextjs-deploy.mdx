@@ -1,0 +1,163 @@
+---
+title: "Docker 部署 Next.js 全流程指南"
+date: "2026-07-18"
+description: "从 Dockerfile 编写到生产部署，详细介绍 Next.js 应用容器化的最佳实践，包括多阶段构建、非 root 用户运行和 Cloudflare Tunnel 内网穿透。"
+tags: ["Docker", "Next.js", "DevOps"]
+---
+
+## 为什么选择 Docker 部署
+
+最近把我的 Next.js 博客迁移到了 Docker 部署。选择容器化有几个实际考量：
+
+- **环境一致性**：本地开发和服务器运行的环境完全一样，不再出现"在我机器上能跑"的问题
+- **部署简单**：`docker compose up -d` 一键启动，不需要在服务器上装 Node.js 环境
+- **易于扩展**：后续想加 Nginx 反代、Redis 缓存，加一个 service 就行
+
+这篇文章记录一下整个部署方案的搭建过程。
+
+### 多阶段构建 Dockerfile
+
+对于 Next.js 这样的 Node.js 应用，多阶段构建是最佳实践——通过将构建和运行环境分离，大幅缩小最终镜像的体积。
+
+这是我的 Dockerfile 结构：
+
+```dockerfile
+# ===== 第一阶段：安装依赖 =====
+FROM node:20-alpine AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# ===== 第二阶段：构建应用 =====
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
+
+# ===== 第三阶段：运行 =====
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# 创建非 root 用户
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# 只复制运行所需的最小文件集
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["node", "server.js"]
+```
+
+#### 关键点说明
+
+**为什么用 `npm ci` 而不是 `npm install`？**
+
+`npm ci` 会根据 `package-lock.json` 精确安装依赖，速度比 `npm install` 快，而且能确保本地和 CI 环境的依赖版本完全一致。
+
+**为什么要分三个阶段？**
+
+如果把依赖安装、构建和运行放在一个阶段，最终镜像会包含源代码、构建工具链（TypeScript 编译器、Webpack/Turbopack 等）和开发依赖——这些在生产环境完全不需要。
+
+通过多阶段构建，最终镜像只包含：
+
+- `public/` 目录的静态资源
+- `.next/standalone/` 的自包含运行产物
+- `.next/static/` 的静态文件
+
+最终镜像大小通常在 150MB 左右，远小于单阶段构建的 1GB+。
+
+**为什么需要 `libc6-compat`？**
+
+一些 npm 包（特别是涉及原生模块的）依赖 glibc。Alpine Linux 使用 musl libc，安装 `libc6-compat` 可以提供兼容层。
+
+**非 root 用户运行**
+
+`USER nextjs` 这一步很重要——以非 root 用户运行容器是一种安全最佳实践。如果应用被攻破，攻击者的权限也会受限。
+
+### Next.js 配置：standalone 模式
+
+为了让多阶段构建生效，需要在 `next.config.ts` 中开启 standalone 输出：
+
+```ts
+const nextConfig: NextConfig = {
+  output: "standalone",
+}
+```
+
+这个配置会让 Next.js 在构建时生成一个 `.next/standalone/` 目录，里面包含了运行应用所需的全部文件（包括处理后的 node_modules 依赖）。这样我们只需要复制这个目录到运行阶段即可。
+
+### Docker Compose 编排
+
+使用 Docker Compose 管理服务定义：
+
+```yaml
+services:
+  blog:
+    build: .
+    container_name: blog
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      - NODE_ENV=production
+```
+
+**注意端口绑定**：`127.0.0.1:3000:3000` 表示只监听本地回环地址，不直接暴露到公网。这样可以配合 Nginx 反代或 Cloudflare Tunnel 来对外提供服务，安全得多。
+
+### Cloudflare Tunnel 内网穿透
+
+如果你像我一样在家用 NAS 或旧电脑上跑服务，没有公网 IP，Cloudflare Tunnel 是一个很好的选择。
+
+Docker Compose 中添加：
+
+```yaml
+cloudflared:
+  image: cloudflare/cloudflared:latest
+  container_name: cloudflared
+  restart: unless-stopped
+  command: tunnel run
+  environment:
+    - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+```
+
+在 Cloudflare Dashboard 创建一个 Tunnel 并获取 Token，设置到 `.env` 文件中。这样你的服务就能通过自己的域名访问，不需要公网 IP，不需要端口映射，而且自带 HTTPS。
+
+### 日常运维
+
+```bash
+# 构建并启动
+docker compose up -d --build
+
+# 查看日志
+docker compose logs -f
+
+# 停止
+docker compose down
+
+# 更新部署
+git pull
+docker compose up -d --build
+```
+
+### 总结
+
+通过 Docker 部署 Next.js 应用，我获得了：
+
+- ✅ 可复现的环境（不再有环境不一致的问题）
+- ✅ 最小的镜像体积（多阶段构建，只包含运行所需）
+- ✅ 安全的默认配置（非 root 用户、无公网暴露）
+- ✅ 简单的运维（一条命令部署更新）
+
+如果你还在用直接在服务器上跑 `npm run start` 的方式部署，强烈建议试试 Docker 方案——尤其是在你需要同时管理多个应用或服务的时候。

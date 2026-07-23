@@ -44,10 +44,10 @@ export const SAT_KEY = "serenity-bg-sat"
 export const LIT_KEY = "serenity-bg-lit"
 export const DEFAULT_SAT = 20
 export const DEFAULT_LIT = 9
-export const SAT_MIN = 5
-export const SAT_MAX = 60
-export const LIT_MIN = 3
-export const LIT_MAX = 40
+export const SAT_MIN = 8
+export const SAT_MAX = 80
+export const LIT_MIN = 2
+export const LIT_MAX = 50
 
 export const PRESET_COLORS = [
   { hex: "#FF79C6", label: "品红" },

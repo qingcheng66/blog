@@ -5,13 +5,14 @@ import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { Globe, Mail } from "lucide-react"
 import { site } from "@/data/site"
+import { useWeather } from "@/hooks/use-weather"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useTouchDevice } from "@/hooks/use-touch-device"
 
 // ── 天气时钟条 ──
 function WeatherClock() {
   const [time, setTime] = useState("")
-  const [weather, setWeather] = useState<{ temp: string; desc: string }>({ temp: "--°C", desc: "☀️" })
+  const { temp, text: desc } = useWeather()
 
   // Clock tick
   useEffect(() => {
@@ -23,32 +24,6 @@ function WeatherClock() {
     return () => clearInterval(timer)
   }, [])
 
-  // Fetch weather from QWeather (和风天气)
-  useEffect(() => {
-    let cancelled = false
-    const { apiHost, apiKey, locationId } = site.weather
-
-    async function fetchWeather() {
-      try {
-        const url = `https://${apiHost}/v7/weather/now?location=${locationId}&key=${apiKey}`
-        const res = await fetch(url)
-        if (!res.ok || cancelled) return
-        const data = await res.json()
-        if (data.code === "200" && data.now && !cancelled) {
-          setWeather({
-            temp: `${data.now.temp}°C`,
-            desc: data.now.text,
-          })
-        }
-      } catch {
-        // Keep fallback values
-      }
-    }
-
-    fetchWeather()
-    return () => { cancelled = true }
-  }, [])
-
   return (
     <div className="inline-flex items-center gap-3 glass rounded-full px-5 py-2 text-sm"
       style={{ color: "var(--color-text-secondary)" }}>
@@ -56,8 +31,8 @@ function WeatherClock() {
       <span style={{ color: "var(--color-border-hover)" }}>·</span>
       <span>{site.city}</span>
       <span style={{ color: "var(--color-border-hover)" }}>·</span>
-      <span>{weather.desc}</span>
-      <span style={{ color: "var(--color-accent)", fontWeight: 600 }}>{weather.temp}</span>
+      <span>{desc || "☀️"}</span>
+      <span style={{ color: "var(--color-accent)", fontWeight: 600 }}>{temp}</span>
     </div>
   )
 }
