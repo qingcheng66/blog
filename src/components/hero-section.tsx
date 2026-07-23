@@ -1,174 +1,218 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
-import { Download, Mail } from "lucide-react"
+import { Globe, Mail } from "lucide-react"
 import { site } from "@/data/site"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { buttonVariants } from "@/components/ui/button"
-import { Hero3DBg } from "./hero-3d-bg"
-import { CountUp } from "./count-up"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
+import { useTouchDevice } from "@/hooks/use-touch-device"
 
-const TAGLINES = [
-  "AI 全栈工程师",
-  "LLM 应用落地践行者",
-  "用代码让想法成真",
-]
+// ── 天气时钟条 ──
+function WeatherClock() {
+  const [time, setTime] = useState("")
+  const [weather, setWeather] = useState<{ temp: string; desc: string }>({ temp: "--°C", desc: "☀️" })
 
-const TYPING_SPEED = 80
-const DELETING_SPEED = 40
-const PAUSE_AFTER_TYPING = 2000
+  // Clock tick
+  useEffect(() => {
+    const tick = () => {
+      setTime(new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }))
+    }
+    tick()
+    const timer = setInterval(tick, 1000)
+    return () => clearInterval(timer)
+  }, [])
 
-interface HeroSectionProps {
-  postCount: number
-  projectCount: number
+  // Fetch weather from QWeather (和风天气)
+  useEffect(() => {
+    let cancelled = false
+    const { apiHost, apiKey, locationId } = site.weather
+
+    async function fetchWeather() {
+      try {
+        const url = `https://${apiHost}/v7/weather/now?location=${locationId}&key=${apiKey}`
+        const res = await fetch(url)
+        if (!res.ok || cancelled) return
+        const data = await res.json()
+        if (data.code === "200" && data.now && !cancelled) {
+          setWeather({
+            temp: `${data.now.temp}°C`,
+            desc: data.now.text,
+          })
+        }
+      } catch {
+        // Keep fallback values
+      }
+    }
+
+    fetchWeather()
+    return () => { cancelled = true }
+  }, [])
+
+  return (
+    <div className="inline-flex items-center gap-3 glass rounded-full px-5 py-2 text-sm"
+      style={{ color: "var(--color-text-secondary)" }}>
+      <span>{time || "--:--"}</span>
+      <span style={{ color: "var(--color-border-hover)" }}>·</span>
+      <span>{site.city}</span>
+      <span style={{ color: "var(--color-border-hover)" }}>·</span>
+      <span>{weather.desc}</span>
+      <span style={{ color: "var(--color-accent)", fontWeight: 600 }}>{weather.temp}</span>
+    </div>
+  )
 }
 
-export function HeroSection({ postCount, projectCount }: HeroSectionProps) {
-  const containerRef = useRef<HTMLElement>(null)
+// ── 渐变个性签名 ──
+function GradientSignature() {
+  return (
+    <h2
+      className="text-2xl sm:text-3xl md:text-4xl font-bold select-none"
+      style={{
+        background: `linear-gradient(135deg, var(--color-accent), var(--color-accent-secondary))`,
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        backgroundClip: "text",
+      }}
+    >
+      用代码让想法成真
+    </h2>
+  )
+}
+
+// ── 头像发光环 ──
+function AvatarGlow() {
+  return (
+    <div className="relative inline-flex items-center justify-center">
+      {/* Pulse glow ring */}
+      <div
+        className="absolute inset-0 rounded-full animate-pulse"
+        style={{
+          background: `conic-gradient(from 0deg, var(--color-accent), var(--color-accent-secondary), var(--color-accent))`,
+          filter: "blur(8px)",
+          opacity: 0.3,
+          transform: "scale(1.15)",
+        }}
+      />
+      {/* Inner static glow */}
+      <div
+        className="absolute -inset-2 rounded-full"
+        style={{
+          background: `linear-gradient(135deg, rgba(var(--color-accent-rgb), 0.3), rgba(var(--color-accent-rgb), 0.1))`,
+          filter: "blur(16px)",
+        }}
+      />
+      {/* Avatar circle */}
+      <div
+        className="relative size-24 md:size-32 rounded-full flex items-center justify-center"
+        style={{
+          background: `linear-gradient(135deg, var(--color-accent), var(--color-accent-secondary))`,
+          border: "3px solid rgba(255,255,255,0.15)",
+          boxShadow: `0 0 30px rgba(var(--color-accent-rgb), 0.3)`,
+        }}
+      >
+        <span className="text-4xl md:text-5xl font-bold text-white select-none">
+          S
+        </span>
+      </div>
+    </div>
+  )
+}
+
+// ── 社交图标 ──
+function SocialLinks() {
+  const isTouch = useTouchDevice()
+  const links = [
+    { href: site.social.github, icon: Globe, label: "GitHub" },
+    { href: `mailto:${site.social.email}`, icon: Mail, label: "Email" },
+  ]
+
+  return (
+    <div className="flex items-center gap-3 justify-center">
+      {links.map(({ href, icon: Icon, label }) => (
+        <a
+          key={label}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={label}
+          className="glass rounded-full p-3 transition-all duration-200"
+          style={{
+            "--hover-bg": "rgba(var(--color-accent-rgb), 0.15)",
+          } as React.CSSProperties}
+          {...(!isTouch && {
+            onMouseEnter: (e: React.MouseEvent<HTMLAnchorElement>) => {
+              e.currentTarget.style.background = "rgba(var(--color-accent-rgb), 0.15)"
+              e.currentTarget.style.borderColor = "rgba(var(--color-accent-rgb), 0.3)"
+              e.currentTarget.style.color = "var(--color-accent)"
+            },
+            onMouseLeave: (e: React.MouseEvent<HTMLAnchorElement>) => {
+              e.currentTarget.style.background = "var(--glass-bg)"
+              e.currentTarget.style.borderColor = "var(--color-border)"
+              e.currentTarget.style.color = ""
+            },
+          })}
+        >
+          <Icon size={20} />
+        </a>
+      ))}
+    </div>
+  )
+}
+
+// ── Hero 主体 ──
+export function HeroSection() {
+  const containerRef = useRef<HTMLDivElement>(null)
   const avatarRef = useRef<HTMLDivElement>(null)
-  const textRef = useRef<HTMLDivElement>(null)
-  const actionsRef = useRef<HTMLDivElement>(null)
-  const typingRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
   const reducedMotion = useReducedMotion()
 
   useGSAP(() => {
     if (reducedMotion) return
-
     gsap.from(avatarRef.current, {
       scale: 0.6,
       opacity: 0,
       duration: 0.8,
       ease: "back.out(1.4)",
     })
-    gsap.from(textRef.current, {
-      y: 30,
-      opacity: 0,
+    gsap.from(contentRef.current?.children ?? [], {
+      y: 24,
+      stagger: 0.12,
       duration: 0.6,
       delay: 0.3,
       ease: "power2.out",
     })
-    gsap.from(actionsRef.current?.children ?? [], {
-      y: 20,
-      opacity: 0,
-      stagger: 0.15,
-      duration: 0.5,
-      delay: 0.6,
-      ease: "power2.out",
-    })
-    gsap.from(typingRef.current?.children ?? [], {
-      y: 20,
-      opacity: 0,
-      stagger: 0.1,
-      duration: 0.5,
-      delay: 0.5,
-      ease: "power2.out",
-    })
   }, { scope: containerRef, dependencies: [reducedMotion] })
 
-  const [taglineIdx, setTaglineIdx] = useState(0)
-  const [charIdx, setCharIdx] = useState(0)
-  const [deleting, setDeleting] = useState(false)
-
-  useEffect(() => {
-    const current = TAGLINES[taglineIdx]
-    const timer = setTimeout(
-      () => {
-        if (!deleting) {
-          if (charIdx < current.length) {
-            setCharIdx((c) => c + 1)
-          } else {
-            setTimeout(() => setDeleting(true), PAUSE_AFTER_TYPING)
-          }
-        } else {
-          if (charIdx > 0) {
-            setCharIdx((c) => c - 1)
-          } else {
-            setDeleting(false)
-            setTaglineIdx((i) => (i + 1) % TAGLINES.length)
-          }
-        }
-      },
-      deleting ? DELETING_SPEED : TYPING_SPEED,
-    )
-    return () => clearTimeout(timer)
-  }, [charIdx, deleting, taglineIdx])
-
   return (
-    <section className="relative space-y-8 md:space-y-16 pt-4 md:pt-12" ref={containerRef}>
-      <Hero3DBg />
+    <section
+      ref={containerRef}
+      className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center gap-8 pt-16 pb-8"
+    >
+      {/* Avatar + glow ring */}
+      <div ref={avatarRef}>
+        <AvatarGlow />
+      </div>
 
-      {/* Row 1: Text left, Avatar right */}
-      <div className="flex flex-col-reverse md:grid md:grid-cols-5 md:items-center gap-8 md:gap-12">
-        {/* Text — left 3/5 columns */}
-        <div className="space-y-5 text-center md:text-left md:col-span-3 max-w-xl" ref={textRef}>
-          <div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
-              {site.name}
-            </h1>
-            <p className="mt-1.5 text-lg md:text-xl text-muted-foreground">
-              {site.title}
-            </p>
-          </div>
+      {/* Content block */}
+      <div ref={contentRef} className="flex flex-col items-center gap-5 max-w-lg text-center">
+        {/* Name */}
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+          {site.name}
+        </h1>
 
-          {/* Typing + Stats — between Title and Bio */}
-          <div ref={typingRef} className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
-            {/* Typing effect — left */}
-            <div className="h-8 flex items-center gap-0.5" aria-live="polite" aria-atomic="true">
-              <span className="text-base md:text-lg text-primary font-medium">
-                {TAGLINES[taglineIdx].slice(0, charIdx)}
-              </span>
-              <span className="inline-block w-[2px] h-5 bg-primary rounded-full animate-pulse" aria-hidden="true" />
-            </div>
+        {/* Weather + clock pill */}
+        <WeatherClock />
 
-            {/* Stats — right */}
-            <div className="flex gap-4 sm:gap-6 md:gap-10 shrink-0 justify-center">
-              <CountUp end={postCount} label="篇文章" />
-              <CountUp end={projectCount} label="个项目" />
-              <CountUp end={2} suffix="+" label="年经验" />
-            </div>
-          </div>
+        {/* Gradient signature */}
+        <GradientSignature />
 
-          <p className="max-w-lg text-muted-foreground leading-relaxed">
-            {site.bio}
-          </p>
+        {/* Bio */}
+        <p style={{ color: "var(--color-text-secondary)" }} className="leading-relaxed text-sm sm:text-base">
+          {site.bio}
+        </p>
 
-          <div className="flex flex-wrap items-center gap-3 justify-center md:justify-start" ref={actionsRef}>
-            <a
-              href={site.resumeUrl}
-              download
-              className={buttonVariants({ variant: "default" })}
-            >
-              <Download className="mr-1.5 size-4" />
-              下载简历
-            </a>
-            <a
-              href={`mailto:${site.social.email}`}
-              className={buttonVariants({ variant: "outline" })}
-            >
-              <Mail className="mr-1.5 size-4" />
-              联系我
-            </a>
-          </div>
-        </div>
-
-        {/* Avatar — centered in right 2/5 columns, moved up */}
-        <div className="flex justify-center md:col-span-2 -mt-8 md:-mt-20" ref={avatarRef}>
-          <div className="relative">
-            <div className="absolute -inset-4 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 blur-2xl" />
-            <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-primary/30 to-accent/30 blur-md" />
-            <Avatar
-              className="size-24 md:size-40 ring-2 ring-border/30 shadow-stack-lg"
-            >
-              <AvatarImage src="/avatar.jpg" alt={site.name} />
-              <AvatarFallback className="text-6xl">
-                {site.name.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
+        {/* Social icons */}
+        <SocialLinks />
       </div>
     </section>
   )

@@ -4,10 +4,15 @@ export const site = {
   description: "个人作品集 & 博客",
   bio: "热爱用 AI 和全栈技术解决问题。专注于 LLM 应用落地，具备从模型集成到前端交互的全链路开发能力。",
   url: "https://blog.084623224.xyz",
-  resumeUrl: "/resume.pdf",
+  city: "苏州",
+  weather: {
+    apiHost: "ky59febe7r.re.qweatherapi.com",
+    apiKey: "676420ff6ede41d998c1801eeafdbc51",
+    locationId: "101190401", // 苏州城市 ID
+  },
   social: {
     github: "https://github.com/qingcheng66",
-    twitter: "https://twitter.com/qingcheng66",
+    wechat: "xh084623224",
     email: "1120835055xj@gmail.com",
   },
 }
