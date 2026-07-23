@@ -242,3 +242,80 @@ ssh -i ~/Downloads/admin.pem ubuntu@110.42.249.198 \
 ### 简历
 
 `public/resume.pdf` 已更新为最新版本。
+
+---
+
+## 2026-07-23 开发任务
+
+> Hermes 分析 → 用户确认 → Claude Code 执行
+
+### Task 1 [P0] 文章/碎碎念内容打通
+
+**问题：** 目前 `src/data/articles.ts` 硬编码数据，`ArticleFeed` 链接全是 `#`，文章详情页路由已删除（`src/app/blog/[slug]/` 不存在），碎碎念也是假数据不可达。
+
+**目标：**
+
+1. 恢复文章详情路由 `src/app/blog/[slug]/page.tsx`，渲染 `src/contents/blog/` 中的 MDX 文件
+2. 写 `src/lib/blog.ts`：自动读取 MDX frontmatter 生成 `Article[]`，替代 `articles.ts` 中硬编码的数组
+3. `ArticleFeed` 中的 href 改为真实路由 `/blog/${article.slug}`
+4. `StreamTimeline` 中的 `streamItems` 也从 MDX 自动生成，按日期倒序排列
+5. 封面图机制：放在 `public/images/covers/`，MDX frontmatter 写 `cover: /images/covers/xxx.jpg`
+
+**边界：** 不要改动 MDX 文章内容，只打通数据流和路由。
+
+---
+
+### Task 2 [P1] 移动端适配优化
+
+**问题：** 手机端抽屉里的色相色块+饱和/亮度滑块太紧凑，操作精度差；背景动态范围偏窄；StarField 粒子 40 太稀疏；底部多个浮动元素拥挤。
+
+**目标：**
+
+1. 抽屉控件改为**底部 Sheet**：色相色块 28px + 两个 slider 间距加大，从底部弹出独立面板，不与导航混合
+2. 背景饱和度范围 5-60% → **8-80%**，亮度 3-40% → **2-50%**（`use-accent-hue.ts` 中改 min/max）
+3. StarField 移动端粒子上限 40 → **80**（`star-field.tsx` 中密度公式 `/15000` → `/8000`）
+4. 底部浮动元素统一间距，加 `safe-area-inset-bottom`
+
+**边界：** 不改桌面端行为。
+
+---
+
+### Task 3 [P2] 音乐播放器样式优化
+
+**问题：** 音量用 `rotate(-90deg)` hack；只有旋转动画太单调；默认 opacity 0.45 太低用户注意不到。
+
+**目标：**
+
+1. 音量改为**圆形旋钮**：CSS 实现的拖动旋转，替代 hack 式 range input
+2. 播放时用 Web Audio API `AnalyserNode` 做**音频频谱可视化**（柱子跳动）
+3. 展开面板加曲目名称 + 播放进度条
+4. 默认 opacity 0.45 → **0.7**
+5. 移动端位置底部居中，不和回到顶部按钮重叠
+
+**边界：** 不改音频源文件。
+
+---
+
+### Task 4 [P3] 天气驱动 3D 背景
+
+**问题：** QWeather API 只显示温度，背景是静态 GIF，无动态响应。
+
+**目标：**
+
+1. 新建 `src/components/weather-scene.tsx`：Three.js 粒子系统，挂载到 `layout.tsx` 最底层
+2. 天气→视觉效果映射：
+
+| QWeather 天气 | 粒子效果 |
+|--------------|---------|
+| 晴 | 暖金色光粒子 + 柔光射线 |
+| 多云 | 白色柔雾 + 粒子减半 |
+| 阴 | 灰色调、低饱和度 |
+| 雨 | 蓝调垂直雨丝 + 随机涟漪 |
+| 雪 | 白色慢飘雪花 |
+
+3. 夜间自动加深底色（根据 Hero 中已有的时钟判断）
+4. 从 `site.ts` 读取 QWeather API 配置，用 `data.now.text` 切换场景
+
+**依赖：** `npm install three @types/three`
+
+**边界：** 不影响现有 StarField，两者叠加（天气场景在底层，StarField 在上层）。
