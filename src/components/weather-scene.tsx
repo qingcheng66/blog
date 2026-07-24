@@ -329,6 +329,7 @@ export function WeatherScene() {
         containerRef.current.removeChild(renderer.domElement)
       }
       stateRef.current = null
+      setupRef.current = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])   // one-time mount only — all dynamic updates via refs
