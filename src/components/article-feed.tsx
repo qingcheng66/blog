@@ -1,17 +1,18 @@
 "use client"
 
 import { useRef } from "react"
+import Link from "next/link"
 import { useGSAP } from "@gsap/react"
 import { gsap } from "@/lib/gsap"
 import { Pin, Eye } from "lucide-react"
-import { articles } from "@/data/articles"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
+import type { Article } from "@/lib/content"
 
 function formatIndex(i: number): string {
   return String(i + 1).padStart(2, "0")
 }
 
-export function ArticleFeed() {
+export function ArticleFeed({ articles }: { articles: Article[] }) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const reducedMotion = useReducedMotion()
 
@@ -32,7 +33,6 @@ export function ArticleFeed() {
 
   return (
     <section ref={wrapperRef} className="py-12 sm:py-16">
-      {/* Inject keyframe styles for article index stroke→fill transition */}
       <style>{`
         .article-index-stroke {
           color: transparent;
@@ -55,7 +55,6 @@ export function ArticleFeed() {
         }
       `}</style>
 
-      {/* Section header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold relative pl-4" style={{ color: "var(--color-text)" }}>
           <span
@@ -66,21 +65,12 @@ export function ArticleFeed() {
           />
           近期笔记
         </h2>
-        <a
-          href="#"
-          className="text-[13px] px-3 py-1 rounded-md transition-colors hover-media:hover:text-[var(--color-accent)]"
-          style={{ color: "var(--color-text-muted)" }}
-        >
-          更多 &gt;
-        </a>
       </div>
 
-      {/* Article card */}
       <div
         className="relative overflow-hidden rounded-2xl p-4 h-[420px]"
         style={{ border: "1px solid var(--color-border)" }}
       >
-        {/* Watermark */}
         <div
           className="absolute right-2.5 top-1/2 -translate-y-1/2 -rotate-45 text-[3.5rem] font-bold uppercase tracking-widest pointer-events-none select-none whitespace-nowrap"
           style={{ color: "var(--color-accent)", opacity: 0.06 }}
@@ -88,7 +78,6 @@ export function ArticleFeed() {
           ARTICLE
         </div>
 
-        {/* Scrollable list */}
         <div
           className="flex flex-col gap-3 h-full overflow-y-auto pr-2 relative z-10"
           style={{ scrollbarWidth: "thin" }}
@@ -98,16 +87,12 @@ export function ArticleFeed() {
               <span className="text-sm" style={{ color: "var(--color-text-muted)" }}>
                 还没有文章
               </span>
-              <span className="text-xs" style={{ color: "var(--color-text-muted)", opacity: 0.5 }}>
-                在 <code style={{ color: "var(--color-accent)" }}>src/contents/blog/</code> 目录下添加 MDX 文件，
-                在 <code style={{ color: "var(--color-accent)" }}>src/data/articles.ts</code> 中补充文章条目
-              </span>
             </div>
           )}
           {articles.map((article, i) => (
-            <a
+            <Link
               key={article.slug}
-              href={`#${article.slug}`}
+              href={`/blog/${article.slug}`}
               className="article-row-card flex items-center gap-3 group pb-3 border-b border-dashed transition-all duration-150 hover-media:hover:translate-x-1"
               style={{
                 borderBottomColor: article.pinned
@@ -116,7 +101,6 @@ export function ArticleFeed() {
                 borderBottomStyle: article.pinned ? "solid" : "dashed",
               }}
             >
-              {/* Pinned icon */}
               {article.pinned && (
                 <span
                   className="absolute -top-0.5 right-0 z-10 transition-all duration-150 group-hover:scale-115 group-hover:-rotate-10"
@@ -126,12 +110,10 @@ export function ArticleFeed() {
                 </span>
               )}
 
-              {/* Number index — stroke hollow → fill on hover */}
               <span className="article-index-stroke text-2xl font-extrabold italic flex-shrink-0 w-9 text-center">
                 {formatIndex(i)}
               </span>
 
-              {/* Cover image placeholder */}
               <div
                 className="w-20 h-14 rounded-lg overflow-hidden flex-shrink-0"
                 style={{ border: "1px solid var(--color-border)" }}
@@ -145,7 +127,6 @@ export function ArticleFeed() {
                 />
               </div>
 
-              {/* Detail */}
               <div className="flex-1 min-w-0">
                 <h3
                   className="article-row-title text-sm font-medium truncate transition-colors duration-150"
@@ -158,12 +139,11 @@ export function ArticleFeed() {
                 </p>
               </div>
 
-              {/* Views */}
               <span className="text-xs italic flex-shrink-0 ml-auto flex items-center gap-1" style={{ color: "#888" }}>
                 <Eye size={12} />
                 {article.views}
               </span>
-            </a>
+            </Link>
           ))}
         </div>
       </div>

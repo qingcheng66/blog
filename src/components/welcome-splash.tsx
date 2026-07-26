@@ -62,7 +62,7 @@ export function WelcomeSplash() {
           transition: "opacity 0.4s ease-out",
         }}
       >
-        动态色相 · 玻璃拟态 · 粒子背景
+        AI 全栈 · 构建与写作
       </p>
 
       {/* Click hint */}

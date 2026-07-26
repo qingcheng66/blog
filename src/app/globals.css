@@ -17,27 +17,29 @@
   --radius-4xl: calc(var(--radius-base) * 2.6);
 }
 
-/* ── Serenity 设计 Token（暗色模式默认）── */
+/* ── Serenity 设计 Token（暖纸色模式）── */
 :root {
-  --color-accent: #FF79C6;
-  --color-accent-rgb: 255, 121, 198;
-  --color-accent-secondary: hsl(340, 100%, 70%);
-  --color-accent-secondary-rgb: 255, 102, 196;
+  --color-accent: #E87830;
+  --color-accent-rgb: 232, 120, 48;
+  --color-accent-secondary: hsl(44, 80%, 55%);
+  --color-accent-secondary-rgb: 232, 183, 48;
 
-  --color-bg: hsl(320, 20%, 9%);
-  --color-bg-soft: hsl(335, 16%, 7%);
-  --color-bg-mute: hsl(330, 14%, 14%);
+  /* 暖白纸色背景 — 微黄像书页 */
+  --color-bg: hsl(30, 20%, 95%);
+  --color-bg-soft: hsl(30, 16%, 92%);
+  --color-bg-mute: hsl(30, 14%, 97%);
 
-  --color-text: #f5f5f5;
-  --color-text-secondary: rgba(255, 255, 255, 0.6);
-  --color-text-muted: rgba(255, 255, 255, 0.4);
+  /* 深褐灰文字 — 适合长文阅读 */
+  --color-text: #2d2a25;
+  --color-text-secondary: rgba(0, 0, 0, 0.55);
+  --color-text-muted: rgba(0, 0, 0, 0.4);
 
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-hover: rgba(255, 255, 255, 0.15);
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-border-hover: rgba(0, 0, 0, 0.15);
 
-  --glass-bg: rgba(0, 0, 0, 0.25);
-  --glass-bg-strong: rgba(0, 0, 0, 0.4);
-  --glass-blur: 12px;
+  /* 白色半透玻璃 — 叠在暖白底上有肉眼可见的层次 */
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-bg-strong: rgba(255, 255, 255, 0.75);
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast: 150ms;
@@ -50,7 +52,7 @@
 @layer base {
   * { border-color: var(--color-border); }
   body {
-    background: #000;
+    background: var(--color-bg);
     color: var(--color-text);
     touch-action: manipulation;
   }
@@ -68,33 +70,11 @@
   border: 1px solid var(--color-border);
 }
 
-/* ── Light mode overrides ── */
-html.light {
-  --color-accent: #e04090;
-  --color-accent-rgb: 224, 64, 144;
-  --color-accent-secondary: hsl(340, 70%, 55%);
-  --color-accent-secondary-rgb: 214, 66, 140;
-
-  --color-bg: hsl(320, 20%, 88%);
-  --color-bg-soft: hsl(335, 16%, 84%);
-  --color-bg-mute: hsl(330, 14%, 92%);
-
-  --color-text: #1a1a2e;
-  --color-text-secondary: rgba(0, 0, 0, 0.55);
-  --color-text-muted: rgba(0, 0, 0, 0.35);
-
-  --color-border: rgba(0, 0, 0, 0.08);
-  --color-border-hover: rgba(0, 0, 0, 0.15);
-
-  --glass-bg: rgba(255, 255, 255, 0.3);
-  --glass-bg-strong: rgba(255, 255, 255, 0.5);
-}
-
 /* ── 自定义滚动条 ── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 9999px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
 
 /* ── 自定义 range 滑块 ── */
 input[type="range"] {
@@ -116,9 +96,9 @@ input[type="range"]::-webkit-slider-thumb {
   height: 16px;
   border-radius: 50%;
   background: var(--color-accent);
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgba(0,0,0,0.08);
   margin-top: -6px;
-  box-shadow: 0 0 8px rgba(var(--color-accent-rgb), 0.4);
+  box-shadow: 0 0 8px rgba(var(--color-accent-rgb), 0.3);
 }
 input[type="range"]::-moz-range-track {
   height: 4px;
@@ -130,8 +110,8 @@ input[type="range"]::-moz-range-thumb {
   height: 16px;
   border-radius: 50%;
   background: var(--color-accent);
-  border: 2px solid rgba(255,255,255,0.3);
-  box-shadow: 0 0 8px rgba(var(--color-accent-rgb), 0.4);
+  border: 2px solid rgba(0,0,0,0.08);
+  box-shadow: 0 0 8px rgba(var(--color-accent-rgb), 0.3);
 }
 
 /* ── Reduced motion ── */

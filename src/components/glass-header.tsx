@@ -87,7 +87,7 @@ export function GlassHeader() {
                 className="px-3 py-1.5 text-sm rounded-md transition-colors"
                 style={{
                   color: pathname === item.href ? "var(--color-text)" : "var(--color-text-secondary)",
-                  background: pathname === item.href ? "rgba(255,255,255,0.06)" : "transparent",
+                  background: pathname === item.href ? "rgba(var(--color-accent-rgb), 0.08)" : "transparent",
                 }}
               >
                 {item.label}
@@ -160,7 +160,7 @@ export function GlassHeader() {
                   backdropFilter: "blur(var(--glass-blur))",
                   WebkitBackdropFilter: "blur(var(--glass-blur))",
                   border: "1px solid var(--color-border-hover)",
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
                 }}
               >
                 {/* Saturation slider */}
@@ -237,7 +237,7 @@ export function GlassHeader() {
                 className="py-3 px-4 rounded-lg text-lg transition-colors"
                 style={{
                   color: pathname === item.href ? "var(--color-accent)" : "var(--color-text-secondary)",
-                  background: pathname === item.href ? "rgba(255,255,255,0.1)" : "transparent",
+                  background: pathname === item.href ? "rgba(var(--color-accent-rgb), 0.1)" : "transparent",
                 }}
               >
                 {item.label}
@@ -254,7 +254,7 @@ export function GlassHeader() {
                 className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm transition-colors"
                 style={{
                   color: "var(--color-text-secondary)",
-                  background: "rgba(255,255,255,0.04)",
+                  background: "rgba(var(--color-accent-rgb), 0.06)",
                   border: "1px solid var(--color-border)",
                 }}
               >

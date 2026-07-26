@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { getGallery } from "@/lib/content"
 import { GalleryGrid } from "./gallery-grid"
 
 export const metadata: Metadata = {
@@ -6,10 +7,12 @@ export const metadata: Metadata = {
   description: "照片与图像记录",
 }
 
-export default function GalleryPage() {
+export default async function GalleryPage() {
+  const items = await getGallery()
+
   return (
     <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8 py-8 pt-24">
-      <GalleryGrid />
+      <GalleryGrid images={items} />
     </div>
   )
 }

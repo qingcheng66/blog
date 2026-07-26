@@ -278,7 +278,7 @@ export function MusicPlayer() {
             backdropFilter: "blur(var(--glass-blur))",
             WebkitBackdropFilter: "blur(var(--glass-blur))",
             border: "1px solid var(--color-border-hover)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
           }}
         >
           {/* Track name */}
@@ -417,7 +417,7 @@ export function MusicPlayer() {
             : "1px solid var(--color-border-hover)",
           boxShadow: isExpanded
             ? "0 0 16px rgba(var(--color-accent-rgb), 0.25)"
-            : "0 4px 16px rgba(0,0,0,0.3)",
+            : "0 4px 16px rgba(0,0,0,0.08)",
           opacity: hasInteracted ? 1 : 0.7,
           animation: isPlaying && !reducedMotion ? "music-spin 3s linear infinite" : "none",
         }}

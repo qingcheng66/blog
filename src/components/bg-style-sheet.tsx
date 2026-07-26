@@ -57,7 +57,7 @@ export function BgStyleSheet({
     <div
       className="fixed inset-0 z-[60] md:hidden"
       style={{
-        background: active ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0)",
+        background: active ? "rgba(0,0,0,0.15)" : "rgba(0,0,0,0)",
         transition: `background var(--duration-normal) var(--ease-out)`,
       }}
       onClick={onClose}
@@ -71,7 +71,7 @@ export function BgStyleSheet({
           WebkitBackdropFilter: "blur(var(--glass-blur))",
           border: "1px solid var(--color-border-hover)",
           borderBottom: "none",
-          boxShadow: "0 -8px 32px rgba(0,0,0,0.4)",
+          boxShadow: "0 -8px 32px rgba(0,0,0,0.08)",
           transform: active ? "translateY(0)" : "translateY(100%)",
           transition: `transform var(--duration-normal) var(--ease-out)`,
           paddingBottom: `calc(1.5rem + env(safe-area-inset-bottom, 0px))`,

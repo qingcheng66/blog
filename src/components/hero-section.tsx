@@ -81,12 +81,12 @@ function AvatarGlow() {
         className="relative size-24 md:size-32 rounded-full flex items-center justify-center"
         style={{
           background: `linear-gradient(135deg, var(--color-accent), var(--color-accent-secondary))`,
-          border: "3px solid rgba(255,255,255,0.15)",
+          border: "3px solid rgba(255,255,255,0.3)",
           boxShadow: `0 0 30px rgba(var(--color-accent-rgb), 0.3)`,
         }}
       >
         <span className="text-4xl md:text-5xl font-bold text-white select-none">
-          S
+          L
         </span>
       </div>
     </div>

@@ -359,3 +359,26 @@ ssh -i ~/Downloads/admin.pem ubuntu@110.42.249.198 \
 - 不修改 MDX 文章正文（`src/contents/blog/` 已有 5 篇，新增文章只写 frontmatter，正文先放一句话摘要）
 - projects.ts 中保留 demo/github 链接字段
 - 碎碎念 href 指向真实路由或项目 GitHub
+
+---
+
+## 2026-07-25 开发任务
+
+### Task 6 [P0] 暖纸色主题 — 暗色全站翻面
+
+**问题：** 当前全站强制暗色模式——底色近黑(`hsl(326,20%,9%)`)、星空粒子叠加、bg.gif 半透明暗色层、玻璃卡片黑色半透叠在黑底上完全看不出 blur 效果。用户不喜欢暗色，想要暖纸色。
+
+**目标：** 把全站从暗色模式翻到暖白纸色。气质从"深夜霓虹"变成"书页暖灯"——底色微黄暖白像书页、文字深褐灰不刺眼、accent 用暖橙和底色同色温家族、白色玻璃卡片叠在暖白底上有肉眼可见的层次感。
+
+**你决定的：** 具体色值、Token 体系、玻璃参数、阴影深浅、容器背景处理方式。
+
+**固定约束：**
+1. 删掉 StarField + bg.gif 暗色层（layout.tsx），暖白底上这两块无意义
+2. 删掉 `html.light` CSS 块（globals.css），不保留亮暗切换
+3. `use-accent-hue.ts` 的默认 sat/lit/satRange/litRange 从暗色范围翻到亮色范围
+4. 玻璃拟态必须肉眼可见（底线：亮色背景 + white 半透卡片 + blur → 有前景/背景分离）
+5. 文字对比度适合长文阅读，不能刺眼不能灰
+6. Accent 用暖橙，和底色同一色温家族
+7. `npm run build` 必须通过
+
+**不改的：** 组件结构、页面布局、路由、Three.js WeatherScene、npm 依赖。

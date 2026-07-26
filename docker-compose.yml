@@ -6,6 +6,9 @@ services:
       - "3000"
     environment:
       - NODE_ENV=production
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    volumes:
+      - ./content:/app/content
 
   tunnel:
     image: cloudflare/cloudflared:latest

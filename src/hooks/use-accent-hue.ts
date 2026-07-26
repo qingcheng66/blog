@@ -38,24 +38,25 @@ function hexToHsl(hex: string): HSL | null {
   return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) }
 }
 
-export const DEFAULT_ACCENT = "#FF79C6" // 品红 — Serenity 默认色
-export const STORAGE_KEY = "serenity-accent"
-export const SAT_KEY = "serenity-bg-sat"
-export const LIT_KEY = "serenity-bg-lit"
-export const DEFAULT_SAT = 20
-export const DEFAULT_LIT = 9
-export const SAT_MIN = 8
-export const SAT_MAX = 80
-export const LIT_MIN = 2
-export const LIT_MAX = 50
+export const DEFAULT_ACCENT = "#E87830" // 暖橙 — 纸色默认
+// v2 — warm paper theme; renamed keys so old dark-mode localStorage is ignored
+const STORAGE_KEY = "serenity-accent-v2"
+const SAT_KEY = "serenity-bg-sat-v2"
+const LIT_KEY = "serenity-bg-lit-v2"
+export const DEFAULT_SAT = 25
+export const DEFAULT_LIT = 93
+export const SAT_MIN = 5
+export const SAT_MAX = 50
+export const LIT_MIN = 80
+export const LIT_MAX = 98
 
 export const PRESET_COLORS = [
-  { hex: "#FF79C6", label: "品红" },
-  { hex: "#50FA7B", label: "青绿" },
-  { hex: "#8BE9FD", label: "天蓝" },
-  { hex: "#FFB86C", label: "暖橙" },
-  { hex: "#BD93F9", label: "紫罗兰" },
-  { hex: "#FF5555", label: "赤红" },
+  { hex: "#E87830", label: "暖橙" },
+  { hex: "#E8A830", label: "琥珀" },
+  { hex: "#E87A6E", label: "桃粉" },
+  { hex: "#6BA368", label: "青苔" },
+  { hex: "#B07AA0", label: "暖紫" },
+  { hex: "#B87850", label: "棕褐" },
 ]
 
 export function applyAccent(hex: string, bgSat = DEFAULT_SAT, bgLit = DEFAULT_LIT) {
@@ -76,10 +77,10 @@ export function applyAccent(hex: string, bgSat = DEFAULT_SAT, bgLit = DEFAULT_LI
     root.style.setProperty("--color-accent-secondary", `hsl(${sh}, ${s}%, ${l}%)`)
     root.style.setProperty("--color-accent-secondary-rgb", hexToRgbString(hslToHex(sh, s, l)))
 
-    // 背景色：色相跟随 accent，饱和度 + 亮度由用户 slider 控制
+    // 暖纸色背景：色相跟随 accent，高亮度（80-98%）+ 低饱和（5-50%）
     root.style.setProperty("--color-bg", `hsl(${h}, ${bgSat}%, ${bgLit}%)`)
-    root.style.setProperty("--color-bg-soft", `hsl(${(h + 15) % 360}, ${Math.max(0, bgSat - 4)}%, ${Math.max(0, bgLit - 2)}%)`)
-    root.style.setProperty("--color-bg-mute", `hsl(${(h + 10) % 360}, ${Math.max(0, bgSat - 6)}%, ${bgLit + 5}%)`)
+    root.style.setProperty("--color-bg-soft", `hsl(${(h + 15) % 360}, ${Math.max(0, bgSat - 4)}%, ${Math.max(0, bgLit - 4)}%)`)
+    root.style.setProperty("--color-bg-mute", `hsl(${(h + 10) % 360}, ${Math.max(0, bgSat - 6)}%, ${Math.min(100, bgLit + 3)}%)`)
   }
 }
 

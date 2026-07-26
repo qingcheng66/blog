@@ -92,11 +92,11 @@ export function SearchModal() {
       <div
         className="relative w-[90%] max-w-[600px] max-h-[70vh] flex flex-col rounded-2xl overflow-hidden"
         style={{
-          background: "rgba(20, 22, 29, 0.75)",
+          background: "rgba(255, 255, 255, 0.85)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+          border: "1px solid var(--color-border-hover)",
+          boxShadow: "0 20px 60px rgba(0, 0, 0, 0.08)",
           transform: active ? "translateY(0) scale(1)" : "translateY(-16px) scale(0.985)",
           transition: "transform 0.2s ease",
         }}

@@ -1,6 +1,5 @@
 import type { Viewport } from "next"
 import { ThemeProvider } from "@/components/theme-provider"
-import { StarField } from "@/components/star-field"
 import { SearchModal } from "@/components/search-modal"
 import { ScrollToTop } from "@/components/scroll-to-top"
 import { GlassHeader } from "@/components/glass-header"
@@ -14,7 +13,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#FF79C6",
+  themeColor: "#E87830",
 }
 
 export const metadata = {
@@ -33,13 +32,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               (function() {
                 try {
                   var theme = localStorage.getItem('theme');
-                  if (theme === 'light') {
-                    document.documentElement.classList.add('light');
-                  } else if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                  } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                  if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
                   }
+                  // Light / no stored preference → no class needed (CSS :root defaults to warm paper)
                 } catch(e) {}
               })();
             `,
@@ -48,26 +44,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen flex flex-col font-sans antialiased">
         <ThemeProvider>
-          {/* Background: ink-wash GIF + dark overlay, below StarField (z:-5) */}
-          <div className="fixed inset-0 pointer-events-none" style={{ zIndex: -10 }}>
-            <div
-              className="absolute inset-0"
-              style={{
-                background: "url('/bg.gif') center/cover no-repeat",
-                backgroundSize: "cover",
-              }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                background: "rgba(0,0,0,0.65)",
-                backdropFilter: "none",
-              }}
-            />
-          </div>
           <SearchModal />
 {/* <WeatherSceneLoader /> */}
-          <StarField />
           <ScrollToTop />
           <GlassHeader />
           <main className="flex-1">{children}</main>

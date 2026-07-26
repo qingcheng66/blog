@@ -4,10 +4,10 @@ import { useRef } from "react"
 import { useGSAP } from "@gsap/react"
 import { gsap } from "@/lib/gsap"
 import { Globe, ExternalLink } from "lucide-react"
-import { projects } from "@/data/projects"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
+import type { Project } from "@/lib/content"
 
-export function ProjectsGrid() {
+export function ProjectsGrid({ projects }: { projects: Project[] }) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const reducedMotion = useReducedMotion()
 
@@ -41,7 +41,6 @@ export function ProjectsGrid() {
         }
       `}</style>
 
-      {/* Page header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2" style={{ color: "var(--color-text)" }}>
           项目集
@@ -51,26 +50,20 @@ export function ProjectsGrid() {
         </p>
       </div>
 
-      {/* Project cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {projects.length === 0 && (
           <div className="col-span-full flex flex-col items-center justify-center py-16 gap-3 rounded-2xl" style={{ background: "var(--glass-bg-strong)", border: "1px solid var(--color-border)" }}>
             <span className="text-sm" style={{ color: "var(--color-text-muted)" }}>
               还没有项目
             </span>
-            <span className="text-xs text-center" style={{ color: "var(--color-text-muted)", opacity: 0.5 }}>
-              在 <code style={{ color: "var(--color-accent)" }}>src/data/projects.ts</code> 的
-              <code style={{ color: "var(--color-accent)" }}>projects</code> 数组中添加项目
-            </span>
           </div>
         )}
         {projects.map((project) => (
           <div
-            key={project.title}
+            key={project.id}
             className="project-card rounded-2xl p-6 flex flex-col"
             style={{ background: "var(--glass-bg-strong)" }}
           >
-            {/* Year badge */}
             {project.year && (
               <span
                 className="self-start text-xs px-2 py-0.5 rounded-full mb-3"
@@ -95,7 +88,6 @@ export function ProjectsGrid() {
               {project.description}
             </p>
 
-            {/* Tech tags */}
             <div className="flex flex-wrap gap-1.5 mb-4">
               {project.tech.map((t) => (
                 <span
@@ -112,7 +104,6 @@ export function ProjectsGrid() {
               ))}
             </div>
 
-            {/* Links */}
             <div className="flex items-center gap-3">
               {project.github && (
                 <a

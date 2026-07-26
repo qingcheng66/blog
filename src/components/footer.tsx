@@ -42,7 +42,7 @@ export function Footer() {
 
 {/* Tech stack note */}
           <p className="text-xs mt-2" style={{ color: "var(--color-text-muted)", opacity: 0.6 }}>
-            Powered by Next.js · Serenity Theme Lab
+            {site.name} · 用代码让想法成真
           </p>
         </div>
       </div>
