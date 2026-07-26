@@ -1,7 +1,9 @@
 FROM node:20-alpine AS deps
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json ./
+RUN npm config set registry https://registry.npmmirror.com
 RUN npm ci
 
 FROM node:20-alpine AS builder
