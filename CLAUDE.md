@@ -231,7 +231,7 @@ Serenity 的玻璃效果模式：
 # 部署命令（在项目根目录执行）
 git push
 ssh -i ~/Downloads/admin.pem ubuntu@110.42.249.198 \
-  "cd /www/wwwroot/blog && sudo git pull && sudo docker compose up -d --build app"
+  "cd /www/wwwroot/blog && sudo git pull && sudo chown -R 1001:65533 content/ && sudo docker compose up -d --build app"
 ```
 
 - 服务器代码位置：`/www/wwwroot/blog/`

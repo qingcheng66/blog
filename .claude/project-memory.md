@@ -266,7 +266,9 @@ Footer 包含假的 ICP 备案号、假的在线人数、运行天数计数器�
 ```bash
 git push
 ssh -i ~/Downloads/admin.pem ubuntu@110.42.249.198 \
-  "cd /www/wwwroot/blog && sudo git pull && sudo docker compose up -d --build app"
+  "cd /www/wwwroot/blog && sudo git pull && sudo chown -R 1001:65533 content/ && sudo docker compose up -d --build app"
+```
+> ⚠️ `sudo chown -R 1001:65533 content/` 必须执行——Docker 容器以 nextjs(uid 1001) 运行，git pull 创建的文件是 root 权限，不加这行所有写操作（创建/编辑/删除）都会 EACCES 失败。
 ```
 
 ### 本地凭据
