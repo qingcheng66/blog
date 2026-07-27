@@ -2,7 +2,7 @@
   "name": "刘",
   "title": "AI 全栈开发工程师",
   "city": "苏州",
-  "bio": "大三在读，AI 全栈方向。从微信小程序到 Django SaaS 再到 Spring Boot 商城，两年里用不同技术栈交付了四个完整项目。目前专注 LLM 应用落地——不是调 API，是从模型选型、Prompt 工程设计到前端交互的全链路。这个博客记录我的学习路径和项目复盘：Claude Code 配置、Docker 部署、LLM 路由网关选型、OpenHands 多 Agent 调度……写下来才算真正理解。坐标苏州，欢迎邮件或微信交流。",
+  "bio": "热爱用 AI 和全栈技术解决问题。专注于 LLM 应用落地，具备从模型集成到前端交互的全链路开发能力。",
   "skills": [
     "Next.js",
     "React",

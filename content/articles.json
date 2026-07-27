@@ -4,7 +4,12 @@
     "title": "Claude Code + Hermes 双 Agent 协作工作流",
     "description": "Claude Code 写代码、Hermes 写文档，两个终端并排跑，通过 git 通信的双工具分工模式。让 AI 做各自擅长的事。",
     "date": "2026-07-22",
-    "tags": [],
+    "tags": [
+      "Claude Code",
+      "Hermes",
+      "工作流",
+      "AI 编程"
+    ],
     "views": 231,
     "pinned": true
   },
@@ -13,7 +18,9 @@
     "title": "关于我与这个博客",
     "description": "这是我个人博客的第一篇文章。聊聊我是做什么的，为什么写博客，以及这里会有什么内容。",
     "date": "2026-07-19",
-    "tags": [],
+    "tags": [
+      "杂谈"
+    ],
     "views": 89
   },
   {
@@ -21,7 +28,11 @@
     "title": "Docker 部署 Next.js 全流程指南",
     "description": "从 Dockerfile 编写到生产部署，详细介绍 Next.js 应用容器化的最佳实践，包括多阶段构建、非 root 用户运行和 Cloudflare Tunnel 内网穿透。",
     "date": "2026-07-18",
-    "tags": [],
+    "tags": [
+      "Docker",
+      "Next.js",
+      "DevOps"
+    ],
     "views": 184,
     "pinned": true
   },
@@ -30,7 +41,12 @@
     "title": "Cloudflare Tunnel：笔记本变公网服务器",
     "description": "不买服务器、不配端口映射，用 Cloudflare 加密隧道让外网通过域名访问本地服务——开发调试、演示、自托管的最佳路径。",
     "date": "2026-07-16",
-    "tags": [],
+    "tags": [
+      "Cloudflare",
+      "Tunnel",
+      "部署",
+      "DevOps"
+    ],
     "views": 156
   },
   {
@@ -38,7 +54,11 @@
     "title": "Next.js 16 新特性与迁移体验",
     "description": "从 Next.js 15 升级到 16 的实际体验，包括 Turbopack、React 19 集成和一些值得注意的破坏性变更。",
     "date": "2026-07-15",
-    "tags": [],
+    "tags": [
+      "Next.js",
+      "React",
+      "前端"
+    ],
     "views": 135
   },
   {
@@ -46,7 +66,12 @@
     "title": "Claude Code 配置与优化实战",
     "description": "配置路径、关键文件、上下文监控、迁移打包——用好 Claude Code 的完整指南，从安装到高效使用。",
     "date": "2026-07-14",
-    "tags": [],
+    "tags": [
+      "Claude Code",
+      "AI 编程",
+      "配置",
+      "工具"
+    ],
     "views": 203
   },
   {
@@ -54,7 +79,11 @@
     "title": "LLM 应用落地的技术选型思考",
     "description": "构建 LLM 应用时，如何选择模型、框架和架构？本文从实际项目出发，分享一些技术选型的经验和判断标准。",
     "date": "2026-07-12",
-    "tags": [],
+    "tags": [
+      "AI",
+      "LLM",
+      "架构"
+    ],
     "views": 112
   },
   {
@@ -62,7 +91,12 @@
     "title": "OpenHands：自托管 AI Agent 控制中心",
     "description": "不是帮你写代码的，是帮你管一群帮你写代码的 AI 的——多 Agent 并行调度平台，自托管部署全记录。",
     "date": "2026-07-10",
-    "tags": [],
+    "tags": [
+      "AI Agent",
+      "OpenHands",
+      "自托管",
+      "多 Agent"
+    ],
     "views": 142
   },
   {
@@ -70,7 +104,11 @@
     "title": "Tailwind CSS 4 正式版使用体验",
     "description": "Tailwind CSS 4 带来了全新的 CSS-first 配置范式。从 v3 升级到 v4，除了惊喜也有一些需要适应的变化。",
     "date": "2026-07-08",
-    "tags": [],
+    "tags": [
+      "Tailwind CSS",
+      "CSS",
+      "前端"
+    ],
     "views": 108
   },
   {
@@ -78,7 +116,13 @@
     "title": "LLM 路由器 / AI 网关方案对比",
     "description": "按请求内容自动分发到最合适模型：文本→便宜模型，图片→视觉模型，推理→强模型。5 款开源方案横评。",
     "date": "2026-07-06",
-    "tags": [],
+    "tags": [
+      "LLM",
+      "路由",
+      "网关",
+      "开源",
+      "架构"
+    ],
     "views": 127
   },
   {
@@ -86,7 +130,12 @@
     "title": "Prompt Caching 原理：让 LLM 推理快 30-50%",
     "description": "第一次请求存 KV Cache，后续相同前缀跳过 prefill 阶段直接生成——省时省钱的核心优化技术。",
     "date": "2026-07-02",
-    "tags": [],
+    "tags": [
+      "LLM",
+      "性能优化",
+      "API",
+      "Prompt Caching"
+    ],
     "views": 98
   },
   {
@@ -94,7 +143,12 @@
     "title": "LLM Wiki：让 AI 维护会生长的知识库",
     "description": "Karpathy 提出的模式——不是每次检索，而是 AI 帮你读完全部写成精华笔记，标好交叉引用，知识越滚越厚。",
     "date": "2026-06-28",
-    "tags": [],
+    "tags": [
+      "知识管理",
+      "LLM",
+      "Wiki",
+      "RAG"
+    ],
     "views": 85
   },
   {
@@ -102,7 +156,25 @@
     "title": "AI 全栈学习路线（大三→大四）",
     "description": "从项目经验、技能树到求职方向，一份 AI 全栈工程师的成长规划。适合正在找方向的 CS 学生参考。",
     "date": "2026-06-20",
-    "tags": [],
+    "tags": [
+      "求职",
+      "学习",
+      "AI 全栈",
+      "成长"
+    ],
     "views": 312
+  },
+  {
+    "title": "测试新建功能",
+    "slug": "测试新建功能",
+    "description": "",
+    "date": "2026-07-27",
+    "tags": [
+      "测试",
+      "后台"
+    ],
+    "cover": "",
+    "pinned": false,
+    "views": 0
   }
 ]

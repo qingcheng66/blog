@@ -1,4 +1,5 @@
 import type { Viewport } from "next"
+import { headers } from "next/headers"
 import { ThemeProvider } from "@/components/theme-provider"
 import { SearchModal } from "@/components/search-modal"
 import { ScrollToTop } from "@/components/scroll-to-top"
@@ -21,7 +22,10 @@ export const metadata = {
   description: site.description,
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const heads = await headers()
+  const isAdmin = heads.get("x-is-admin") === "1"
+
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
@@ -44,13 +48,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen flex flex-col font-sans antialiased">
         <ThemeProvider>
-          <SearchModal />
-{/* <WeatherSceneLoader /> */}
-          <ScrollToTop />
-          <GlassHeader />
+          {!isAdmin && <SearchModal />}
+          {/* <WeatherSceneLoader /> */}
+          {!isAdmin && <ScrollToTop />}
+          {!isAdmin && <GlassHeader />}
           <main className="flex-1">{children}</main>
-          <Footer />
-          <MusicPlayer />
+          {!isAdmin && <Footer />}
+          {!isAdmin && <MusicPlayer />}
         </ThemeProvider>
       </body>
     </html>

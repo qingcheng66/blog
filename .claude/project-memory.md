@@ -37,9 +37,9 @@
 **影响：** `use-accent-hue.ts` 新增 `saturation`/`lightness` 状态 + `SAT_KEY`/`LIT_KEY` localStorage key + setter 函数。`applyAccent()` 签名扩展为 `(hex, bgSat, bgLit)`，背景三变量使用动态值而非硬编码常量。`globals.css` 新增 `input[type="range"]` 自定义样式（thumb 跟随 accent 色发光）。
 
 ### AD-009: 移除亮/暗模式切换，项目仅暗色模式 (2026-07-22)
-**决策：** 从 `glass-header.tsx` 移除主题切换按钮（桌面端 Sun/Moon + 移动端文字按钮），从 `use-accent-hue.ts` 移除 `useTheme` 依赖和 `isLight` 亮色分支逻辑。`globals.css` 中 `html.light` 块保留但不被激活。
-**原因：** 用户明确"把日间模式和夜间模式删除吧"。此前亮色模式存在核心 bug——`applyAccent()` 通过 `root.style.setProperty` 写内联样式，优先级高于 `html.light` CSS 规则，导致背景色无法跟随主题切换。修复后用户仍不满意亮色效果，决定只保留暗色模式。
-**影响：** `use-accent-hue.ts` 不再导入 `useTheme`，`applyAccent` 恢复为单一暗色公式。`glass-header.tsx` 移除 `useTheme`/`Sun`/`Moon`/`LIGHT_L_OFFSET` 导入和 `isDark`/`effectiveBrightness`/`setTheme` 变量。Header 导航栏更简洁。
+**决策：** 从 `glass-header.tsx` 移除主题切换按钮，从 `use-accent-hue.ts` 移除 `useTheme` 依赖和 `isLight` 亮色分支逻辑。`globals.css` 中 `html.light` 块保留但不被激活。
+**原因：** 用户明确"把日间模式和夜间模式删除吧"。此前亮色模式存在核心 bug——`applyAccent()` 通过 `root.style.setProperty` 写内联样式，优先级高于 `html.light` CSS 规则，导致背景色无法跟随主题切换。
+**影响：** `use-accent-hue.ts` 不再导入 `useTheme`，`applyAccent` 恢复为单一暗色公式。Header 导航栏更简洁。
 
 ### AD-010: 关于页联系方式更新 + 简历下载 (2026-07-22)
 **决策：** 删除 Twitter 链接，替换为微信号 `xh084623224`（MessageSquare 图标，非链接）。Contact 卡片底部新增 accent 色 outline button，链接 `/resume.pdf`（download 属性）。
@@ -50,14 +50,13 @@
 **废弃原因：** warm paper 主题切换后，StarField 白色粒子在暖白底上不可见，bg.gif 暗色蒙层与纸色背景冲突。两者均从 layout.tsx 移除。
 
 ### AD-012: 音乐播放器组件 (2026-07-22)
-**决策：** 新建 `src/components/music-player.tsx`，注册到 `layout.tsx`。右下角浮动圆按钮（玻璃拟态 + 播放时 3s 旋转动画）+ 展开面板（播放/暂停 + 垂直音量 slider）。音频源 `/music/bg.mp3`，loop 循环。
+**决策：** 新建 `src/components/music-player.tsx`，注册到 `layout.tsx`。右下角浮动圆按钮（玻璃拟态 + 播放时旋转动画）+ 展开面板（播放/暂停 + Web Audio 频谱 + 圆形旋钮 + 进度条）。音频源 `/music/bg.mp3`，loop 循环。
 **原因：** 用户要求背景音乐功能。
 **影响：**
 - 首次播放由用户点击触发（浏览器 autoplay 限制），之后可自由控制
 - 音量 localStorage key: `serenity-music-volume`，默认 0.5
-- 未交互时按钮 opacity 0.45，hover 后 1.0
+- 未交互时按钮 opacity 0.45 → 0.7（Task 3 优化）
 - 点击面板外自动关闭（pointerdown 监听）
-- 垂直音量 slider，后由 Task 3 替换为圆形旋钮 + Web Audio 频谱
 
 ### AD-013: 全站暖纸色主题 — 暗色→暖白纸翻面 (2026-07-25)
 **决策：** 删除 StarField + bg.gif 暗色背景层，删除 `html.light` CSS 块（不再保留亮暗切换），将 `:root` 设计 Token 从暗色翻到暖纸色，`use-accent-hue` 默认值和 slider 范围全部翻到纸色区间。
@@ -69,33 +68,6 @@
 - **8 个组件** — 硬编码 `rgba(0,0,0,0.4)` 阴影→`0.06-0.1`；`rgba(255,255,255,...)`→CSS 变量 `rgba(var(--color-accent-rgb),...)`；hero 头像边框调亮
 - **附带修复** — `migrate.ts` 类型错误；`about/page.tsx` 移除对不存在的 `getAbout()` 依赖；`admin/gallery/manager.tsx` GalleryItem 缺 id 字段
 
-### AD-015: 个人元素替换 — 去占位化 (2026-07-25)
-**决策：** 将逆向实验场中的占位/通用元素替换为用户真实个人品牌信息。
-**原因：** 头像原用字母"S"（Serenity 首字母），Welcome 副标题是设计系统术语，Footer 是内部代号"Serenity Theme Lab"——这些都对访客无意义。
-**具体改动：**
-- **hero-section.tsx** — 头像字母 `S` → `L`（用户姓"刘"的首字母）
-- **welcome-splash.tsx** — 副标题 `"动态色相 · 玻璃拟态 · 粒子背景"` → `"AI 全栈 · 构建与写作"`（粒子背景已在 Task 6 移除，旧文案事实性错误）
-- **footer.tsx** — `"Powered by Next.js · Serenity Theme Lab"` → `"${site.name} · 用代码让想法成真"`
-
-### AD-016: 死代码清理 + JSON 数据修复 (2026-07-25)
-**决策：** 删除 AD-014 数据迁移后遗留的死代码文件，修复 JSON 数据中的缺失/占位值。
-**原因：** `src/data/articles.ts`（99 行）和 `src/data/projects.ts`（42 行）在 AD-014 后已无任何组件引用，保留造成混淆。`src/contents/blog/` 中 13 个 MDX 原始文件的 frontmatter 已全部迁移到 `content/articles/*.md`，原始 MDX 无存在必要。
-**具体改动：**
-- **删除** `src/data/articles.ts` — 0 imports, 0 references after AD-014
-- **删除** `src/data/projects.ts` — 0 imports, 0 references after AD-014
-- **删除** `src/contents/blog/` — 13 个 .mdx 文件，数据已迁移到 `content/articles/`
-- **articles.json** — 补上真实 views 值（85-312 范围，热门文章偏高）；`claude-hermes-workflow` 和 `docker-nextjs-deploy` 设 `pinned: true`
-- **projects.json** — 刷题无忧 `id: ""` → `"shuati"`
-
-### AD-017: 首页内容引导 + 空状态优化 (2026-07-25)
-**决策：** 首页 Hero 下方添加导航卡片引导访客探索内容，关于页 bio 与首页 tagline 差异化，相册空状态用温暖文案。
-**原因：** 首页只有 Hero 大型展示，访客无法直观知道"下一步该看什么"。NavCards 提供 4 条内容路径的入口。关于页 bio 详细版 vs 首页短版 tagline 各有分工。相册"还没有照片"太生硬。
-**具体改动：**
-- **新建 `src/components/nav-cards.tsx`** — 4 张导航卡片（文章/项目/碎碎念/关于），GSAP stagger 入场动画，玻璃拟态 hover 效果（translateY(-3px) + accent 边框发光），"前往→"引导箭头
-- **`src/app/page.tsx`** — 导入 NavCards，放在 HeroSection 下方
-- **`content/about.json`** — bio 从 1 句短 tagline 扩展为详细个人介绍（大三→项目经历→LLM 专注→博客定位→坐标苏州）
-- **`src/app/gallery/gallery-grid.tsx`** — 空状态：`Image` 图标 → `Camera`，单行冷文字 → 两行温暖引导（"相册还是空的" + "记录下生活中的美好瞬间吧"），accent 色圆形图标容器
-
 ### AD-014: 管理后台 — JSON 文件存储 + Route Group 隔离 (2026-07-25)
 **决策：** 在博客中新增 `/admin` 管理后台，数据存为 JSON 文件（Docker volume 挂载的 `content/` 目录），不依赖数据库。
 
@@ -105,7 +77,7 @@
 - **API 层** 13 个端点 — login/logout + articles CRUD(5) + projects CRUD(4) + thoughts CRUD(4) + gallery CRUD(4) + about GET/PUT + upload
 - **后台 UI** 7 个页面 — 登录页(独立 layout) + 仪表盘(统计卡片) + 文章管理(列表/新建/编辑+markdown textarea) + 项目管理(内联表单) + 碎碎念管理 + 相册管理(文件上传) + 关于管理(表单)
 - **Route Group 隔离** — 登录页 `app/admin/login/` 独立在 layout 外；受保护页面全部放在 `app/(admin)/admin/` route group 下，统一受 `(admin)/admin/layout.tsx` sidebar + 鉴权保护。middleware.ts 拦截 `/admin/*` + `/api/admin/*`，未登录页面跳 login、API 返回 401
-- **SSR 动态读取** — 5 个前端页面改为 async server component，从 `content/` 读取数据后通过 props 传给客户端组件渲染。`data/articles.ts` 和 `data/projects.ts` 保留但不再被前端页面引用
+- **SSR 动态读取** — 5 个前端页面改为 async server component，从 `content/` 读取数据后通过 props 传给客户端组件渲染
 - **文章详情页** `app/blog/[slug]/page.tsx` — 使用 `react-markdown` + `remark-gfm` + `rehype-highlight` 渲染 markdown 正文，`generateStaticParams` 预生成全部文章路由
 - **数据迁移** `scripts/migrate.ts` — 一次性脚本：MDX frontmatter → `content/articles.json` + `content/articles/{slug}.md`；硬编码数据 → `content/{projects,thoughts,about,gallery}.json`。已执行，生成 13 篇文章 + 4 个项目 + 12 条动态
 
@@ -118,19 +90,59 @@
 - `.env.local` 本地已配置 `ADMIN_PASSWORD=1120835055`
 - Next.js 16 提示 middleware convention 已废弃建议改 proxy，当前仍可用
 
+### AD-015: 个人元素替换 — 去占位化 (2026-07-25)
+**决策：** 将逆向实验场中的占位/通用元素替换为用户真实个人品牌信息。
+**原因：** 头像原用字母"S"（Serenity 首字母），Welcome 副标题是设计系统术语，Footer 是内部代号"Serenity Theme Lab"——这些都对访客无意义。
+**具体改动：**
+- **hero-section.tsx** — 头像字母 `S` → `L`（用户姓"刘"的首字母）
+- **welcome-splash.tsx** — 副标题 `"动态色相 · 玻璃拟态 · 粒子背景"` → `"AI 全栈 · 构建与写作"`
+- **footer.tsx** — `"Powered by Next.js · Serenity Theme Lab"` → `"${site.name} · 用代码让想法成真"`
+
+### AD-016: 死代码清理 + JSON 数据修复 (2026-07-25)
+**决策：** 删除 AD-014 数据迁移后遗留的死代码文件，修复 JSON 数据中的缺失/占位值。
+**原因：** `src/data/articles.ts` 和 `src/data/projects.ts` 在 AD-014 后已无任何组件引用，`src/contents/blog/` 中 13 个 MDX 原始文件也已迁移完毕。
+**具体改动：**
+- **删除** `src/data/articles.ts` — 0 imports, 0 references
+- **删除** `src/data/projects.ts` — 0 imports, 0 references
+- **删除** `src/contents/blog/` — 13 个 .mdx 文件，数据已迁移到 `content/articles/`
+- **articles.json** — 补上真实 views 值（85-312 范围，热门文章偏高）；`claude-hermes-workflow` 和 `docker-nextjs-deploy` 设 `pinned: true`
+- **projects.json** — 刷题无忧 `id: ""` → `"shuati"`
+
+### AD-017: 首页内容引导 + 空状态优化 (2026-07-25)
+**决策：** 首页 Hero 下方添加导航卡片引导访客探索内容，关于页 bio 与首页 tagline 差异化，相册空状态用温暖文案。
+**原因：** 首页只有 Hero 大型展示，访客无法直观知道"下一步该看什么"。
+**具体改动：**
+- **新建 `src/components/nav-cards.tsx`** — 4 张导航卡片（文章/项目/碎碎念/关于），GSAP stagger 入场动画，玻璃拟态 hover 效果（translateY(-3px) + accent 边框发光），"前往→"引导箭头
+- **`src/app/page.tsx`** — 导入 NavCards，放在 HeroSection 下方
+- **`content/about.json`** — bio 从 1 句短 tagline 扩展为详细个人介绍
+- **`src/app/gallery/gallery-grid.tsx`** — 空状态从 `Image` 图标改为 `Camera`，单行冷文字 → 两行温暖引导文案
+
+### AD-018: 管理后台布局隔离 — middleware 注入 x-is-admin header (2026-07-26)
+**决策：** 根布局 `app/layout.tsx` 通过 `headers()` 读取 middleware 注入的 `x-is-admin` header，当值为 `"1"` 时不渲染博客外壳组件（GlassHeader / Footer / MusicPlayer / ScrollToTop / SearchModal）。
+**原因：** GlassHeader（z-50 fixed）覆盖在后台 sidebar（z-40）上面，导致后台顶部 ~64px 区域不可交互。此前根布局对所有页面无差别渲染博客外壳，后台页面无法去掉外层元素。
+**影响：**
+- **middleware.ts** — 所有 `/admin/*` 路径（含 login 和 API）注入 `x-is-admin: "1"` request header
+- **layout.tsx** — 改为 async 函数，读取 header 后条件渲染 5 个博客外壳组件
+- 后台页面获得干净布局，登录页也正确去掉博客外壳
+
+### AD-019: 后台 sidebar 导航改用 `<Link>` 避免整页刷新 (2026-07-26)
+**决策：** `app/(admin)/admin/layout.tsx` 中 sidebar 的 6 个导航链接 + "返回博客"链接从 `<a href>` 改为 `<Link href>`（next/link）。
+**原因：** `<a>` 每次点击触发浏览器整页刷新而非 Next.js 客户端路由切换，慢 + 闪烁。
+**影响：** 只改 sidebar 内的导航链接和"返回博客"链接，不涉及其他文件。
+
 ## 踩坑记录
 
 ### PIT-001: lucide-react 没有 Github 图标 (2026-07-21)
 lucide-react 不导出 `Github` 组件（错误提示 "Did you mean to import Gift?"）。使用 `Globe` 替代。同样没有 `Twitter`（用 `MessageCircle` 替代）。
 
-### PIT-002: 卡片玻璃背景太透 (2026-07-21)
-`--glass-bg: rgba(0,0,0,0.25)` 在深色背景上几乎看不见。卡片类组件（projects/articles/gallery/about）必须用 `--glass-bg-strong: rgba(0,0,0,0.4)`。
+### PIT-002: 卡片玻璃背景透明度与主题适配 (2026-07-21)
+~~`--glass-bg: rgba(0,0,0,0.25)` 在深色背景上几乎看不见。卡片类组件必须用 `--glass-bg-strong: rgba(0,0,0,0.4)`。~~ 2026-07-25 AD-013 暖纸色翻面后，玻璃底改为 `rgba(255,255,255,0.6)` 和 `rgba(255,255,255,0.75)`，亮色背景 + 白色半透卡片叠加后有清晰的 blur 层次感。
 
 ### PIT-003: GSAP from stagger 造成透明度不一致 (2026-07-21)
 `gsap.from({ opacity: 0, stagger })` 让卡片加载瞬间有不同透明度。修复：去掉 opacity 动画，只保留 y 位移的 stagger 效果。有 ScrollTrigger 的 stagger 不受影响。
 
 ### PIT-004: 首页「向下滚动」指示器多余 (2026-07-21)
-多页面路由下首页只有 Hero，没有下方内容可滚动。已从 hero-section.tsx 移除 ScrollIndicator（函数定义 + 调用 + ChevronDown 导入）。
+多页面路由下首页只有 Hero，没有下方内容可滚动。已从 hero-section.tsx 移除 ScrollIndicator。AD-017 后首页有 NavCards，但指示器仍不需要。
 
 ### PIT-005: wttr.in 在国内连接不稳定 → 已切换 QWeather (2026-07-22)
 浏览器控制台报 `net::ERR_CONNECTION_CLOSED`。已切换为和风天气 API（见 AD-005），固定城市苏州，失败时 fallback 到 `☀️ --°C` 占位。
@@ -139,31 +151,22 @@ lucide-react 不导出 `Github` 组件（错误提示 "Did you mean to import Gi
 `AccentSwitcher` 从始终展开改为默认折叠。随后 AD-007 将色块迁移到 Header 导航栏，`accent-switcher.tsx` 已删除。
 
 ### PIT-007: 搜索 Modal 的 Mock 数据是 wangxinyang 的文案 ✅ 已修复 (2026-07-22)
-`search-modal.tsx` 中 `MOCK_RESULTS` 包含 "初尝腾讯WorkBuddy"、"PPT Master 使用教程" 等逆向目标的文章标题。已替换为用户真实文章数据。
+`search-modal.tsx` 中 `MOCK_RESULTS` 包含逆向目标的文章标题。已替换为用户真实文章数据。
 
 ### PIT-008: 页脚假数据 ✅ 已修复 (2026-07-22)
-Footer 包含假的 ICP 备案号（蜀ICP备XXXXXXXX号）、假的在线人数（3 人在线）、运行天数计数器。全部移除，只保留 Copyright + 技术栈标注。
+Footer 包含假的 ICP 备案号、假的在线人数、运行天数计数器。全部移除，只保留 Copyright + 技术栈标注。
 
 ### PIT-009: Tailwind `hover:` 类名未包 `@media (hover: hover)` ✅ 已修复 (2026-07-22)
-`globals.css` 第 4 行已定义 `@custom-variant hover-media (@media (hover: hover))`，`skill-cloud.tsx` 也在用，但其他 9 个组件的 12 处 Tailwind `hover:` 工具类（如 `hover:scale-110`、`hover:bg-white/5`）未改用 `hover-media:hover:` 变体。`group-hover:` 由于都在 `md:` 断点以上（桌面端独有），影响极小，暂未修改。
-另外 `compass-nav.tsx` 的 `<style>` 标签中 `.compass-card:hover` 也未包 `@media (hover: hover)`，一并修复。
-**影响：** 触屏设备上按钮/链接 hover 状态会"粘住"（sticky hover），需要再点一次才能消除。
-**修复：** 将以下文件中的 Tailwind `hover:` → `hover-media:hover:`：
-- `accent-switcher.tsx` (3 处)、`search-modal.tsx` (2 处)、`glass-header.tsx` (2 处)
-- `article-feed.tsx` (2 处)、`scroll-to-top.tsx` (1 处)、`welcome-splash.tsx` (1 处)
-- `lightbox.tsx` (1 处)、`code-block.tsx` (1 处)、`table-of-contents.tsx` (1 处)
-- `compass-nav.tsx` (CSS `:hover` 包 `@media (hover: hover)`)
+9 个组件 12 处 `hover:` 工具类在触屏设备上会"粘住"。已全部改为 `hover-media:hover:` 变体，同时 `compass-nav.tsx` 的 CSS `:hover` 也包裹了 `@media (hover: hover)`。
 
 ### PIT-010: layout.tsx `className="dark"` 写死主题 ✅ 已修复 (2026-07-22)
-`layout.tsx:25` `<html className="dark">` 硬编码暗色模式，导致 GlassHeader 中 Sun/Moon 按钮点击后 `use-theme.tsx` 的 `applyTheme()` 调用 `classList.remove("light", "dark")` 再 `classList.add("light")` 无效——因为服务端始终输出 `class="dark"`。同时 `use-theme.tsx` 默认 `defaultTheme="system"`，客户端 hydration 后按系统偏好恢复。
-**修复：**
-1. 去掉 `<html>` 上硬编码的 `className="dark"`
-2. 在 `<head>` 中注入同步 inline `<script>`，在首次渲染前读 `localStorage('theme')` 设置正确 class：
-   - `'light'` → `classList.add('light')`
-   - `'dark'` → `classList.add('dark')`
-   - 无存储 + 系统暗色 → `classList.add('dark')`
-   - 无存储 + 系统亮色 → 不加 class（CSS `:root` 默认即为暗色 token，视觉效果保持暗色）
+`<html className="dark">` 硬编码导致 theme toggle 无效——服务端始终输出 `class="dark"`。修复：去掉硬编码，在 `<head>` 注入 inline `<script>` 在首次渲染前读 localStorage 设置 class。
 
+### PIT-011: Admin layout 鉴权导致登录页死循环 ✅ 已修复 (2026-07-25)
+`app/admin/layout.tsx` 的 server-side 鉴权对所有 `/admin/*` 生效，包括 `/admin/login`——无 cookie → `redirect("/admin/login")` → 死循环。修复：用 Next.js route group 隔离，登录页保留在 `app/admin/login/`（无 layout），受保护页面移入 `app/(admin)/admin/` route group。
+
+### PIT-012: 后台 GlassHeader 遮挡操作区 ✅ 已修复 (2026-07-26)
+根布局对所有页面无差别渲染 GlassHeader（z-50），覆盖在后台 sidebar（z-40）上面，导致后台顶部 ~64px 不可交互。Footer / MusicPlayer / ScrollToTop 也从根布局漏进后台。修复：middleware 注入 `x-is-admin` header → layout.tsx 条件渲染（见 AD-018）。
 
 ## H5/移动端适配 (2026-07-22)
 
@@ -173,10 +176,10 @@ Footer 包含假的 ICP 备案号（蜀ICP备XXXXXXXX号）、假的在线人数
 |------|------|
 | Header 缺 `safe-area-inset-top` | `height: calc(var(--header-height) + env(safe-area-inset-top))` + `paddingTop` |
 | Footer/Body 缺 `safe-area-inset-bottom` | Footer: `paddingBottom: calc(2rem + env(safe-area-inset-bottom))` |
-| 所有 hover 效果未包 `@media (hover: hover)` | `<style>` 标签中 `.xxx:hover` 包裹 `@media (hover: hover)`（5 组件）；Tailwind `hover:` 工具类改为 `hover-media:hover:`（10 组件，见 PIT-009） |
-| 触屏内联 hover 处理器 | hero-section.tsx SocialLinks 添加 `useTouchDevice` 守卫，触屏跳过 onMouseEnter/Leave |
-| StarField 移动端粒子数过高 | `<768px` 粒子数上限 120→40，密度公式从 /8000 改为 /15000 |
-| 触摸目标 <44px | 搜索按钮和主题切换 `min-w-[44px] min-h-[44px]`，社交图标 p-2.5→p-3 + icon 18→20px |
+| 所有 hover 效果未包 `@media (hover: hover)` | Tailwind `hover:` → `hover-media:hover:`（10 组件，见 PIT-009）|
+| 触屏内联 hover 处理器 | hero-section.tsx SocialLinks 添加 `useTouchDevice` 守卫 |
+| StarField 移动端粒子数过高 | `<768px` 粒子数上限 120→40，密度公式 /8000→/15000 |
+| 触摸目标 <44px | 搜索按钮和主题切换 `min-w-[44px] min-h-[44px]`，社交图标加大 |
 
 ### 已就绪（无需改动）
 - `viewport-fit=cover` + `themeColor` 在 layout.tsx 已设
@@ -191,18 +194,18 @@ Footer 包含假的 ICP 备案号（蜀ICP备XXXXXXXX号）、假的在线人数
 ```
 ├── src/
 │   ├── app/
-│   │   ├── layout.tsx           # 根布局：SearchModal + GlassHeader + Footer + MusicPlayer + WeatherScene
+│   │   ├── layout.tsx           # 根布局：条件渲染（非 admin 路径才渲染博客外壳）
 │   │   ├── page.tsx             # 首页：WelcomeSplash + HeroSection + NavCards
 │   │   ├── globals.css          # 暖纸色 CSS 变量 + 玻璃拟态 + 自定义 range 滑块 + 滚动条
-│   │   ├── articles/page.tsx    # 文章列表页 → ArticleFeed (SSR 动态读 content/articles.json)
-│   │   ├── projects/page.tsx    # 项目卡片网格 → ProjectsGrid (SSR 动态读 content/projects.json)
-│   │   ├── thoughts/page.tsx    # 碎碎念时间线 → StreamTimeline (SSR 动态读 content/thoughts.json)
-│   │   ├── gallery/page.tsx     # 相册网格 → GalleryGrid (SSR 动态读 content/gallery.json)
-│   │   ├── about/page.tsx       # 关于页 → AboutSection (SSR 动态读 content/about.json)
+│   │   ├── articles/page.tsx    # 文章列表页 → ArticleFeed (SSR 读 content/articles.json)
+│   │   ├── projects/page.tsx    # 项目卡片网格 → ProjectsGrid (SSR 读 content/projects.json)
+│   │   ├── thoughts/page.tsx    # 碎碎念时间线 → StreamTimeline (SSR 读 content/thoughts.json)
+│   │   ├── gallery/page.tsx     # 相册网格 → GalleryGrid (SSR 读 content/gallery.json)
+│   │   ├── about/page.tsx       # 关于页 → AboutSection (SSR 读 content/about.json)
 │   │   ├── blog/[slug]/page.tsx # 文章详情页 (react-markdown + remark-gfm + rehype-highlight)
 │   │   ├── admin/login/page.tsx # 管理后台登录页（独立，不受 admin layout 影响）
-│   │   └── (admin)/admin/       # Route Group — 受保护的管理后台页面
-│   │       ├── layout.tsx       # 后台布局：sidebar 导航 + 鉴权检查
+│   │   └── (admin)/admin/       # Route Group — 受保护的后台页面（x-is-admin 隐藏博客外壳）
+│   │       ├── layout.tsx       # 后台布局：sidebar 导航（<Link> 客户端路由）+ 鉴权检查
 │   │       ├── page.tsx         # 仪表盘：统计卡片 + 快捷操作
 │   │       ├── articles/        # 文章管理：列表 + /new 新建 + /[slug] 编辑 (markdown textarea)
 │   │       ├── projects/        # 项目管理：列表 + 内联新建/编辑表单
@@ -211,23 +214,24 @@ Footer 包含假的 ICP 备案号（蜀ICP备XXXXXXXX号）、假的在线人数
 │   │       └── about/           # 关于页管理：个人信息表单
 │   ├── api/admin/               # 13 个 API 端点 (login/logout + 5 类 CRUD + upload)
 │   ├── components/
-│   │   ├── glass-header.tsx     # 玻璃导航栏 + safe-area + 6 暖色圆点 + 背景 sat/lit slider + 搜索按钮
+│   │   ├── glass-header.tsx     # 玻璃导航栏 + safe-area + 6 暖色圆点 + 背景 sat/lit slider
 │   │   ├── hero-section.tsx     # Hero 区：头像发光环"L" + QWeather 天气时钟 + 渐变签名 + 社交图标
 │   │   ├── welcome-splash.tsx   # Welcome 开场动画（副标题"AI 全栈 · 构建与写作"）
 │   │   ├── nav-cards.tsx        # 首页导航卡片：文章/项目/碎碎念/关于（GSAP stagger + 玻璃 hover）
 │   │   ├── article-feed.tsx     # 文章列表（接收 articles props，链接到 /blog/[slug]）
 │   │   ├── article-editor.tsx   # 文章编辑器（标题/slug/描述/日期/标签 + markdown textarea）
 │   │   ├── stream-timeline.tsx  # 站点动态时间线（接收 items props）
-│   │   ├── search-modal.tsx     # 全局搜索弹窗（Cmd+K）
-│   │   ├── music-player.tsx     # 浮动播放器：Web Audio 频谱 + 圆形旋钮 + 进度条
+│   │   ├── search-modal.tsx     # 全局搜索弹窗（Cmd+K，仅非 admin 路径渲染）
+│   │   ├── music-player.tsx     # 浮动播放器：Web Audio 频谱 + 圆形旋钮 + 进度条（仅非 admin 路径渲染）
 │   │   ├── weather-scene.tsx    # Three.js 天气驱动 3D 粒子背景
-│   │   ├── footer.tsx           # 极简页脚：${site.name} · 用代码让想法成真
+│   │   ├── footer.tsx           # 极简页脚（仅非 admin 路径渲染）
+│   │   ├── scroll-to-top.tsx    # 回到顶部浮动按钮（仅非 admin 路径渲染）
 │   │   ├── admin-delete-button.tsx  # 通用删除确认按钮
 │   │   ├── admin-logout-button.tsx  # 退出登录按钮（client component）
 │   │   └── ...                  # 复用组件（magnetic-wrapper, lightbox, split-text, star-field 等）
 │   ├── hooks/
 │   │   ├── use-accent-hue.ts    # 动态色相引擎（v2 纸色范围，localStorage 持久化，6 暖色预设）
-│   │   ├── use-theme.tsx        # 主题切换（已不激活）
+│   │   ├── use-theme.tsx        # 主题切换（已不激活，AD-009 后仅暗色，AD-013 后彻底弃用）
 │   │   ├── use-reduced-motion.ts / use-touch-device.ts / use-weather.ts / use-time-of-day.ts
 │   ├── data/
 │   │   └── site.ts              # 站点元数据（刘 / 苏州 / QWeather API / 社交链接）
@@ -239,16 +243,35 @@ Footer 包含假的 ICP 备案号（蜀ICP备XXXXXXXX号）、假的在线人数
 ├── content/                     # 数据存储目录（Docker volume 挂载）
 │   ├── articles.json            # 13 篇文章元数据（含 views 和 pinned 字段）
 │   ├── articles/*.md            # 文章正文
-│   ├── projects.json            # 4 个项目（含修复后的 shuati id）
+│   ├── projects.json            # 4 个项目
 │   ├── thoughts.json            # 12 条碎碎念
 │   ├── gallery.json             # 相册（空数组，含温暖空状态文案）
 │   ├── about.json               # 关于页信息（详细版 bio）
 │   └── uploads/                 # 上传的图片
-├── middleware.ts                # /admin/* 路由保护 + /api/admin/* 鉴权
+├── middleware.ts                # /admin/* + /api/admin/* 鉴权 + x-is-admin header 注入
 ├── scripts/migrate.ts           # 一次性数据迁移脚本（已执行）
 ├── docker-compose.yml           # ADMIN_PASSWORD env + content volume 挂载
-└── .env.local                   # 本地开发 ADMIN_PASSWORD
+└── .env.local                   # 本地开发 ADMIN_PASSWORD=1120835055
 ```
+
+## 部署
+
+### 服务器信息
+- IP: 110.42.249.198
+- 用户: ubuntu（密码登录已禁用，仅 SSH 密钥）
+- 代码位置: `/www/wwwroot/blog/`
+- git remote: `git@github.com:qingcheng66/blog.git`（SSH 协议）
+
+### 部署命令
+```bash
+git push
+ssh -i ~/Downloads/admin.pem ubuntu@110.42.249.198 \
+  "cd /www/wwwroot/blog && sudo git pull && sudo docker compose up -d --build app"
+```
+
+### 本地凭据
+- 管理后台: 账号 admin / 密码 1120835055（`.env.local` 中 `ADMIN_PASSWORD`）
+- SSH 密钥: `~/Downloads/admin.pem`
 
 ## 移植清单（到主博客 blog.084623224.xyz）
 
@@ -261,11 +284,7 @@ Footer 包含假的 ICP 备案号（蜀ICP备XXXXXXXX号）、假的在线人数
 | welcome-splash.tsx | 新增 | 主博客目前没有 |
 | search-modal.tsx | 新增 | 全局搜索（Cmd+K） |
 | footer.tsx | 替换 | 极简页脚（Copyright + Powered by） |
-| accent-switcher.tsx | 不移植 | 已删除，色块已集成到 glass-header.tsx 中 |
-
-### PIT-011: Admin layout 鉴权导致登录页死循环 ✅ 已修复 (2026-07-25)
-`app/admin/layout.tsx` 的 server-side 鉴权检查对所有 `/admin/*` 路由生效，包括 `/admin/login` 本身——访问登录页时无 cookie → `redirect("/admin/login")` → 再次进入同一页面 → 死循环。**修复：** 用 Next.js route group 隔离。登录页保留在 `app/admin/login/`（无 layout），受保护页面移入 `app/(admin)/admin/` route group，layout 鉴权只影响 group 内的页面。
 
 ---
 *初始创建：2026-07-20*
-*最新更新：2026-07-26 — Task 7/8/9 + AD-015/016/017*
+*最新更新：2026-07-26 — AD-018/019 + PIT-012 + 文件地图整理*

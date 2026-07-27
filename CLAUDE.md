@@ -382,3 +382,37 @@ ssh -i ~/Downloads/admin.pem ubuntu@110.42.249.198 \
 7. `npm run build` 必须通过
 
 **不改的：** 组件结构、页面布局、路由、Three.js WeatherScene、npm 依赖。
+
+---
+
+## 2026-07-26 开发任务
+
+> Hermes 分析 + 实测 → 用户确认 → Claude Code 执行
+
+### Task 1 [P0] 修复管理后台布局 — 博客 Header 遮挡操作区
+
+**问题（Hermes 实测确认）：** `GlassHeader`（z-50 fixed）覆盖在后台 sidebar（z-40）上面，导致：
+- 文章列表页「新建文章」按钮被 header 挡住，点不了
+- sidebar 顶部 "Admin · Lab" 被覆盖
+- 后台所有页面顶部 ~64px 区域不可交互
+- Footer / MusicPlayer / ScrollToTop 也从根布局漏进后台页面
+
+**根因：** 根布局 `app/layout.tsx` 对所有页面无差别渲染 GlassHeader + Footer + MusicPlayer + ScrollToTop。后台页面 `(admin)/admin/` 虽然有自己的 layout（sidebar），但嵌套在根布局内部，无法去掉外层元素。
+
+**目标：**
+1. `app/layout.tsx` 中根据路径条件隐藏博客外壳：当路径以 `/admin` 开头时不渲染 GlassHeader / Footer / MusicPlayer / ScrollToTop
+2. 判断路径的方式：用 `middleware.ts` 在请求头注入 `x-is-admin` header，layout 读取这个 header 做条件判断（不用 `usePathname()` 客户端判断，避免 hydration 闪烁）
+
+**边界：**
+- 不改变 GlassHeader / Footer / MusicPlayer / ScrollToTop 组件本身
+- 不修改 `(admin)/admin/layout.tsx`
+- 登录页 `/admin/login` 也应当去掉博客外壳（它不在 route group 里）
+- `npm run build` 必须通过
+
+### Task 2 [P1] 修复后台 sidebar 导航用 `<a>` 导致整页刷新
+
+**问题：** `app/(admin)/admin/layout.tsx` 中 sidebar 导航链接用的是普通 `<a href>`，每次点击触发浏览器整页刷新而非 Next.js 客户端路由切换。慢 + 闪烁。
+
+**目标：** 把所有 `<a href>` 改成 `<Link href>`（从 `next/link` 导入）。
+
+**边界：** 只改 sidebar 内的导航链接和「返回博客」链接，不碰其他文件。

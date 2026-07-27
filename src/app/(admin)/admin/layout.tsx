@@ -63,7 +63,7 @@ export default async function AdminLayout({
           {SIDEBAR_LINKS.map(({ href, label, icon: Icon }) => {
             // Active detection handled client-side
             return (
-              <a
+              <Link
                 key={href}
                 href={href}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
@@ -71,21 +71,21 @@ export default async function AdminLayout({
               >
                 <Icon size={17} />
                 <span>{label}</span>
-              </a>
+              </Link>
             )
           })}
         </nav>
 
         {/* Footer links */}
         <div className="px-3 pb-5 flex flex-col gap-0.5">
-          <a
+          <Link
             href="/"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-white/5"
             style={{ color: "var(--color-text-muted)" }}
           >
             <ArrowLeft size={17} />
             <span>返回博客</span>
-          </a>
+          </Link>
           <LogoutButton />
         </div>
       </aside>
