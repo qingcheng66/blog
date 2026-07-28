@@ -7,17 +7,9 @@ export function middleware(req: NextRequest) {
   // 只拦截 /admin 下的路由
   if (!pathname.startsWith("/admin")) return NextResponse.next()
 
-  // 所有 /admin/* 路径都需要隐藏博客外壳，通过 x-is-admin header 告知 layout
-  const requestHeaders = new Headers(req.headers)
-  requestHeaders.set("x-is-admin", "1")
-
   // 排除登录页和登录 API
-  if (pathname === "/admin/login") {
-    return NextResponse.next({ request: { headers: requestHeaders } })
-  }
-  if (pathname.startsWith("/api/admin/login")) {
-    return NextResponse.next({ request: { headers: requestHeaders } })
-  }
+  if (pathname === "/admin/login") return NextResponse.next()
+  if (pathname.startsWith("/api/admin/login")) return NextResponse.next()
 
   // 检查 cookie
   const token = req.cookies.get("admin_token")?.value
@@ -32,7 +24,7 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/admin/login", req.url))
   }
 
-  return NextResponse.next({ request: { headers: requestHeaders } })
+  return NextResponse.next()
 }
 
 export const config = {

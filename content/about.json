@@ -1,25 +1,21 @@
 {
   "name": "刘",
-  "title": "AI 全栈开发工程师",
-  "city": "苏州",
-  "bio": "热爱用 AI 和全栈技术解决问题。专注于 LLM 应用落地，具备从模型集成到前端交互的全链路开发能力。",
+  "title": "AI 全栈开发者",
+  "city": "中国",
+  "bio": "大三在读，AI 全栈开发者。专注于 LLM 应用开发、AI Agent 编排和前端工程化。这个博客记录了我在 AI 时代的探索与思考——从命令行工具到自托管 AI 平台，从 Prompt 设计到底层推理优化。",
   "skills": [
-    "Next.js",
-    "React",
     "TypeScript",
-    "Tailwind CSS",
+    "React",
+    "Next.js",
     "Python",
-    "FastAPI",
-    "PostgreSQL",
+    "Django",
     "Docker",
-    "LLM API",
-    "Node.js",
-    "Git",
-    "Linux"
+    "LLM",
+    "AI Agent"
   ],
   "contacts": {
     "github": "https://github.com/qingcheng66",
-    "wechat": "xh084623224",
-    "email": "1120835055xj@gmail.com"
+    "email": "xh084623224@163.com",
+    "wechat": "xh084623224"
   }
 }

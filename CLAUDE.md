@@ -416,3 +416,17 @@ ssh -i ~/Downloads/admin.pem ubuntu@110.42.249.198 \
 **目标：** 把所有 `<a href>` 改成 `<Link href>`（从 `next/link` 导入）。
 
 **边界：** 只改 sidebar 内的导航链接和「返回博客」链接，不碰其他文件。
+
+---
+
+## 2026-07-28 开发任务
+
+### Task 1 [P1] 修复 stream-timeline groupByMonth 年份硬编码
+
+**问题：** `src/components/stream-timeline.tsx:45` 中 `const key = \`2026-${String(d.month).padStart(2, "0")}\`` 写死了年份 `2026`。当年份跨到 2027 年后，`groupByMonth` 生成的分组 key 会错位——所有数据都被分到 "2026-XX" 组下，`MonthGroup` 的 `year` 字段也从 key split 获取，导致年月标签全部显示为 2026 年。
+
+**目标：** 在 `parseDate` 中增加年份解析，支持完整日期格式（如 "2026年7月23日"）。同时保持向后兼容无年份的旧格式（如 "7月23日"，默认当前年）。
+
+**边界：**
+- 不改组件 UI 结构
+- `npm run build` 通过

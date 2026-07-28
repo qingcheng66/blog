@@ -1,6 +1,6 @@
 import type { Viewport } from "next"
-import { headers } from "next/headers"
 import { ThemeProvider } from "@/components/theme-provider"
+import { AdminGate } from "@/components/admin-gate"
 import { SearchModal } from "@/components/search-modal"
 import { ScrollToTop } from "@/components/scroll-to-top"
 import { GlassHeader } from "@/components/glass-header"
@@ -22,10 +22,7 @@ export const metadata = {
   description: site.description,
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const heads = await headers()
-  const isAdmin = heads.get("x-is-admin") === "1"
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
@@ -48,13 +45,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="min-h-screen flex flex-col font-sans antialiased">
         <ThemeProvider>
-          {!isAdmin && <SearchModal />}
+          <AdminGate><SearchModal /></AdminGate>
           {/* <WeatherSceneLoader /> */}
-          {!isAdmin && <ScrollToTop />}
-          {!isAdmin && <GlassHeader />}
+          <AdminGate><ScrollToTop /></AdminGate>
+          <AdminGate><GlassHeader /></AdminGate>
           <main className="flex-1">{children}</main>
-          {!isAdmin && <Footer />}
-          {!isAdmin && <MusicPlayer />}
+          <AdminGate><Footer /></AdminGate>
+          <AdminGate><MusicPlayer /></AdminGate>
         </ThemeProvider>
       </body>
     </html>

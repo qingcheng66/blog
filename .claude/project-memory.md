@@ -117,18 +117,40 @@
 - **`content/about.json`** — bio 从 1 句短 tagline 扩展为详细个人介绍
 - **`src/app/gallery/gallery-grid.tsx`** — 空状态从 `Image` 图标改为 `Camera`，单行冷文字 → 两行温暖引导文案
 
-### AD-018: 管理后台布局隔离 — middleware 注入 x-is-admin header (2026-07-26)
-**决策：** 根布局 `app/layout.tsx` 通过 `headers()` 读取 middleware 注入的 `x-is-admin` header，当值为 `"1"` 时不渲染博客外壳组件（GlassHeader / Footer / MusicPlayer / ScrollToTop / SearchModal）。
-**原因：** GlassHeader（z-50 fixed）覆盖在后台 sidebar（z-40）上面，导致后台顶部 ~64px 区域不可交互。此前根布局对所有页面无差别渲染博客外壳，后台页面无法去掉外层元素。
-**影响：**
-- **middleware.ts** — 所有 `/admin/*` 路径（含 login 和 API）注入 `x-is-admin: "1"` request header
-- **layout.tsx** — 改为 async 函数，读取 header 后条件渲染 5 个博客外壳组件
-- 后台页面获得干净布局，登录页也正确去掉博客外壳
+### AD-018: 管理后台布局隔离 — client-side AdminGate 替换 middleware headers (2026-07-26, 修订 2026-07-28)
 
-### AD-019: 后台 sidebar 导航改用 `<Link>` 避免整页刷新 (2026-07-26)
-**决策：** `app/(admin)/admin/layout.tsx` 中 sidebar 的 6 个导航链接 + "返回博客"链接从 `<a href>` 改为 `<Link href>`（next/link）。
-**原因：** `<a>` 每次点击触发浏览器整页刷新而非 Next.js 客户端路由切换，慢 + 闪烁。
-**影响：** 只改 sidebar 内的导航链接和"返回博客"链接，不涉及其他文件。
+**决策：** 根布局通过 `AdminGate` client component（`usePathname()` 判断路径前缀 `/admin`）条件渲染博客外壳组件，替代原来的 `headers()` 读取 middleware `x-is-admin` header 方案。
+
+**原因：** middleware 注入 header + layout 服务端 `headers()` 读取的方案在首次服务端请求时正确，但当用户从后台 `<Link href="/">` 返回博客时触发客户端软导航——Next.js 不重新向服务器请求 layout，`isAdmin` 状态冻在 `true`，博客外壳（GlassHeader/Footer/等）永远不出现。
+
+**影响：**
+- **新建 `src/components/admin-gate.tsx`** — client component，`usePathname().startsWith("/admin")` 判断是否渲染子组件，每次导航自动响应
+- **`layout.tsx`** — 从 `async` 改回同步函数，移除 `headers()` 导入，5 个博客外壳组件用 `<AdminGate>` 包裹
+- **`middleware.ts`** — 清理所有 `x-is-admin` header 注入逻辑，只保留 auth cookie 校验
+- 从 admin 返回博客时外壳正常出现，无 hydration 警告（`usePathname` 在 SSR 和客户端路径一致）
+
+### AD-020: 碎碎念重设计 — 月份分组卡片 + 对话语气行 (2026-07-28)
+
+**决策：** `stream-timeline.tsx` 从扁平逐行列表重写为按月份分组的玻璃卡片布局，日期以微型胶囊样式展示，条目间用自然语言句式（日期 · 动词 · 目标 →）连接而非数据行格式。
+
+**原因：** 用户反馈逐行排列不够美观、像管理面板的机械数据而非个人动态展示。需要保持暖纸色的温暖气质，避免深色模式那种重时间线标记。
+
+**设计要点：**
+- 按自然月分组，每月一张玻璃卡片（带月份徽章标签），卡片间 GSAP stagger 入场动画
+- 日期用微型 accent 色胶囊（`7.23` 格式），等宽数字，替代原来的 `4.25rem` 右对齐日期列
+- 有真实外部链接的条目：accent 色目标文本 + `ArrowUpRight` 小箭头图标 + hover `::after` 下划线从左滑入动画
+- 卡片内条目间 `1px solid var(--color-border)` 细实线分隔
+- 标题下方新增 `accent→透明` 渐变分隔线（取代原来的纯实线）
+
+**删除：** 旋转 "TIMELINE" 水印、竖线+圆点标记、虚线分隔、固定高度滚动盒（之前已删，本次确认不再出现）
+
+### AD-021: 后台编辑 API 数据合并防丢失 (2026-07-28)
+
+**决策：** `POST /api/admin/thoughts` 编辑已存条目时使用 `thoughts[idx] = { ...thoughts[idx], ...thought }` 合并而非全量替换。
+
+**原因：** 调研发现全量替换 `thoughts[idx] = thought as Thought` 存在隐患——如果前端表单没有某个可选字段（如 href），编辑保存时会静默抹掉该字段的已有值。虽然当前表单包含了所有字段，但 TypeScript 编译期无法保证，合并写法更安全。
+
+**影响：** 同时清理了 content/thoughts.json 中一条无用的测试条目（`ms3dhcsgpuqr`，"测试 → 测试"）。
 
 ## 踩坑记录
 
@@ -166,7 +188,12 @@ Footer 包含假的 ICP 备案号、假的在线人数、运行天数计数器�
 `app/admin/layout.tsx` 的 server-side 鉴权对所有 `/admin/*` 生效，包括 `/admin/login`——无 cookie → `redirect("/admin/login")` → 死循环。修复：用 Next.js route group 隔离，登录页保留在 `app/admin/login/`（无 layout），受保护页面移入 `app/(admin)/admin/` route group。
 
 ### PIT-012: 后台 GlassHeader 遮挡操作区 ✅ 已修复 (2026-07-26)
-根布局对所有页面无差别渲染 GlassHeader（z-50），覆盖在后台 sidebar（z-40）上面，导致后台顶部 ~64px 不可交互。Footer / MusicPlayer / ScrollToTop 也从根布局漏进后台。修复：middleware 注入 `x-is-admin` header → layout.tsx 条件渲染（见 AD-018）。
+根布局对所有页面无差别渲染 GlassHeader（z-50），覆盖在后台 sidebar（z-40）上面，导致后台顶部 ~64px 不可交互。Footer / MusicPlayer / ScrollToTop 也从根布局漏进后台。修复：AD-018 middleware `x-is-admin` header → layout.tsx 条件渲染。
+> **2026-07-28 修订：** AD-018 的 middleware headers 方案在客户端导航时有 bug（`isAdmin` 冻住），已改为 client-side `AdminGate` + `usePathname()` 方案。
+
+### PIT-013: 从后台返回博客时标签栏消失 ✅ 已修复 (2026-07-28)
+
+当用户从管理后台点击"返回博客" `<Link href="/">` 时，触发 Next.js 客户端软导航，layout 不重新渲染，`headers()` 读取的 `isAdmin` 值冻在 `true`，导致 GlassHeader/Footer/等博客外壳组件永远不出现。修复：用 `AdminGate` client component（`usePathname()`）替代 middleware `headers()`，客户端导航时 pathname 自动响应更新（见 AD-018 修订）。迁移计划：更新 `middleware.ts` 删除 `x-is-admin` header 注入，`layout.tsx` 改用 `<AdminGate>` 包裹博客外壳。
 
 ## H5/移动端适配 (2026-07-22)
 
@@ -194,7 +221,7 @@ Footer 包含假的 ICP 备案号、假的在线人数、运行天数计数器�
 ```
 ├── src/
 │   ├── app/
-│   │   ├── layout.tsx           # 根布局：条件渲染（非 admin 路径才渲染博客外壳）
+│   │   ├── layout.tsx           # 根布局：AdminGate 包裹博客外壳（条件渲染），无 middleware header 依赖
 │   │   ├── page.tsx             # 首页：WelcomeSplash + HeroSection + NavCards
 │   │   ├── globals.css          # 暖纸色 CSS 变量 + 玻璃拟态 + 自定义 range 滑块 + 滚动条
 │   │   ├── articles/page.tsx    # 文章列表页 → ArticleFeed (SSR 读 content/articles.json)
@@ -220,7 +247,8 @@ Footer 包含假的 ICP 备案号、假的在线人数、运行天数计数器�
 │   │   ├── nav-cards.tsx        # 首页导航卡片：文章/项目/碎碎念/关于（GSAP stagger + 玻璃 hover）
 │   │   ├── article-feed.tsx     # 文章列表（接收 articles props，链接到 /blog/[slug]）
 │   │   ├── article-editor.tsx   # 文章编辑器（标题/slug/描述/日期/标签 + markdown textarea）
-│   │   ├── stream-timeline.tsx  # 站点动态时间线（接收 items props）
+│   │   ├── admin-gate.tsx       # Client-side admin 路径检测（usePathname），条件渲染博客外壳
+│   │   ├── stream-timeline.tsx  # 月份分组卡片时间流（接收 items props，2026-07-28 重设计）
 │   │   ├── search-modal.tsx     # 全局搜索弹窗（Cmd+K，仅非 admin 路径渲染）
 │   │   ├── music-player.tsx     # 浮动播放器：Web Audio 频谱 + 圆形旋钮 + 进度条（仅非 admin 路径渲染）
 │   │   ├── weather-scene.tsx    # Three.js 天气驱动 3D 粒子背景
@@ -248,7 +276,7 @@ Footer 包含假的 ICP 备案号、假的在线人数、运行天数计数器�
 │   ├── gallery.json             # 相册（空数组，含温暖空状态文案）
 │   ├── about.json               # 关于页信息（详细版 bio）
 │   └── uploads/                 # 上传的图片
-├── middleware.ts                # /admin/* + /api/admin/* 鉴权 + x-is-admin header 注入
+├── middleware.ts                # /admin/* + /api/admin/* 鉴权（auth cookie 校验，不再注入 x-is-admin）
 ├── scripts/migrate.ts           # 一次性数据迁移脚本（已执行）
 ├── docker-compose.yml           # ADMIN_PASSWORD env + content volume 挂载
 └── .env.local                   # 本地开发 ADMIN_PASSWORD=1120835055
@@ -289,4 +317,4 @@ ssh -i ~/Downloads/admin.pem ubuntu@110.42.249.198 \
 
 ---
 *初始创建：2026-07-20*
-*最新更新：2026-07-26 — AD-018/019 + PIT-012 + 文件地图整理*
+*最新更新：2026-07-28 — AD-018 修订(AdminGate) + AD-020(碎碎念重设计) + AD-021(编辑合并防丢失) + PIT-013*

@@ -1,5 +1,18 @@
 [
   {
+    "title": "测试新建功能",
+    "slug": "测试新建功能",
+    "description": "",
+    "date": "2026-07-27",
+    "tags": [
+      "测试",
+      "后台"
+    ],
+    "cover": "",
+    "pinned": false,
+    "views": 0
+  },
+  {
     "slug": "claude-hermes-workflow",
     "title": "Claude Code + Hermes 双 Agent 协作工作流",
     "description": "Claude Code 写代码、Hermes 写文档，两个终端并排跑，通过 git 通信的双工具分工模式。让 AI 做各自擅长的事。",
@@ -163,18 +176,5 @@
       "成长"
     ],
     "views": 312
-  },
-  {
-    "title": "测试新建功能",
-    "slug": "测试新建功能",
-    "description": "",
-    "date": "2026-07-27",
-    "tags": [
-      "测试",
-      "后台"
-    ],
-    "cover": "",
-    "pinned": false,
-    "views": 0
   }
 ]

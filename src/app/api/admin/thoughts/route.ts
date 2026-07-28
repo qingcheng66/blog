@@ -29,7 +29,8 @@ export async function POST(req: Request) {
     if (thought.id) {
       const idx = thoughts.findIndex((t) => t.id === thought.id)
       if (idx >= 0) {
-        thoughts[idx] = thought as Thought
+        // Merge to preserve fields not included in the edit form
+        thoughts[idx] = { ...thoughts[idx], ...thought }
       } else {
         return NextResponse.json({ error: "动态不存在" }, { status: 404 })
       }
