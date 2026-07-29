@@ -16,11 +16,43 @@ interface MonthGroup {
   items: Thought[]
 }
 
-/** 解析 "7月23日" → { month, day } */
-function parseDate(dateStr: string): { month: number; day: number } | null {
-  const m = dateStr.match(/(\d+)月(\d+)日/)
-  if (!m) return null
-  return { month: parseInt(m[1], 10), day: parseInt(m[2], 10) }
+interface ParsedDate {
+  month: number
+  day: number
+  year?: number
+  hour?: number
+  minute?: number
+}
+
+/** 解析日期字符串，支持：
+ *  "7月23日"           → { month: 7, day: 23 }
+ *  "7月29日 14:30"     → { month: 7, day: 29, hour: 14, minute: 30 }
+ *  "2026年7月23日"     → { year: 2026, month: 7, day: 23 }
+ *  "2026年7月23日 09:15" → { year: 2026, month: 7, day: 23, hour: 9, minute: 15 }
+ */
+function parseDate(dateStr: string): ParsedDate | null {
+  // 完整格式 "2026年7月23日 09:15"
+  const full = dateStr.match(/(\d{4})年(\d+)月(\d+)日(?:\s+(\d{1,2}):(\d{2}))?/)
+  if (full) {
+    return {
+      year: parseInt(full[1], 10),
+      month: parseInt(full[2], 10),
+      day: parseInt(full[3], 10),
+      hour: full[4] !== undefined ? parseInt(full[4], 10) : undefined,
+      minute: full[5] !== undefined ? parseInt(full[5], 10) : undefined,
+    }
+  }
+  // 短格式 "7月23日" 或 "7月29日 14:30"
+  const short = dateStr.match(/(\d+)月(\d+)日(?:\s+(\d{1,2}):(\d{2}))?/)
+  if (short) {
+    return {
+      month: parseInt(short[1], 10),
+      day: parseInt(short[2], 10),
+      hour: short[3] !== undefined ? parseInt(short[3], 10) : undefined,
+      minute: short[4] !== undefined ? parseInt(short[4], 10) : undefined,
+    }
+  }
+  return null
 }
 
 /** 判断是否有可访问的外部链接 */
@@ -28,21 +60,27 @@ function hasExternalHref(href?: string): boolean {
   return !!href && href !== "#" && href !== ""
 }
 
-/** 按日期倒序分组：最新月份在最上面，同月内部也按日期倒序 */
+/** 按日期倒序分组：最新月份在最上面，同月按日→时→分倒序 */
 function groupByMonth(all: Thought[]): MonthGroup[] {
   const sorted = [...all].sort((a, b) => {
     const da = parseDate(a.date)
     const db = parseDate(b.date)
     if (!da || !db) return 0
     if (da.month !== db.month) return db.month - da.month
-    return db.day - da.day
+    if (da.day !== db.day) return db.day - da.day
+    // 同一天内，有时分的按时间倒序（没有时间的当 00:00）
+    const aMin = (da.hour ?? 0) * 60 + (da.minute ?? 0)
+    const bMin = (db.hour ?? 0) * 60 + (db.minute ?? 0)
+    return bMin - aMin
   })
 
   const map = new Map<string, Thought[]>()
+  const currentYear = new Date().getFullYear()
   for (const item of sorted) {
     const d = parseDate(item.date)
     if (!d) continue
-    const key = `2026-${String(d.month).padStart(2, "0")}`
+    const year = d.year ?? currentYear
+    const key = `${year}-${String(d.month).padStart(2, "0")}`
     if (!map.has(key)) map.set(key, [])
     map.get(key)!.push(item)
   }
@@ -158,7 +196,7 @@ export function StreamTimeline({ items }: { items: Thought[] }) {
                 const isLink = hasExternalHref(item.href)
                 const d = parseDate(item.date)
                 const dayStr = d
-                  ? `${d.month}.${String(d.day).padStart(2, "0")}`
+                  ? `${d.month}.${String(d.day).padStart(2, "0")}${d.hour !== undefined ? ` ${String(d.hour).padStart(2, "0")}:${String(d.minute ?? 0).padStart(2, "0")}` : ""}`
                   : item.date
 
                 return (

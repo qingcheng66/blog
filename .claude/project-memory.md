@@ -152,6 +152,26 @@
 
 **影响：** 同时清理了 content/thoughts.json 中一条无用的测试条目（`ms3dhcsgpuqr`，"测试 → 测试"）。
 
+### AD-022: 5 个内容页面 force-dynamic — 编辑后即时生效 (2026-07-30)
+
+**决策：** `/articles`、`/thoughts`、`/projects`、`/gallery`、`/about` 五个页面添加 `export const dynamic = 'force-dynamic'`，强制每次请求重新读取 JSON 数据。
+
+**原因：** Next.js 默认将无动态参数的页面在构建时静态生成（`○ Static`），后台编辑 JSON 后前端始终显示旧内容，必须重新 build 才能更新。
+
+**影响：** 5 个页面从 `○ Static` 变为 `ƒ Dynamic`（server-rendered on demand），编辑后刷新即可生效。
+
+### AD-023: 碎碎念日期含时间 + 后台列表排序 (2026-07-30)
+
+**决策：** 日期格式从 `"7月23日"` 升级为 `"7月29日 14:30"`（月日+时:分），新建时自动填入当前时间，前后台统一按时间倒序排列。
+
+**原因：** 同一天多条动态无法区分先后，新建的排在旧条目后面。后台管理列表是 JSON 原始顺序（旧→新），新建后看不到最新条目。
+
+**影响：**
+- **manager.tsx** — `formatNow()` 自动生成当前时间字符串；`openNew()` 默认填入；保存后拉取的列表客户端排序后再 `setThoughts`
+- **stream-timeline.tsx** — `parseDate()` 支持可选的 `HH:MM` 时间捕获；`groupByMonth()` 同日内按时间倒序；日期胶囊显示自适应（有时间就 `7.29 14:30`，没有就 `7.29`）
+- **content.ts** — `Thought.date` 注释更新
+- 12 条旧数据保持 `"7月23日"` 格式不变，自动兼容（时间默认 `00:00`）
+
 ## 踩坑记录
 
 ### PIT-001: lucide-react 没有 Github 图标 (2026-07-21)
@@ -248,7 +268,7 @@ Footer 包含假的 ICP 备案号、假的在线人数、运行天数计数器�
 │   │   ├── article-feed.tsx     # 文章列表（接收 articles props，链接到 /blog/[slug]）
 │   │   ├── article-editor.tsx   # 文章编辑器（标题/slug/描述/日期/标签 + markdown textarea）
 │   │   ├── admin-gate.tsx       # Client-side admin 路径检测（usePathname），条件渲染博客外壳
-│   │   ├── stream-timeline.tsx  # 月份分组卡片时间流（接收 items props，2026-07-28 重设计）
+│   │   ├── stream-timeline.tsx  # 月份分组卡片时间流（支持时间显示 "7.29 14:30"，2026-07-30 重设计）
 │   │   ├── search-modal.tsx     # 全局搜索弹窗（Cmd+K，仅非 admin 路径渲染）
 │   │   ├── music-player.tsx     # 浮动播放器：Web Audio 频谱 + 圆形旋钮 + 进度条（仅非 admin 路径渲染）
 │   │   ├── weather-scene.tsx    # Three.js 天气驱动 3D 粒子背景
@@ -317,4 +337,4 @@ ssh -i ~/Downloads/admin.pem ubuntu@110.42.249.198 \
 
 ---
 *初始创建：2026-07-20*
-*最新更新：2026-07-28 — AD-018 修订(AdminGate) + AD-020(碎碎念重设计) + AD-021(编辑合并防丢失) + PIT-013*
+*最新更新：2026-07-30 — AD-022(force-dynamic) + AD-023(日期含时间+后台排序)*

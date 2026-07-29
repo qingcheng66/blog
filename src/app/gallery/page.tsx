@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import { getGallery } from "@/lib/content"
 import { GalleryGrid } from "./gallery-grid"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
   title: "相册",
   description: "照片与图像记录",

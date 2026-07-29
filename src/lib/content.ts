@@ -60,7 +60,7 @@ export interface Thought {
   verb: string
   target: string
   href?: string
-  date: string // "7月23日"
+  date: string // "7月23日" 或 "7月29日 14:30"
 }
 
 export interface GalleryItem {

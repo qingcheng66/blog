@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import { getProjects } from "@/lib/content"
 import { ProjectsGrid } from "./projects-grid"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
   title: "项目",
   description: "个人项目作品集",

@@ -11,7 +11,29 @@ const EMPTY: Thought = {
   verb: "",
   target: "",
   href: "",
-  date: "",
+  date: formatNow(),
+}
+
+/** 格式化当前时间为 "7月29日 14:30" */
+function formatNow(): string {
+  const now = new Date()
+  const m = now.getMonth() + 1
+  const d = now.getDate()
+  const hh = String(now.getHours()).padStart(2, "0")
+  const mm = String(now.getMinutes()).padStart(2, "0")
+  return `${m}月${d}日 ${hh}:${mm}`
+}
+
+/** 解析日期（与 stream-timeline 逻辑一致） */
+function parseManagerDate(dateStr: string): { month: number; day: number; hour?: number; minute?: number } | null {
+  const m = dateStr.match(/(\d+)月(\d+)日(?:\s+(\d{1,2}):(\d{2}))?/)
+  if (!m) return null
+  return {
+    month: parseInt(m[1], 10),
+    day: parseInt(m[2], 10),
+    hour: m[3] !== undefined ? parseInt(m[3], 10) : undefined,
+    minute: m[4] !== undefined ? parseInt(m[4], 10) : undefined,
+  }
 }
 
 export function ThoughtsManager({ initial }: { initial: Thought[] }) {
@@ -53,8 +75,19 @@ export function ThoughtsManager({ initial }: { initial: Thought[] }) {
       })
       if (res.ok) {
         router.refresh()
-        const data = await fetch("/api/admin/thoughts").then((r) => r.json())
-        setThoughts(data)
+        const fresh = await fetch("/api/admin/thoughts").then((r) => r.json())
+        // Sort newest-first locally so the list reorders immediately
+        fresh.sort((a: Thought, b: Thought) => {
+          const pa = parseManagerDate(a.date)
+          const pb = parseManagerDate(b.date)
+          if (!pa || !pb) return 0
+          if (pa.month !== pb.month) return pb.month - pa.month
+          if (pa.day !== pb.day) return pb.day - pa.day
+          const aMin = (pa.hour ?? 0) * 60 + (pa.minute ?? 0)
+          const bMin = (pb.hour ?? 0) * 60 + (pb.minute ?? 0)
+          return bMin - aMin
+        })
+        setThoughts(fresh)
         closeEdit()
       } else {
         const d = await res.json()
@@ -66,6 +99,18 @@ export function ThoughtsManager({ initial }: { initial: Thought[] }) {
       setSaving(false)
     }
   }
+
+  // Sort: newest first (same logic as stream-timeline)
+  const sorted = [...thoughts].sort((a, b) => {
+    const pa = parseManagerDate(a.date)
+    const pb = parseManagerDate(b.date)
+    if (!pa || !pb) return 0
+    if (pa.month !== pb.month) return pb.month - pa.month
+    if (pa.day !== pb.day) return pb.day - pa.day
+    const aMin = (pa.hour ?? 0) * 60 + (pa.minute ?? 0)
+    const bMin = (pb.hour ?? 0) * 60 + (pb.minute ?? 0)
+    return bMin - aMin
+  })
 
   return (
     <div>
@@ -128,7 +173,7 @@ export function ThoughtsManager({ initial }: { initial: Thought[] }) {
 
       {/* Thoughts list */}
       <div className="flex flex-col gap-2">
-        {thoughts.map((t) => (
+        {sorted.map((t) => (
           <div key={t.id} className="flex items-center gap-4 rounded-xl px-5 py-3 transition-all duration-200" style={{ background: "var(--glass-bg-strong)", border: "1px solid var(--color-border)" }}>
             <div className="flex-1 min-w-0 flex items-center gap-1 text-sm">
               <span style={{ color: "var(--color-text-muted)" }}>{t.verb}</span>

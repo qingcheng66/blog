@@ -430,3 +430,47 @@ ssh -i ~/Downloads/admin.pem ubuntu@110.42.249.198 \
 **边界：**
 - 不改组件 UI 结构
 - `npm run build` 通过
+
+### Task 2 [P0] 内容页面改为动态渲染 — 编辑后不重新构建即可生效
+
+**问题：** `/thoughts`、`/articles`、`/projects`、`/gallery`、`/about` 五个页面在 `next build` 时预渲染为静态 HTML（`○ Static`）。后台编辑 JSON 文件后，前端页面始终显示构建时的旧内容，必须重新 `docker compose up -d --build app` 才能更新。
+
+**根因：** Next.js 默认将没有动态参数的页面在构建时静态生成，之后不再重新读取数据源。
+
+**目标：** 在每个受影响的 `page.tsx` 文件顶部添加 `export const dynamic = 'force-dynamic'`，强制每次请求重新读取 JSON 数据。
+
+**涉及文件：**
+- `src/app/articles/page.tsx`
+- `src/app/thoughts/page.tsx`
+- `src/app/projects/page.tsx`
+- `src/app/gallery/page.tsx`
+- `src/app/about/page.tsx`
+
+**边界：**
+- 只加一行 `export const dynamic = 'force-dynamic'`，不碰其他代码
+- `npm run build` 通过
+- 构建后页面应显示为 `ƒ (Dynamic)` 而非 `○ (Static)`
+
+### Task 3 [P0] 碎碎念日期自动填入当天+分钟 + 排序修正
+
+**问题：**
+1. 后台编辑碎碎念时，日期字段需要手动填写，应该自动填入当前日期时间
+2. 日期格式只有天（"7月29日"），同一天多条动态无法区分先后，新建的排在旧条目后面
+
+**目标：**
+
+1. **日期格式升级** — `"7月29日"` → `"7月29日 14:30"`（月日+时:分）
+2. **新建自动填入** — 后台编辑器新建碎碎念时，日期字段默认填入当前时间（`new Date()` 格式化）
+3. **解析函数升级** — `stream-timeline.tsx` 的 `parseDate()` 支持解析新格式 `"7月29日 14:30"`，返回 `{ month, day, hour, minute }`
+4. **排序升级** — `groupByMonth` 中的排序在同日内按时间倒序（时→分递减）
+5. **向后兼容** — 旧格式 `"7月29日"` 没有时间的条目，时间默认为 `00:00`
+6. **显示自适应** — 如果有时间就显示 `7.29 14:30`，没有则只显示 `7.29`
+
+**涉及文件：**
+- `src/app/(admin)/admin/thoughts/manager.tsx` — 新建时自动填入当前日期时间
+- `src/components/stream-timeline.tsx` — parseDate 升级 + 排序升级 + 日期显示
+- `src/lib/content.ts` — Thought 类型注释更新（date 字段说明）
+
+**边界：**
+- 不改变已有数据，旧格式自动兼容
+- `npm run build` 通过

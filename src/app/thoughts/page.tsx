@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import { getThoughts } from "@/lib/content"
 import { StreamTimeline } from "@/components/stream-timeline"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
   title: "碎碎念",
   description: "日常动态与想法",

@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import { getAbout } from "@/lib/content"
 import { AboutSection } from "./about-section"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
   title: "关于",
   description: "关于我",
