@@ -1,476 +1,92 @@
 @AGENTS.md
 
-# Reverse — Serenity 主题逆向实验场
+# Serenity Lab — blog.084623224.xyz
 
-## 一句话目标
-
-从 wangxinyang.top 提取设计系统的**技术层**，在 Next.js 上做最小可验证原型。验证通过后移植到主博客 blog.084623224.xyz。素材层（背景图/Live2D）用户自己提供。
+> Next.js 16 暖纸色个人博客 · JSON 文件 CMS · Docker + Cloudflare Tunnel 部署
 
 ---
 
-## 逆向分析结论（代码 + Playwright 视觉）
+## 🔴 协作协议（know-each-other）
 
-### 两层拆解
+1. 每轮开始前读 `.collab/board.md`，认领 ⏳ 任务 → 标记 🔄
+2. 任务开始/结束时 → 追加 `.collab/state.md`
+3. 改动影响其他模块时 → ⚠️ 前缀标注
+4. 完成任务 → board.md 移到 ✅，标注 commit hash
+5. 只维护 `.claude/project-memory.md` 记架构决策和踩坑
 
-| 层 | 内容 | 可逆向？ | 
-|----|------|---------|
-| **技术层** | 动态色相系统、玻璃拟态、Welcome 动画、天气时钟、Ctrl+K 搜索 | ✅ |
-| **素材层** | 全屏动漫插画背景、Live2D 角色模型、定制图标 | ❌ 用户自备 |
+---
 
-### 核心发现（Playwright 截图纠正了代码分析的误判）
-
-代码分析看到的是 CSS 变量 `--color-accent: #c084fc`（紫色），但实际渲染是**品红 #FF79C6**，且是从背景图的高光中取色的。Serenity 的 accent 色是动态配置的，不同站点颜色不同。
-
-视觉三要素：
-1. **全屏背景图** — 动漫角色插画是页面的视觉灵魂，不是渐变
-2. **玻璃拟态层** — 导航栏/气泡/卡片全部 `backdrop-filter: blur()` 半透明叠在背景上，透明度 20-40%
-3. **accent 取色自背景** — UI 强调色从背景图中采样，保持整体视觉凝聚力
-
-### 完整要素清单
-
-```
-导航栏: Header(64px fixed) → 左侧logo+链接(首页/文章/碎碎念/项目/相册/关于) | 右侧搜索(Ctrl+K)+主题切换
-Hero:   头像(发光环) → 天气时钟条 → 渐变个性签名 → 简介 → 社交图标
-背景:   全屏角色插画 + 飘落花瓣粒子 + glassmorphism UI 叠加
-互动:   Live2D看板娘(时间感知对话) + Welcome开场动画
-底部:   文章列表(编号索引+封面+摘要+阅读量)
-```
-
-### 设计 Token（从 base.css 提取，已纠正为实际值）
+## 设计 Token（暖纸色）
 
 ```css
-:root {
-  /* ---- 色彩（暗色模式默认）---- */
-  --color-accent:        #FF79C6;           /* 品红主色（实际渲染值） */
-  --color-accent-rgb:    255, 121, 198;
-  --color-accent-secondary: hsl(accent-hue + 20°, ...);
-
-  /* 背景：色相随 accent 自动偏移 */
-  --color-bg:            hsl(H, 20%, 9%);   /* 暗色模式：色相可感知 */
-  --color-bg-soft:       hsl(H+15, 16%, 7%);
-  --color-bg-mute:       hsl(H+10, 14%, 14%);
-
-  /* 文字 */
-  --color-text:          #f5f5f5;
-  --color-text-secondary: rgba(255,255,255, 0.6);
-  --color-text-muted:    rgba(255,255,255, 0.4);
-
-  /* 边框 + 玻璃 */
-  --color-border:        rgba(255,255,255, 0.08);
-  --color-border-hover:  rgba(255,255,255, 0.15);
-  --glass-bg:            rgba(0,0,0, 0.2);     /* 玻璃底 */
-  --glass-blur:          12px;                  /* 模糊量 */
-
-  /* ---- 间距 ---- */
-  --space-1: 4px;   --space-1-5: 6px;  --space-2: 8px;  --space-3: 12px;
-  --space-4: 16px;  --space-5: 24px;   --space-6: 32px; --space-8: 48px;
-  --space-10: 64px; --space-12: 80px;
-
-  /* ---- 圆角 ---- */
-  --radius-sm: 6px;  --radius-md: 10px;  --radius-lg: 16px;
-  --radius-xl: 24px; --radius-full: 9999px;
-
-  /* ---- 动效 ---- */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --duration-fast: 150ms;
-  --duration-normal: 300ms;
-
-  /* ---- 布局 ---- */
-  --max-width: 1200px;
-  --header-height: 64px;
-}
+--color-accent:     #E87830;           /* 暖橙 */
+--color-bg:         hsl(30, 20%, 95%); /* 暖白书页 */
+--color-bg-soft:    hsl(30, 16%, 92%);
+--color-text:       #2d2a25;           /* 深褐灰 */
+--glass-bg:         rgba(255,255,255,0.6);
+--glass-bg-strong:  rgba(255,255,255,0.75);
 ```
 
-### 玻璃拟态公式
-
-Serenity 的玻璃效果模式：
-```css
-.glass {
-  background: rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-```
+6 暖色预设：暖橙 / 琥珀 / 桃粉 / 青苔 / 暖紫 / 棕褐。单主题，无亮暗切换。
 
 ---
 
-## 技术栈
-
-| 层面 | 选择 | 原因 |
-|------|------|------|
-| 框架 | Next.js 16 (App Router) | 与主博客一致 |
-| 样式 | Tailwind CSS v4 + CSS 变量 | token 体系 |
-| 动画 | GSAP ScrollTrigger | 已验证，替代 Lenis+AOS |
-| 字体 | Noto Sans SC（自托管） | 避免 Google Fonts 被墙 |
-| 图标 | Iconify SVG | 与 Serenity 一致 |
-| 天气 | wttr.in（免费）或和风天气 | 无需 API Key |
-| 组件 | 从零手写，不依赖 shadcn/ui | 玻璃拟态需要完全控制 CSS |
-
----
-
-## Phase 1 ✅ 已完成 — 设计系统验证
-
-5 个技术点全部验证通过：动态色相、玻璃导航、Hero 区、Welcome 动画、色相切换。
-
-## Phase 2 — 扩展为完整站点（多页面路由）
-
-**关键约束：必须用 Next.js App Router 多页面路由，禁止把所有内容塞进首页长滚动。**
-
-### 页面清单
-
-| 路由 | 标签 | 目录 | 内容 |
-|------|------|------|------|
-| `/` | 首页 | `src/app/page.tsx` | 只保留 Hero + Welcome + AccentSwitcher，**不要放其他页面的内容** |
-| `/articles` | 文章 | `src/app/articles/page.tsx` | 文章列表：编号索引 + 封面 + 摘要 + 日期 + 阅读量 |
-| `/thoughts` | 碎碎念 | `src/app/thoughts/page.tsx` | 短文本时间线 |
-| `/projects` | 项目 | `src/app/projects/page.tsx` | 项目卡片网格 |
-| `/gallery` | 相册 | `src/app/gallery/page.tsx` | 图片网格 + lightbox |
-| `/about` | 关于 | `src/app/about/page.tsx` | 个人简介 + 技能标签 + 联系方式 |
-
-### 设计要求
-
-- 每个路由是**独立的 `page.tsx`**，不是塞进首页的组件
-- 所有页面共用 `layout.tsx`（GlassHeader + StarField + Footer + SearchModal）
-- 导航栏 `<Link href="/articles">` 等真实链接，当前页高亮
-- 首页(`/`)只保留已有的 Hero + Welcome + AccentSwitcher，恢复为 v1 首页
-
-### 数据：用你自己的真实信息
-
-**绝对不要用 wangxinyang 的文章标题、项目名、或任何从逆向目标复制来的文案。** 数据从你的主博客 `~/Documents/blog/` 中提取：
-
-- `site.ts` → 用你真实的名字/简介/社交链接（刘 / blog.084623224.xyz / GitHub: qingcheng66）
-- `articles.ts` → 从 `~/Documents/blog/src/contents/blog/` 的 MDX 文件中提取 frontmatter（标题/日期/描述）
-- `projects.ts` → 从 `~/Documents/blog/src/data/projects.ts` 复制
-- `gallery.ts` → 先用占位符，后续你自己加图片
-
-先读主博客的数据文件，再填充。
-
-### 已有的单页组件处理
-
-`ArticleFeed`、`StreamTimeline`、`CompassNav` 这些组件可以保留，但**必须移到对应路由的 page.tsx 中**，不要留在首页。首页恢复为只展示 Hero。导航栏的 href 改为 Next.js `<Link>` 指向真实路由。
-
-
----
-
-## 架构决策
-
-> 完整记录见 `.claude/project-memory.md`
-
-### AD-008: 背景饱和度 + 亮度可调节 slider (2026-07-22)
-
-在 Header 色相圆点旁新增 `SlidersHorizontal` 图标按钮，点击弹出玻璃拟态下拉面板，内含饱和度(5-60%)和亮度(3-40%)两个 range 滑块。值通过 `use-accent-hue` 管理并写入 localStorage 持久化。`applyAccent()` 签名扩展为 `(hex, bgSat, bgLit)`，背景三变量（`--color-bg` / `--color-bg-soft` / `--color-bg-mute`）使用动态值替代硬编码常量。
-
-### AD-009: 移除亮/暗模式切换，项目仅暗色模式 (2026-07-22)
-
-从 `glass-header.tsx` 移除主题切换按钮（桌面端 Sun/Moon + 移动端文字按钮），从 `use-accent-hue.ts` 移除 `useTheme` 依赖和 `isLight` 亮色分支逻辑。根因：`applyAccent()` 通过 `root.style.setProperty` 写内联样式，优先级高于 `html.light` CSS 规则，导致亮色模式背景色无法跟随主题切换。`globals.css` 中 `html.light` 块保留但不被激活。
-
----
-
-## 主博客可复用资产
-
-直接复制 `~/Documents/blog/` 中的这些文件，不改或微调：
-
-| 文件 | 用途 |
-|------|------|
-| `hooks/use-theme.tsx` | 主题切换（比 next-themes 干净） |
-| `hooks/use-reduced-motion.ts` | prefers-reduced-motion 检测 |
-| `hooks/use-touch-device.ts` | 触屏设备检测 |
-| `components/lightbox.tsx` | 图片灯箱 |
-| `components/reading-progress.tsx` | 阅读进度条 |
-| `components/star-field.tsx` | Canvas 粒子背景（暗色模式） |
-| `components/split-text.tsx` | GSAP 字符拆分动画 |
-
----
-
-## 已知坑位
-
-- **Google Fonts 被墙**：Noto Sans SC 自托管，不走 googleapis
-- **next-themes + React 19**：已用自实现 hook 替代，不装 next-themes
-- **Safe area**：`env(safe-area-inset-*)` + `viewport-fit=cover`
-- **触屏**：pointer 组件用 `useTouchDevice` 检测，触屏自动降级
-- **backdrop-filter**：Safari 需 `-webkit-backdrop-filter`
-- **RAF**：`visibilitychange` 时暂停动画循环
-
----
-
-## Claude Code 工作流
-
-启动时：读本文件 + `.claude/project-memory.md`
-开发中：自己维护 `.claude/project-memory.md`，记架构决策和踩坑
-提交：Hermes 负责 git
-
----
-
-## 边界
-
-- 不复制 HTML/CSS/图片/文案
-- 不引入 Halo 生态
-- 不修改 `~/Documents/blog/` 的文件
-
----
-
-## 2026-07-23 Hermes 改动记录
-
-### 移动端主题色 + 背景调节修复
-
-**文件：** `src/components/glass-header.tsx`
-
-**问题：** 色相色块和饱和度/亮度滑块只在桌面端 `hidden md:flex` 导航栏中可见，手机端完全无法调节。
-
-**改动：** 在移动端抽屉菜单 `<nav>` 中添加了：
-- 6 个主题色色块（24px，`PRESET_COLORS`，带白色选中边框+发光）
-- 背景饱和度滑块（5-60%，`useAccentHue` 管理，localStorage 持久化）
-- 背景亮度滑块（3-40%，同上）
-
-### 部署方式变更
-
-服务器 SSH 密码登录已不可用，改用密钥：
+## 部署
 
 ```bash
-# 部署命令（在项目根目录执行）
+# 日常更新
 git push
 ssh -i ~/Downloads/admin.pem ubuntu@110.42.249.198 \
-  "cd /www/wwwroot/blog && sudo git pull && sudo chown -R 1001:65533 content/ && sudo docker compose up -d --build app"
+  "cd /www/wwwroot/blog && sudo git pull origin master && sudo chown -R 1001:65533 content/ && sudo docker compose up -d --build app"
 ```
 
-- 服务器代码位置：`/www/wwwroot/blog/`
-- git remote：`git@github.com:qingcheng66/blog.git`（SSH 协议）
-- 服务器 GitHub SSH key 已配置
-- Docker 容器用 `sudo` 操作（ubuntu 用户有 sudo 权限）
+### 常见故障
 
-### 简历
+| 故障 | 原因 | 处理 |
+|------|------|------|
+| API 写操作 EACCES | content/ 文件归 root，容器用 uid 1001 | `chown -R 1001:65533 content/` |
+| git pull 冲突 | 后台编辑产生本地修改 | `git stash && git pull origin master && git stash drop` |
+| 构建超时 | Docker Hub 被墙 | DaoCloud mirror + 国际代理 |
 
-`public/resume.pdf` 已更新为最新版本。
+### 调试命令
 
----
-
-## 2026-07-23 开发任务
-
-> Hermes 分析 → 用户确认 → Claude Code 执行
-
-### Task 1 [P0] 文章/碎碎念内容打通
-
-**问题：** 目前 `src/data/articles.ts` 硬编码数据，`ArticleFeed` 链接全是 `#`，文章详情页路由已删除（`src/app/blog/[slug]/` 不存在），碎碎念也是假数据不可达。
-
-**目标：**
-
-1. 恢复文章详情路由 `src/app/blog/[slug]/page.tsx`，渲染 `src/contents/blog/` 中的 MDX 文件
-2. 写 `src/lib/blog.ts`：自动读取 MDX frontmatter 生成 `Article[]`，替代 `articles.ts` 中硬编码的数组
-3. `ArticleFeed` 中的 href 改为真实路由 `/blog/${article.slug}`
-4. `StreamTimeline` 中的 `streamItems` 也从 MDX 自动生成，按日期倒序排列
-5. 封面图机制：放在 `public/images/covers/`，MDX frontmatter 写 `cover: /images/covers/xxx.jpg`
-
-**边界：** 不要改动 MDX 文章内容，只打通数据流和路由。
+```bash
+ssh ... "sudo docker logs blog-app-1 --tail 50"
+ssh ... "ls -la /www/wwwroot/blog/content/"
+ssh ... "sudo docker exec blog-app-1 id"
+```
 
 ---
 
-### Task 2 [P1] 移动端适配优化
+## 架构速查
 
-**问题：** 手机端抽屉里的色相色块+饱和/亮度滑块太紧凑，操作精度差；背景动态范围偏窄；StarField 粒子 40 太稀疏；底部多个浮动元素拥挤。
-
-**目标：**
-
-1. 抽屉控件改为**底部 Sheet**：色相色块 28px + 两个 slider 间距加大，从底部弹出独立面板，不与导航混合
-2. 背景饱和度范围 5-60% → **8-80%**，亮度 3-40% → **2-50%**（`use-accent-hue.ts` 中改 min/max）
-3. StarField 移动端粒子上限 40 → **80**（`star-field.tsx` 中密度公式 `/15000` → `/8000`）
-4. 底部浮动元素统一间距，加 `safe-area-inset-bottom`
-
-**边界：** 不改桌面端行为。
-
----
-
-### Task 3 [P2] 音乐播放器样式优化
-
-**问题：** 音量用 `rotate(-90deg)` hack；只有旋转动画太单调；默认 opacity 0.45 太低用户注意不到。
-
-**目标：**
-
-1. 音量改为**圆形旋钮**：CSS 实现的拖动旋转，替代 hack 式 range input
-2. 播放时用 Web Audio API `AnalyserNode` 做**音频频谱可视化**（柱子跳动）
-3. 展开面板加曲目名称 + 播放进度条
-4. 默认 opacity 0.45 → **0.7**
-5. 移动端位置底部居中，不和回到顶部按钮重叠
-
-**边界：** 不改音频源文件。
+| 层 | 关键文件 | 说明 |
+|----|---------|------|
+| 根布局 | `src/app/layout.tsx` | AdminGate 包裹博客外壳（/admin 路径隐藏） |
+| 数据层 | `src/lib/content.ts` | 6 类数据 JSON 读写 |
+| 鉴权 | `src/lib/auth.ts` + `middleware.ts` | cookie admin_token |
+| 色相引擎 | `src/hooks/use-accent-hue.ts` | 6 预设 + sat/lit slider，localStorage 持久化 |
+| 后台 UI | `src/app/(admin)/admin/` | Route Group，sidebar + 6 管理页 |
+| API | `src/api/admin/` | 13 端点 (login/logout + 5 类 CRUD + upload) |
+| 数据存储 | `content/` | Docker volume 挂载，不进入 git |
+| 架构决策 | `.claude/project-memory.md` | AD-001 ~ AD-023 |
 
 ---
 
-### Task 4 [P3] 天气驱动 3D 背景
+## 当前任务
 
-**问题：** QWeather API 只显示温度，背景是静态 GIF，无动态响应。
-
-**目标：**
-
-1. 新建 `src/components/weather-scene.tsx`：Three.js 粒子系统，挂载到 `layout.tsx` 最底层
-2. 天气→视觉效果映射：
-
-| QWeather 天气 | 粒子效果 |
-|--------------|---------|
-| 晴 | 暖金色光粒子 + 柔光射线 |
-| 多云 | 白色柔雾 + 粒子减半 |
-| 阴 | 灰色调、低饱和度 |
-| 雨 | 蓝调垂直雨丝 + 随机涟漪 |
-| 雪 | 白色慢飘雪花 |
-
-3. 夜间自动加深底色（根据 Hero 中已有的时钟判断）
-4. 从 `site.ts` 读取 QWeather API 配置，用 `data.now.text` 切换场景
-
-**依赖：** `npm install three @types/three`
-
-**边界：** 不影响现有 StarField，两者叠加（天气场景在底层，StarField 在上层）。
+（无）
 
 ---
 
-### Task 5 [P0] 用 Wiki 真实内容填充项目/文章/碎碎念
+## 任务历史（已完成）
 
-**问题：** `src/data/articles.ts` 和 `src/data/projects.ts` 中的标题/描述是占位数据，不是用户真实内容。
-
-**数据来源：** Wiki 知识库 `~/knowledge/`
-
-#### 项目数据（替换 `projects.ts`）
-
-| 项目 | 描述 | 技术栈 |
+| 日期 | 任务 | Commit |
 |------|------|--------|
-| 刷题无忧 | 微信小程序刷题平台，CloudBase 云开发全栈 | 微信原生, CloudBase, Node.js |
-| UHH Mall | Spring Boot 商城系统，Docker Compose 部署，三端（后端+小程序+Vue 后台） | Spring Boot, uni-app, Vue, MySQL, Redis |
-| AI 技术工单平台 | Django B2B SaaS 平台，客户端提交→运营 Kanban→开发执行，三端合一 | Django, PostgreSQL, Bootstrap 5 |
-| Serenity Lab（本博客） | 从 Serenity 主题逆向设计系统，Next.js 16 + GSAP + 玻璃拟态 + Three.js 天气背景 | Next.js 16, React 19, Tailwind v4, GSAP, Three.js, Docker |
-
-#### 文章数据（替换 `articles.ts`，写入 `src/contents/blog/` 的 MDX frontmatter）
-
-| # | 标题 | 描述 | 技术标签 |
-|---|------|------|---------|
-| 1 | Docker 部署 Next.js 全流程指南 | 从 Dockerfile 编写到生产部署，多阶段构建、非 root 用户、Cloudflare Tunnel 内网穿透 | Docker, Next.js, 部署 |
-| 2 | Cloudflare Tunnel：笔记本变公网服务器 | 不买服务器、不配端口映射，用 Cloudflare 加密隧道让外网通过域名访问本地服务 | Cloudflare, Tunnel, 部署 |
-| 3 | Claude Code 配置与优化实战 | 配置路径、关键文件、上下文监控、迁移打包——用好 Claude Code 的完整指南 | Claude Code, AI 编程, 配置 |
-| 4 | OpenHands：自托管 AI Agent 控制中心 | 不是帮你写代码的，是帮你管一群帮你写代码的 AI 的——多 Agent 并行调度平台 | AI Agent, OpenHands, 自托管 |
-| 5 | LLM 路由器/AI 网关对比 | 按请求内容自动分发到最合适模型：文本→便宜模型，图片→视觉模型，推理→强模型。5 款开源方案横评 | LLM, 路由, 网关, 开源 |
-| 6 | Prompt Caching 原理：让 LLM 推理快 30-50% | 第一次请求存 KV Cache，后续相同前缀跳过 prefill 阶段直接生成 | LLM, 性能优化, API |
-| 7 | LLM Wiki：让 AI 维护会生长的知识库 | Karpathy 提出的模式——不是每次检索，而是 AI 帮你读完全部写成精华笔记，标好交叉引用 | 知识管理, LLM, Wiki |
-| 8 | Claude Code + Hermes 双 Agent 协作工作流 | Claude Code 写代码、Hermes 写文档，两个终端并排跑，通过 git 通信的双工具分工模式 | Claude Code, Hermes, 工作流 |
-| 9 | AI 全栈学习路线（大三→大四） | 项目经验、技能树、求职方向的完整规划 | 求职, 学习, AI 全栈 |
-
-#### 碎碎念数据（`streamItems`）
-
-从各项目时间线 + wiki 日志提取真实动态，不用"发布了文章 XXX"这种模板化文案。格式：`{ verb: "操作", target: "目标名", date: "日期" }`，按时间倒序。
-
-**边界：** 
-- 不修改 MDX 文章正文（`src/contents/blog/` 已有 5 篇，新增文章只写 frontmatter，正文先放一句话摘要）
-- projects.ts 中保留 demo/github 链接字段
-- 碎碎念 href 指向真实路由或项目 GitHub
-
----
-
-## 2026-07-25 开发任务
-
-### Task 6 [P0] 暖纸色主题 — 暗色全站翻面
-
-**问题：** 当前全站强制暗色模式——底色近黑(`hsl(326,20%,9%)`)、星空粒子叠加、bg.gif 半透明暗色层、玻璃卡片黑色半透叠在黑底上完全看不出 blur 效果。用户不喜欢暗色，想要暖纸色。
-
-**目标：** 把全站从暗色模式翻到暖白纸色。气质从"深夜霓虹"变成"书页暖灯"——底色微黄暖白像书页、文字深褐灰不刺眼、accent 用暖橙和底色同色温家族、白色玻璃卡片叠在暖白底上有肉眼可见的层次感。
-
-**你决定的：** 具体色值、Token 体系、玻璃参数、阴影深浅、容器背景处理方式。
-
-**固定约束：**
-1. 删掉 StarField + bg.gif 暗色层（layout.tsx），暖白底上这两块无意义
-2. 删掉 `html.light` CSS 块（globals.css），不保留亮暗切换
-3. `use-accent-hue.ts` 的默认 sat/lit/satRange/litRange 从暗色范围翻到亮色范围
-4. 玻璃拟态必须肉眼可见（底线：亮色背景 + white 半透卡片 + blur → 有前景/背景分离）
-5. 文字对比度适合长文阅读，不能刺眼不能灰
-6. Accent 用暖橙，和底色同一色温家族
-7. `npm run build` 必须通过
-
-**不改的：** 组件结构、页面布局、路由、Three.js WeatherScene、npm 依赖。
-
----
-
-## 2026-07-26 开发任务
-
-> Hermes 分析 + 实测 → 用户确认 → Claude Code 执行
-
-### Task 1 [P0] 修复管理后台布局 — 博客 Header 遮挡操作区
-
-**问题（Hermes 实测确认）：** `GlassHeader`（z-50 fixed）覆盖在后台 sidebar（z-40）上面，导致：
-- 文章列表页「新建文章」按钮被 header 挡住，点不了
-- sidebar 顶部 "Admin · Lab" 被覆盖
-- 后台所有页面顶部 ~64px 区域不可交互
-- Footer / MusicPlayer / ScrollToTop 也从根布局漏进后台页面
-
-**根因：** 根布局 `app/layout.tsx` 对所有页面无差别渲染 GlassHeader + Footer + MusicPlayer + ScrollToTop。后台页面 `(admin)/admin/` 虽然有自己的 layout（sidebar），但嵌套在根布局内部，无法去掉外层元素。
-
-**目标：**
-1. `app/layout.tsx` 中根据路径条件隐藏博客外壳：当路径以 `/admin` 开头时不渲染 GlassHeader / Footer / MusicPlayer / ScrollToTop
-2. 判断路径的方式：用 `middleware.ts` 在请求头注入 `x-is-admin` header，layout 读取这个 header 做条件判断（不用 `usePathname()` 客户端判断，避免 hydration 闪烁）
-
-**边界：**
-- 不改变 GlassHeader / Footer / MusicPlayer / ScrollToTop 组件本身
-- 不修改 `(admin)/admin/layout.tsx`
-- 登录页 `/admin/login` 也应当去掉博客外壳（它不在 route group 里）
-- `npm run build` 必须通过
-
-### Task 2 [P1] 修复后台 sidebar 导航用 `<a>` 导致整页刷新
-
-**问题：** `app/(admin)/admin/layout.tsx` 中 sidebar 导航链接用的是普通 `<a href>`，每次点击触发浏览器整页刷新而非 Next.js 客户端路由切换。慢 + 闪烁。
-
-**目标：** 把所有 `<a href>` 改成 `<Link href>`（从 `next/link` 导入）。
-
-**边界：** 只改 sidebar 内的导航链接和「返回博客」链接，不碰其他文件。
-
----
-
-## 2026-07-28 开发任务
-
-### Task 1 [P1] 修复 stream-timeline groupByMonth 年份硬编码
-
-**问题：** `src/components/stream-timeline.tsx:45` 中 `const key = \`2026-${String(d.month).padStart(2, "0")}\`` 写死了年份 `2026`。当年份跨到 2027 年后，`groupByMonth` 生成的分组 key 会错位——所有数据都被分到 "2026-XX" 组下，`MonthGroup` 的 `year` 字段也从 key split 获取，导致年月标签全部显示为 2026 年。
-
-**目标：** 在 `parseDate` 中增加年份解析，支持完整日期格式（如 "2026年7月23日"）。同时保持向后兼容无年份的旧格式（如 "7月23日"，默认当前年）。
-
-**边界：**
-- 不改组件 UI 结构
-- `npm run build` 通过
-
-### Task 2 [P0] 内容页面改为动态渲染 — 编辑后不重新构建即可生效
-
-**问题：** `/thoughts`、`/articles`、`/projects`、`/gallery`、`/about` 五个页面在 `next build` 时预渲染为静态 HTML（`○ Static`）。后台编辑 JSON 文件后，前端页面始终显示构建时的旧内容，必须重新 `docker compose up -d --build app` 才能更新。
-
-**根因：** Next.js 默认将没有动态参数的页面在构建时静态生成，之后不再重新读取数据源。
-
-**目标：** 在每个受影响的 `page.tsx` 文件顶部添加 `export const dynamic = 'force-dynamic'`，强制每次请求重新读取 JSON 数据。
-
-**涉及文件：**
-- `src/app/articles/page.tsx`
-- `src/app/thoughts/page.tsx`
-- `src/app/projects/page.tsx`
-- `src/app/gallery/page.tsx`
-- `src/app/about/page.tsx`
-
-**边界：**
-- 只加一行 `export const dynamic = 'force-dynamic'`，不碰其他代码
-- `npm run build` 通过
-- 构建后页面应显示为 `ƒ (Dynamic)` 而非 `○ (Static)`
-
-### Task 3 [P0] 碎碎念日期自动填入当天+分钟 + 排序修正
-
-**问题：**
-1. 后台编辑碎碎念时，日期字段需要手动填写，应该自动填入当前日期时间
-2. 日期格式只有天（"7月29日"），同一天多条动态无法区分先后，新建的排在旧条目后面
-
-**目标：**
-
-1. **日期格式升级** — `"7月29日"` → `"7月29日 14:30"`（月日+时:分）
-2. **新建自动填入** — 后台编辑器新建碎碎念时，日期字段默认填入当前时间（`new Date()` 格式化）
-3. **解析函数升级** — `stream-timeline.tsx` 的 `parseDate()` 支持解析新格式 `"7月29日 14:30"`，返回 `{ month, day, hour, minute }`
-4. **排序升级** — `groupByMonth` 中的排序在同日内按时间倒序（时→分递减）
-5. **向后兼容** — 旧格式 `"7月29日"` 没有时间的条目，时间默认为 `00:00`
-6. **显示自适应** — 如果有时间就显示 `7.29 14:30`，没有则只显示 `7.29`
-
-**涉及文件：**
-- `src/app/(admin)/admin/thoughts/manager.tsx` — 新建时自动填入当前日期时间
-- `src/components/stream-timeline.tsx` — parseDate 升级 + 排序升级 + 日期显示
-- `src/lib/content.ts` — Thought 类型注释更新（date 字段说明）
-
-**边界：**
-- 不改变已有数据，旧格式自动兼容
-- `npm run build` 通过
+| 7/30 | REQ-001(stream-timeline年份硬编码) — 已在AD-023修复 | a52a167 |
+| 7/30 | AD-022(force-dynamic) + AD-023(日期含时间+排序) | a52a167 |
+| 7/28 | AD-018修订(AdminGate) + AD-020(碎碎念重设计) + AD-021(编辑合并) + NavCards移除 | 505218c |
+| 7/26 | AD-018(后台布局隔离) + sidebar Link 客户端路由 | - |
+| 7/25 | AD-013(暖纸色翻面) + AD-014(JSON CMS后台) + AD-015~017(去占位化/死代码清理/NavCards) | - |
+| 7/22 | AD-005(QWeather) + AD-007~009(色相Header/Slider/移除亮暗) + AD-010(关于页) + AD-012(音乐播放器) | - |
+| 7/21 | AD-001~004(骨架/色相hook/移除shadcn/多页面路由) | - |

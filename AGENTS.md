@@ -21,6 +21,13 @@ Anti-slop frontend skill for landing pages, portfolios, and redesigns.
 - **gsap-scrolltrigger** — Scroll-linked animations, pinning, scrub, batch
 - **gsap-react** — useGSAP hook, gsap.context(), cleanup on unmount
 
+## know-each-other (collab-skill)
+Hermes ↔ Claude Code 协作协议 — 通过 `.collab/` 共享文件实现任务分配和状态同步。
+- 启动时读 `.collab/board.md` 认领 ⏳ 任务
+- 任务开始/结束时追加 `.collab/state.md`
+- 跨模块改动用 ⚠️ 标注
+- See `.claude/skills/know-each-other/SKILL.md` for full protocol
+
 ## Design References
 - `design-references/vercel-design.md` — Black/white precision, Geist font
 - `design-references/stripe-design.md` — Clean developer brand
