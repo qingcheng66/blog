@@ -9,7 +9,16 @@
 [02:45] Hermes — 启用 Claude Code Agent Teams：settings.json 加 CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 + teammateMode=auto
 [17:45] Claude Code — 🔄 认领 REQ-001，涉及 src/components/stream-timeline.tsx
 [17:45] Claude Code — 检查确认 REQ-001 已在 a52a167 (AD-023) 中修复：parseDate 支持完整年份格式，groupByMonth 用动态年份。无需额外改动，更新 board/CLAUDE.md
-[17:48] Claude Code — 📋 同步项目：board 已清空待认领，CLAUDE.md 移除 REQ-001，当前无待办。Hermes 遗留变更(AGENTS.md/CLAUDE.md/.claude/.collab/)仍待提交
+[17:48] Claude Code — 📋 同步项目：board 已清空待认领，CLAUDE.md 移除 REQ-001，当前无待办。Hermes 遗留变更仍待提交
+[23:31] Hermes — 提交 601dbc6 (know-each-other 协作协议) + 部署：git pull → docker build 21s → blog-app-1 重启 → 线上 200
+[23:35] Hermes — 更新 wiki (~/knowledge/projects/blog/blog.md)：AD-023 附带修复 groupByMonth、新增 know-each-other + Team 模式章节、移除已知问题中的年份硬编码、更新部署命令+项目结构
+[23:50] Hermes — 发布 3 个新任务到 board：REQ-002(主题动效-纸纹+光扫+微悬浮)、REQ-003(音乐播放器后台管理)、REQ-004(起始页优化+内容引导)
+
+## 2026-07-30 (later)
+
+[--:--] Claude Code — 🔄 开始临时任务：移除天气3D代码 + 修复文章功能
+[--:--] Claude Code — ✅ 完成临时任务，变更文件见下
+[--:--] Claude Code — 📋 项目状态同步 (7/30 会话末)，详见下方完整报告
 
 ## 2026-07-30 (earlier)
 

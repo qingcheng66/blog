@@ -75,7 +75,13 @@ ssh ... "sudo docker exec blog-app-1 id"
 
 ## 当前任务
 
-（无）
+> 详见 `.collab/board.md`，以下为摘要。
+
+| 编号 | 优先级 | 内容 |
+|------|:------:|------|
+| REQ-002 | P0 | 主题动效：修复 `--glass-blur`、纸纹噪点、玻璃光扫、卡片微悬浮、导航下划线流动 |
+| REQ-003 | P1 | 音乐播放器后台管理：content/music.json、API、管理页、前端读数据源 |
+| REQ-004 | P2 | 起始页优化：Welcome 点击任意处关闭+微粒子、Hero 下方最近动态预览 |
 
 ---
 
