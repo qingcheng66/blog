@@ -28,6 +28,14 @@ export function WelcomeSplash() {
 
   if (!visible) return null
 
+  const dismiss = () => {
+    setFadeOut(true)
+    setTimeout(() => {
+      setVisible(false)
+      sessionStorage.setItem("welcome-dismissed", "1")
+    }, 600)
+  }
+
   return (
     <div
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
@@ -36,9 +44,13 @@ export function WelcomeSplash() {
         opacity: fadeOut ? 0 : 1,
         transition: "opacity 0.6s ease-out",
       }}
+      onClick={dismiss}
     >
+      {/* 暖金色微粒子 */}
+      <WelcomeParticles />
+
       {/* Animated greeting */}
-      <div className={fadeOut ? "animate-fade-out" : "animate-fade-in"}>
+      <div className={fadeOut ? "animate-fade-out" : "animate-fade-in"} onClick={(e) => e.stopPropagation()}>
         <h1
           className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4"
           style={{
@@ -61,24 +73,57 @@ export function WelcomeSplash() {
           opacity: fadeOut ? 0 : 1,
           transition: "opacity 0.4s ease-out",
         }}
+        onClick={(e) => e.stopPropagation()}
       >
         AI 全栈 · 构建与写作
       </p>
 
       {/* Click hint */}
       <button
-        onClick={() => {
-          setFadeOut(true)
-          setTimeout(() => {
-            setVisible(false)
-            sessionStorage.setItem("welcome-dismissed", "1")
-          }, 600)
+        onClick={(e) => {
+          e.stopPropagation()
+          dismiss()
         }}
-        className="mt-8 text-xs px-4 py-2 glass rounded-full transition-colors hover-media:hover:bg-white/10"
+        className="mt-8 text-xs px-4 py-2 glass rounded-full transition-colors hover-media:hover:bg-white/10 opacity-60"
         style={{ color: "var(--color-text-muted)" }}
       >
         点击任意位置进入
       </button>
+    </div>
+  )
+}
+
+// ── 暖金色微粒子 ──
+const PARTICLE_COUNT = 10
+
+// 预生成光点布局：相对位置 / 直径 / 透明度 / 动画延迟
+const PARTICLES = Array.from({ length: PARTICLE_COUNT }, (_, i) => ({
+  left: `${8 + ((i * 37) % 84)}%`,
+  top: `${10 + ((i * 53) % 76)}%`,
+  size: 2 + (i % 2), // 2px 或 3px
+  opacity: 0.3 + ((i * 13) % 30) / 100, // 0.3 ~ 0.6
+  delay: `${(i % 8) * 0.35}s`,
+}))
+
+function WelcomeParticles() {
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      {PARTICLES.map((p, i) => (
+        <span
+          key={i}
+          className="absolute rounded-full"
+          style={{
+            left: p.left,
+            top: p.top,
+            width: `${p.size}px`,
+            height: `${p.size}px`,
+            opacity: p.opacity,
+            background: "hsl(44, 80%, 55%)",
+            animation: `float-welcome 3s ease-in-out infinite`,
+            animationDelay: p.delay,
+          }}
+        />
+      ))}
     </div>
   )
 }

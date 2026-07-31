@@ -84,7 +84,7 @@ export function GlassHeader() {
             <MagneticWrapper key={item.label} strength={0.15}>
               <Link
                 href={item.href}
-                className="px-3 py-1.5 text-sm rounded-md transition-colors"
+                className="nav-underline px-3 py-1.5 text-sm rounded-md transition-colors"
                 style={{
                   color: pathname === item.href ? "var(--color-text)" : "var(--color-text-secondary)",
                   background: pathname === item.href ? "rgba(var(--color-accent-rgb), 0.08)" : "transparent",

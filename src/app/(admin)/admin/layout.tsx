@@ -8,6 +8,7 @@ import {
   MessageCircle,
   Image,
   User,
+  Music,
   ArrowLeft,
 } from "lucide-react"
 import { LogoutButton } from "@/components/admin-logout-button"
@@ -18,6 +19,7 @@ const SIDEBAR_LINKS = [
   { href: "/admin/projects", label: "项目", icon: Briefcase },
   { href: "/admin/thoughts", label: "碎碎念", icon: MessageCircle },
   { href: "/admin/gallery", label: "相册", icon: Image },
+  { href: "/admin/music", label: "音乐", icon: Music },
   { href: "/admin/about", label: "关于", icon: User },
 ]
 

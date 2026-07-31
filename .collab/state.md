@@ -13,12 +13,23 @@
 [23:31] Hermes — 提交 601dbc6 (know-each-other 协作协议) + 部署：git pull → docker build 21s → blog-app-1 重启 → 线上 200
 [23:35] Hermes — 更新 wiki (~/knowledge/projects/blog/blog.md)：AD-023 附带修复 groupByMonth、新增 know-each-other + Team 模式章节、移除已知问题中的年份硬编码、更新部署命令+项目结构
 [23:50] Hermes — 发布 3 个新任务到 board：REQ-002(主题动效-纸纹+光扫+微悬浮)、REQ-003(音乐播放器后台管理)、REQ-004(起始页优化+内容引导)
+[23:55] Hermes — 提交 d8d97a9 (天气3D清理 + 新任务) → GitHub，暂不部署
 
-## 2026-07-30 (later)
+## 2026-07-31
+
+[--:--] Claude Code — 🔄 认领 REQ-002/003/004 (team 模式)：REQ-002 主会话执行，REQ-003/004 并行 subagent，涉及 layout/globals/glass-header/music-player/welcome-splash/page
+[--:--] Claude Code — ✅ REQ-002 主题动效：--glass-blur 12px + .paper-grain 纸纹覆层 + .glass::before 光扫 + float-card 微悬浮 + .nav-underline 下划线流动，build 通过
+[--:--] Claude Code — ✅ REQ-004 起始页优化：Welcome 任意点击关闭 + 10 暖金微粒子 + Hero 下「最近动态」双卡片 + 首页 force-dynamic (subagent)
+[--:--] Claude Code — ✅ REQ-003 音乐播放器后台：MusicConfig + getMusic/saveMusic + /api/admin/music + /admin/music 管理页 + sidebar「音乐」+ 播放器读 props (subagent)
+[--:--] Claude Code — 📋 全量 build 验证通过：35 页面 /admin/music + /api/admin/music 已注册，board 3 任务移 ✅
+[--:--] Claude Code — 🔄 用户要求移除首页「最近动态」板块（REQ-004 第 3 条收回），涉及 page.tsx + recent-updates.tsx
+
 
 [--:--] Claude Code — 🔄 开始临时任务：移除天气3D代码 + 修复文章功能
 [--:--] Claude Code — ✅ 完成临时任务，变更文件见下
-[--:--] Claude Code — 📋 项目状态同步 (7/30 会话末)，详见下方完整报告
+[--:--] Claude Code — 📋 项目状态同步 (7/30 会话末)
+[23:55] Hermes — 提交 d8d97a9 (天气3D清理 + 新任务) → GitHub，暂不部署
+[00:--] Claude Code — 📋 know-each-other 同步 (7/31)：board 3 待办、构建通过、工作区干净
 
 ## 2026-07-30 (earlier)
 

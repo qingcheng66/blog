@@ -6,6 +6,7 @@ import { ScrollToTop } from "@/components/scroll-to-top"
 import { GlassHeader } from "@/components/glass-header"
 import { Footer } from "@/components/footer"
 import { MusicPlayer } from "@/components/music-player"
+import { getMusic } from "@/lib/content"
 import { site } from "@/data/site"
 import "./globals.css"
 
@@ -21,7 +22,8 @@ export const metadata = {
   description: site.description,
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const music = await getMusic()
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
@@ -43,13 +45,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-screen flex flex-col font-sans antialiased">
+        <div className="paper-grain" aria-hidden />
         <ThemeProvider>
           <AdminGate><SearchModal /></AdminGate>
           <AdminGate><ScrollToTop /></AdminGate>
           <AdminGate><GlassHeader /></AdminGate>
           <main className="flex-1">{children}</main>
           <AdminGate><Footer /></AdminGate>
-          <AdminGate><MusicPlayer /></AdminGate>
+          <AdminGate><MusicPlayer music={music} /></AdminGate>
         </ThemeProvider>
       </body>
     </html>

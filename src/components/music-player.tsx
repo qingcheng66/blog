@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect, useCallback } from "react"
 import { Music, Play, Pause } from "lucide-react"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
+import type { MusicConfig } from "@/lib/content"
 
 const VOLUME_KEY = "serenity-music-volume"
 const DEFAULT_VOLUME = 0.5
@@ -15,7 +16,7 @@ function formatTime(seconds: number): string {
   return `${m}:${s.toString().padStart(2, "0")}`
 }
 
-export function MusicPlayer() {
+export function MusicPlayer({ music }: { music?: MusicConfig | null }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const audioCtxRef = useRef<AudioContext | null>(null)
   const analyserRef = useRef<AnalyserNode | null>(null)
@@ -39,7 +40,7 @@ export function MusicPlayer() {
 
   // Init audio element + restore volume
   useEffect(() => {
-    const audio = new Audio("/music/bg.mp3")
+    const audio = new Audio(music?.file ?? "/music/bg.mp3")
     audio.loop = true
     audio.preload = "auto"
     audioRef.current = audio
@@ -63,6 +64,18 @@ export function MusicPlayer() {
       if (audioCtxRef.current) { audioCtxRef.current.close().catch(() => {}) }
     }
   }, [])
+
+  // Switch track when music config changes (component stays mounted in layout)
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+    const src = music?.file ?? "/music/bg.mp3"
+    if (audio.getAttribute("src") === src) return
+    const wasPlaying = !audio.paused && !audio.ended
+    audio.src = src
+    audio.load()
+    if (wasPlaying) audio.play().catch(() => {})
+  }, [music])
 
   // Sync audio events + timeupdate
   useEffect(() => {
@@ -282,8 +295,12 @@ export function MusicPlayer() {
           }}
         >
           {/* Track name */}
-          <span className="text-xs truncate" style={{ color: "var(--color-text-muted)" }}>
-            背景音乐
+          <span
+            key={music?.file ?? "default"}
+            className="text-xs truncate"
+            style={{ color: "var(--color-text-muted)" }}
+          >
+            {music?.artist ? `${music.artist} - ${music.trackName}` : (music?.trackName ?? "背景音乐")}
           </span>
 
           {/* Progress bar */}

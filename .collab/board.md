@@ -5,6 +5,22 @@
 
 ## ⏳ 待认领
 
+当前无待认领任务。
+
+## ✅ 最近完成
+
+- **REQ-002 [P0] 主题动效** (Claude Code team, 7/31) — `--glass-blur: 12px` 修复 + 纸纹噪点覆层(.paper-grain) + 玻璃 hover 光扫(.glass::before) + 卡片微悬浮(float-card ±3px 错相位, reduced-motion 禁用) + 导航下划线流动(.nav-underline scaleX)
+- **REQ-003 [P1] 音乐播放器后台** (Claude Code team, 7/31) — MusicConfig + getMusic/saveMusic + GET/PUT `/api/admin/music` + `/admin/music` 管理页 + sidebar「音乐」+ MusicPlayer 读 props 可切歌
+- **REQ-004 [P2] 起始页优化** (Claude Code team, 7/31) — Welcome 任意处点击关闭 + 10 暖金微粒子(float-welcome) + Hero 下方「最近动态」两张玻璃卡片(recent-updates.tsx) + 首页 force-dynamic
+- 临时任务：移除天气3D代码 + 死代码清理 + 项目状态同步 (Claude Code, 7/30) — 删除 weather-scene(2)+use-time-of-day+star-field+bg.gif+three dep，构建通过
+- REQ-001 修复 stream-timeline groupByMonth 年份硬编码 (Claude Code, a52a167, 7/30) — AD-023 已修复
+- AD-018~021 修订+重设计 (Claude Code, 505218c, 7/28)
+- AD-013~017 暖纸色+管理后台+去占位化 (Claude Code, 7/25-26)
+
+## 📄 任务存档（已完成详情）
+
+> 以下为已完成任务的原始需求描述，归档备查。
+
 ### REQ-002 [P0] 主题动效 — 纸纹 + 光扫 + 微悬浮
 
 **涉及文件：** `src/app/globals.css`、`src/app/layout.tsx`、`src/components/glass-header.tsx`、多个卡片组件
@@ -26,10 +42,7 @@
 - `npm run build` 通过
 - 不支持 `backdrop-filter` 的浏览器降级为纯色背景（已有 fallback）
 
----
-
 ### REQ-003 [P1] 音乐播放器 — 后台可管理曲目
-
 **涉及文件：**
 - `src/lib/content.ts` — 新增 Music 类型 + getMusic/saveMusic
 - `src/app/api/admin/music/route.ts` — GET + PUT API
@@ -68,8 +81,6 @@ interface MusicConfig {
 - `npm run build` 通过
 - 曲目管理与现有 6 类数据（articles/projects/thoughts/gallery/about）风格一致
 
----
-
 ### REQ-004 [P2] 起始页 — Welcome 优化 + Hero 下方内容引导
 
 **涉及文件：** `src/components/welcome-splash.tsx`、`src/app/page.tsx`
@@ -83,12 +94,3 @@ interface MusicConfig {
 3. **Hero 下方内容预览** — `page.tsx` 在 HeroSection 下方加一个「最近动态」区块：并排两张迷你卡片——左侧「最新文章」（标题+日期，点击跳转 /articles），右侧「最近碎碎念」（verb+target+日期，点击跳转 /thoughts）。服务端 `page.tsx` 用 `getArticles()` / `getThoughts()` 取最新 1 条，通过 props 传给客户端组件渲染。
 
 **边界：** 不改变 HeroSection/WelcomeSplash 现有结构，`npm run build` 通过。
-
----
-
-## ✅ 最近完成
-
-- 临时任务：移除天气3D代码 + 死代码清理 + 项目状态同步 (Claude Code, 7/30) — 删除 weather-scene(2)+use-time-of-day+star-field+bg.gif+three dep，构建通过
-- REQ-001 修复 stream-timeline groupByMonth 年份硬编码 (Claude Code, a52a167, 7/30) — AD-023 已修复
-- AD-018~021 修订+重设计 (Claude Code, 505218c, 7/28)
-- AD-013~017 暖纸色+管理后台+去占位化 (Claude Code, 7/25-26)

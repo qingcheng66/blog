@@ -82,6 +82,12 @@ export interface About {
   }
 }
 
+export interface MusicConfig {
+  trackName: string    // 曲目标题
+  artist?: string      // 艺术家（可选）
+  file: string         // 音频文件路径，如 "/music/bg.mp3"
+}
+
 // ── 文章 ──
 
 const ARTICLES_JSON = path.join(CONTENT_DIR, "articles.json")
@@ -196,6 +202,19 @@ export async function getAbout(): Promise<About | null> {
 
 export async function saveAbout(about: About): Promise<void> {
   await writeJSON(ABOUT_JSON, about)
+}
+
+// ── 音乐 ──
+
+const MUSIC_JSON = path.join(CONTENT_DIR, "music.json")
+
+export async function getMusic(): Promise<MusicConfig | null> {
+  await ensureDir(CONTENT_DIR)
+  return readJSON<MusicConfig | null>(MUSIC_JSON, null)
+}
+
+export async function saveMusic(music: MusicConfig): Promise<void> {
+  await writeJSON(MUSIC_JSON, music)
 }
 
 // ── 上传 ──
