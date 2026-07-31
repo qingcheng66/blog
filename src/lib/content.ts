@@ -82,10 +82,50 @@ export interface About {
   }
 }
 
+/** 单首曲目 — 播放列表元素 */
+export interface MusicTrack {
+  id: string           // 唯一 id
+  trackName: string    // 曲目标题
+  artist?: string      // 艺术家（可选）
+  file: string         // 音频文件路径，如 "/music/bg.mp3"
+}
+
+/** @deprecated 由 MusicTrack 替代，保留用于向后兼容 */
 export interface MusicConfig {
   trackName: string    // 曲目标题
   artist?: string      // 艺术家（可选）
   file: string         // 音频文件路径，如 "/music/bg.mp3"
+}
+
+/** 生成音乐曲目 id */
+function makeMusicId(): string {
+  try {
+    return crypto.randomUUID()
+  } catch {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
+  }
+}
+
+export interface BackgroundConfig {
+  mode: "image" | "none"
+  src: string                      // 背景图路径，如 "/content/uploads/bg.webp"
+  overlay: string                  // 暗色遮罩，如 "rgba(20,12,6,0.45)"
+  animation: "kenburns" | "none"
+}
+
+// Welcome 启动屏配置
+export interface WelcomeConfig {
+  enabled: boolean
+  title: string
+  subtitle: string
+  background?: string // 可选动态图 URL，如 /content/uploads/welcome-bg.gif
+  showParticles: boolean
+}
+
+// 站点设置 — settings.json，结构可扩展（REQ-008 已加入 welcome 区块）
+export interface Settings {
+  background?: BackgroundConfig
+  welcome?: WelcomeConfig
 }
 
 // ── 文章 ──
@@ -208,13 +248,79 @@ export async function saveAbout(about: About): Promise<void> {
 
 const MUSIC_JSON = path.join(CONTENT_DIR, "music.json")
 
-export async function getMusic(): Promise<MusicConfig | null> {
-  await ensureDir(CONTENT_DIR)
-  return readJSON<MusicConfig | null>(MUSIC_JSON, null)
+/** 单对象 → 数组（向后兼容旧 music.json 单曲结构） */
+function toList(data: unknown): MusicTrack[] {
+  if (Array.isArray(data)) return data as MusicTrack[]
+  if (data && typeof data === "object") {
+    const obj = data as Partial<MusicConfig> & { id?: string }
+    if (obj.trackName && obj.file) {
+      const track: MusicTrack = {
+        id: obj.id ?? makeMusicId(),
+        trackName: obj.trackName,
+        artist: obj.artist,
+        file: obj.file,
+      }
+      return [track]
+    }
+  }
+  return []
 }
 
+/** 读取完整播放列表 */
+export async function getMusicList(): Promise<MusicTrack[]> {
+  await ensureDir(CONTENT_DIR)
+  return toList(await readJSON<unknown>(MUSIC_JSON, []))
+}
+
+/** 整体写入播放列表 */
+export async function saveMusicList(list: MusicTrack[]): Promise<void> {
+  await writeJSON(MUSIC_JSON, list)
+}
+
+/**
+ * 读取第一首曲目（向后兼容，供 layout 直接取单曲）。
+ * 返回第一首或 null；列表为空时返回 null。
+ */
+export async function getMusic(): Promise<MusicConfig | null> {
+  const list = await getMusicList()
+  const first = list[0]
+  if (!first) return null
+  return {
+    trackName: first.trackName,
+    artist: first.artist,
+    file: first.file,
+  }
+}
+
+/** @deprecated 由 saveMusicList 替代 — 保存单曲（追加/替换同 file） */
 export async function saveMusic(music: MusicConfig): Promise<void> {
-  await writeJSON(MUSIC_JSON, music)
+  const list = await getMusicList()
+  const idx = list.findIndex((t) => t.file === music.file)
+  const track: MusicTrack = {
+    id: list[idx]?.id ?? makeMusicId(),
+    trackName: music.trackName,
+    artist: music.artist,
+    file: music.file,
+  }
+  if (idx >= 0) {
+    list[idx] = track
+  } else {
+    list.unshift(track)
+  }
+  await saveMusicList(list)
+}
+
+// ── 站点设置 ──
+
+const SETTINGS_JSON = path.join(CONTENT_DIR, "settings.json")
+
+export async function getSettings(): Promise<Settings> {
+  await ensureDir(CONTENT_DIR)
+  return readJSON<Settings>(SETTINGS_JSON, {})
+}
+
+export async function saveSettings(settings: Settings): Promise<void> {
+  await writeJSON(SETTINGS_JSON, settings)
 }
 
 // ── 上传 ──

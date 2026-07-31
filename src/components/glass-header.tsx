@@ -216,14 +216,12 @@ export function GlassHeader() {
         </button>
       </div>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer — 背景用实色，不依赖 backdrop-filter（Safari iOS 支持差） */}
       {menuOpen && (
         <div
           className="fixed inset-0 top-16 md:hidden z-40"
           style={{
-            background: "var(--glass-bg-strong)",
-            backdropFilter: "blur(var(--glass-blur))",
-            WebkitBackdropFilter: "blur(var(--glass-blur))",
+            background: "var(--color-bg)",
             border: "1px solid var(--color-border)",
           }}
           onClick={() => setMenuOpen(false)}

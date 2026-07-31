@@ -5,6 +5,7 @@ import { useGSAP } from "@gsap/react"
 import { gsap } from "@/lib/gsap"
 import { FileText, FolderGit2, MessageCircle, User, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import { MagneticWrapper } from "@/components/magnetic-wrapper"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 
 const NAV_ITEMS = [
@@ -71,37 +72,38 @@ export function NavCards() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         {NAV_ITEMS.map(({ href, icon: Icon, label, desc }) => (
-          <Link
-            key={href}
-            href={href}
-            className="nav-card group rounded-2xl p-5 flex flex-col items-center text-center gap-3"
-            style={{ background: "var(--glass-bg-strong)" }}
-          >
-            <div
-              className="rounded-xl p-2.5"
-              style={{ background: "rgba(var(--color-accent-rgb), 0.08)" }}
+          <MagneticWrapper key={href} strength={0.18}>
+            <Link
+              href={href}
+              className="nav-card group relative z-10 h-full rounded-2xl p-5 flex flex-col items-center text-center gap-3"
+              style={{ background: "var(--glass-bg-strong)" }}
             >
-              <Icon size={22} style={{ color: "var(--color-accent)" }} />
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
-                {label}
-              </h3>
-              <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
-                {desc}
-              </p>
-            </div>
-            <span
-              className="nav-card-arrow text-xs flex items-center gap-1 transition-all duration-200"
-              style={{
-                color: "var(--color-accent)",
-                opacity: 0.6,
-                transform: "translateX(-4px)",
-              }}
-            >
-              前往 <ArrowRight size={12} />
-            </span>
-          </Link>
+              <div
+                className="rounded-xl p-2.5"
+                style={{ background: "rgba(var(--color-accent-rgb), 0.08)" }}
+              >
+                <Icon size={22} style={{ color: "var(--color-accent)" }} />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
+                  {label}
+                </h3>
+                <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
+                  {desc}
+                </p>
+              </div>
+              <span
+                className="nav-card-arrow text-xs flex items-center gap-1 transition-all duration-200"
+                style={{
+                  color: "var(--color-accent)",
+                  opacity: 0.6,
+                  transform: "translateX(-4px)",
+                }}
+              >
+                前往 <ArrowRight size={12} />
+              </span>
+            </Link>
+          </MagneticWrapper>
         ))}
       </div>
     </section>

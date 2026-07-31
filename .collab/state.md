@@ -30,6 +30,25 @@
 [--:--] Claude Code — 📋 项目状态同步 (7/30 会话末)
 [23:55] Hermes — 提交 d8d97a9 (天气3D清理 + 新任务) → GitHub，暂不部署
 [00:--] Claude Code — 📋 know-each-other 同步 (7/31)：board 3 待办、构建通过、工作区干净
+[00:10] Hermes — 提交 4390aff (REQ-002~004 三任务完成) → GitHub，构建验证通过（/admin/music + /api/admin/music 已注册），暂不部署
+[22:15] Hermes — 部署 4390aff：git pull → docker build → blog-app-1 重启。服务器本机验证 localhost:3000=200 + tunnel 域名=200。本地 Mac curl 超时为本地网络到 CF 边缘问题，非服务器故障
+[22:30] Hermes — ⚠️ 排查发现：宿主机 3000 端口被 orphan 容器 devlog-frontend(7天前遗留) 占用，localhost:3000 测试全部打到错误容器。blog-app-1 直连(172.19.0.2:3000)全路由 200，线上域名全部 200 + 内容正确。部署成功 ✅。建议后续清理 devlog 三个 orphan 容器
+[22:40] Hermes — 更新 wiki：新增 7/31 进展(REQ-002~004 + 部署教训)、移除 three.js 技术栈、Phase 11、frontmatter 日期
+[23:00] Hermes — 接收用户任务清单(学习.md 8 条)：背景图增强/播放器升级/多音乐/连播/H5适配/Welcome后台可调/逆向分析。REQ-005(H5 移动端菜单不透明)已可直接开工，其余 4 项派 3 个调研 subagent 并行调研中
+[23:20] Hermes — 3 调研完成：播放器选型(自研扩展最优，不换库)、背景方案(Ken Burns+overlay+settings.json)、逆向分析(immmmm仪表盘/zhheo弥散光/rauno磁吸)。细化 REQ-005~009 写入 board：H5菜单、背景图P0、播放器多音乐P1、Welcome后台P2、质量提升P2
+[23:30] Claude Code — ✅ REQ-005~009 全部完成（team 模式）：H5菜单不透明化、settings 数据层+背景层+Ken Burns、音乐多曲目+连播、Welcome 后台配置、弥散光晕+磁吸
+[23:45] Hermes — 验证 REQ-005~009：build 通过，后台设置页/音乐页/Welcome 配置全部渲染正常。⚠️ 实测发现 REQ-010：音乐新增 API bug（cleanTrack 无条件生成 id → POST 永远走编辑分支 → 404）。已登记 board 待 Claude Code 修复
+[23:30] Claude Code — 🔄 认领 REQ-005~009 (board ⏳→🔄)。开始 REQ-005 移动端菜单抽屉不透明化，涉及 glass-header.tsx
+[23:40] Claude Code — ✅ REQ-005 完成：移动端 drawer 背景 `var(--glass-bg-strong)`+blur → `var(--color-bg)` 实色，移除 backdrop-filter 依赖（drawer 本身 md:hidden，桌面端不变）。⚠️ 发布方注意：REQ-006(背景图) 会引入 settings.json 数据层，REQ-007(音乐多曲目) 会改 music.json 结构，两者均含向后兼容
+[23:42] Claude Code — 🔄 进入 team 模式：主会话实现 REQ-006(settings 数据层+背景层)，随后并行 subagent 实现 REQ-007/008/009
+[--:--] Claude Code — ✅ REQ-009 博客质量提升：Hero 弥散光晕（双 radial-gradient：accent 暖橙 0.18/blur40px 主光晕 + secondary 琥珀 0.12/blur52px 副光晕，pointer-events-none 纯装饰零依赖）+ NavCards 复用 MagneticWrapper 磁吸（strength 0.18，触屏/reduced-motion 自动降级）。改动文件：src/components/hero-section.tsx、src/components/nav-cards.tsx。未动首页聚合板块（用户已移除），未改移动端 drawer。tsc --noEmit 通过（未跑 build）
+[--:--] Claude Code — ✅ REQ-006 背景图增强：Settings 类型 + getSettings/saveSettings + GET/PUT /api/admin/settings + /admin/settings 后台页（上传+预览+暗色遮罩+Ken Burns 开关）+ BackgroundLayer 全屏背景 + ken-burns 慢缩放（reduced-motion 禁用）+ sidebar「设置」(主会话)
+[--:--] Claude Code — ✅ REQ-007 音乐播放器多曲目：MusicTrack[] + getMusicList/saveMusicList（旧单对象 toList 兼容）+ music API 列表 CRUD（GET/POST/PUT 整体替换/DELETE?id=）+ /admin/music 列表管理（增删改+上下移排序+空态）+ 播放器连播/上一首/下一首（onEnded 循环）+ layout 读 getMusicList (subagent)
+[--:--] Claude Code — ✅ REQ-008 Welcome 后台可配置：settings.json 加 welcome 区块 + settings PUT 改 spread 合并（AD-021 防丢失）+ /admin/settings 加 Welcome 卡片（开关/标题/副标题/动态图上传/微粒子开关）+ welcome-splash 读 props（enabled=false 不渲染、动态图+rgba(20,12,6,0.45) 遮罩、showParticles 开关、标题/副标题 fallback），保留点击关闭+粒子 (subagent)
+[--:--] Claude Code — 📋 全量验证：npx tsc --noEmit 通过 + npm run build 通过（/admin/music /admin/settings /api/admin/music /api/admin/settings 已注册）。dev server 验证：首页渲染 Welcome+Hero，music/settings API 未登录 401。board 5 任务全部移 ✅
+[--:--] Claude Code — 🔄 用户报告「图片上传后展示不出来」。诊断：上传 API 写 content/uploads/ 并返回 /content/uploads/xxx，但 content/ 不在 public/，Next.js 不服务该路径 → 浏览器请求 404（既有 bug，相册路径同样受影响，本地+生产 Docker standalone 均如此）
+[--:--] Claude Code — ✅ 修复图片展示：新增 src/app/content/[...path]/route.ts 服务 /content/*（仅限 uploads 子目录 + path.resolve 防目录穿越 + 按扩展名返回 Content-Type + immutable 缓存，前台无需鉴权）。删除误建的 /api/content 冗余路由。验证：gif/png 均 200，目录穿越 404，端到端登录→上传→访问 URL 200
+[--:--] Claude Code — 🔄 认领 REQ-010 修复音乐新增 bug（board ⏳）。读取 route.ts 确认根因与 Hermes 诊断一致：cleanTrack() 第 17 行 id: track.id ?? makeId() 无条件生成 id → POST 永远走编辑分支 → 404。开始修复（修改被用户中断，暂停，待用户指示）
 
 ## 2026-07-30 (earlier)
 

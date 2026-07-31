@@ -2,10 +2,28 @@
 
 import { useEffect, useState } from "react"
 import { site } from "@/data/site"
+import type { WelcomeConfig } from "@/lib/content"
 
-export function WelcomeSplash() {
+export function WelcomeSplash({
+  welcome,
+}: {
+  welcome?: WelcomeConfig | null
+}) {
+  // 兼容旧数据：未配置时默认启用
+  if (!(welcome?.enabled ?? true)) return null
+
+  return <WelcomeSplashInner welcome={welcome} />
+}
+
+function WelcomeSplashInner({ welcome }: { welcome?: WelcomeConfig | null }) {
   const [visible, setVisible] = useState(false)
   const [fadeOut, setFadeOut] = useState(false)
+
+  // 从配置读取，fallback 到原有硬编码值
+  const title = welcome?.title?.trim() || `${site.name} · Lab`
+  const subtitle = welcome?.subtitle?.trim() || "AI 全栈 · 构建与写作"
+  const bgImage = welcome?.background?.trim() || ""
+  const showParticles = welcome?.showParticles ?? true
 
   useEffect(() => {
     // sessionStorage — only show once per session
@@ -38,7 +56,7 @@ export function WelcomeSplash() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden"
       style={{
         background: "var(--color-bg-soft)",
         opacity: fadeOut ? 0 : 1,
@@ -46,11 +64,29 @@ export function WelcomeSplash() {
       }}
       onClick={dismiss}
     >
+      {/* 动态背景图（GIF/WebP 自然播放），置于文字与粒子之下 */}
+      {bgImage && (
+        <>
+          <img
+            src={bgImage}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover"
+            draggable={false}
+          />
+          {/* 暗色遮罩保证文字可读 */}
+          <div
+            className="absolute inset-0"
+            style={{ background: "rgba(20,12,6,0.45)" }}
+          />
+        </>
+      )}
+
       {/* 暖金色微粒子 */}
-      <WelcomeParticles />
+      {showParticles && <WelcomeParticles />}
 
       {/* Animated greeting */}
-      <div className={fadeOut ? "animate-fade-out" : "animate-fade-in"} onClick={(e) => e.stopPropagation()}>
+      <div className={`relative z-10 ${fadeOut ? "animate-fade-out" : "animate-fade-in"}`} onClick={(e) => e.stopPropagation()}>
         <h1
           className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4"
           style={{
@@ -62,20 +98,20 @@ export function WelcomeSplash() {
             animation: fadeOut ? undefined : "shimmer 2s ease-in-out infinite",
           }}
         >
-          {site.name} · Lab
+          {title}
         </h1>
       </div>
 
       <p
-        className="text-sm sm:text-base"
+        className="relative z-10 text-sm sm:text-base"
         style={{
-          color: "var(--color-text-muted)",
+          color: bgImage ? "rgba(255,255,255,0.85)" : "var(--color-text-muted)",
           opacity: fadeOut ? 0 : 1,
           transition: "opacity 0.4s ease-out",
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        AI 全栈 · 构建与写作
+        {subtitle}
       </p>
 
       {/* Click hint */}
@@ -84,8 +120,8 @@ export function WelcomeSplash() {
           e.stopPropagation()
           dismiss()
         }}
-        className="mt-8 text-xs px-4 py-2 glass rounded-full transition-colors hover-media:hover:bg-white/10 opacity-60"
-        style={{ color: "var(--color-text-muted)" }}
+        className="relative z-10 mt-8 text-xs px-4 py-2 glass rounded-full transition-colors hover-media:hover:bg-white/10 opacity-60"
+        style={{ color: bgImage ? "rgba(255,255,255,0.8)" : "var(--color-text-muted)" }}
       >
         点击任意位置进入
       </button>

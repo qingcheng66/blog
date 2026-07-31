@@ -6,7 +6,8 @@ import { ScrollToTop } from "@/components/scroll-to-top"
 import { GlassHeader } from "@/components/glass-header"
 import { Footer } from "@/components/footer"
 import { MusicPlayer } from "@/components/music-player"
-import { getMusic } from "@/lib/content"
+import { BackgroundLayer } from "@/components/background-layer"
+import { getMusicList, getSettings } from "@/lib/content"
 import { site } from "@/data/site"
 import "./globals.css"
 
@@ -23,7 +24,7 @@ export const metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const music = await getMusic()
+  const [music, settings] = await Promise.all([getMusicList(), getSettings()])
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
@@ -45,6 +46,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body className="min-h-screen flex flex-col font-sans antialiased">
+        <BackgroundLayer background={settings.background} />
         <div className="paper-grain" aria-hidden />
         <ThemeProvider>
           <AdminGate><SearchModal /></AdminGate>

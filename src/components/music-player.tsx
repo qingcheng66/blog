@@ -1,12 +1,13 @@
 "use client"
 
 import { useRef, useState, useEffect, useCallback } from "react"
-import { Music, Play, Pause } from "lucide-react"
+import { Music, Play, Pause, SkipBack, SkipForward } from "lucide-react"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
-import type { MusicConfig } from "@/lib/content"
+import type { MusicTrack } from "@/lib/content"
 
 const VOLUME_KEY = "serenity-music-volume"
 const DEFAULT_VOLUME = 0.5
+const FALLBACK_FILE = "/music/bg.mp3"
 
 // Format seconds to m:ss
 function formatTime(seconds: number): string {
@@ -16,7 +17,16 @@ function formatTime(seconds: number): string {
   return `${m}:${s.toString().padStart(2, "0")}`
 }
 
-export function MusicPlayer({ music }: { music?: MusicConfig | null }) {
+function trackLabel(t: MusicTrack | undefined): string {
+  if (!t) return "背景音乐"
+  return t.artist ? `${t.artist} - ${t.trackName}` : t.trackName
+}
+
+function validList(music: MusicTrack[] | null | undefined): MusicTrack[] {
+  return Array.isArray(music) && music.length > 0 ? music : []
+}
+
+export function MusicPlayer({ music }: { music?: MusicTrack[] | null }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const audioCtxRef = useRef<AudioContext | null>(null)
   const analyserRef = useRef<AnalyserNode | null>(null)
@@ -26,6 +36,8 @@ export function MusicPlayer({ music }: { music?: MusicConfig | null }) {
   const barsRef = useRef<HTMLDivElement>(null)
   const progressFillRef = useRef<HTMLDivElement>(null)
   const lastTimeUpdateRef = useRef(0)
+  // 标记「自然播完」下一首应自动播放（ended 时 audio.ended=true，无法从 wasPlaying 判断）
+  const autoplayNextRef = useRef(false)
 
   const [isPlaying, setIsPlaying] = useState(false)
   const [isExpanded, setExpanded] = useState(false)
@@ -34,14 +46,34 @@ export function MusicPlayer({ music }: { music?: MusicConfig | null }) {
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
+  const [list, setList] = useState<MusicTrack[]>(() => validList(music))
+  const [currentIndex, setCurrentIndex] = useState(0)
   const panelRef = useRef<HTMLDivElement>(null)
   const knobRef = useRef<HTMLDivElement>(null)
   const reducedMotion = useReducedMotion()
 
+  const currentTrack = list[currentIndex]
+
+  // 单曲时保持原生循环（与旧版行为一致）；多曲时不循环，靠 onEnded 连播
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.loop = list.length === 1
+  }, [list.length])
+
+  // 服务端数据变化时同步播放列表（组件常驻 layout）
+  // 仅当长度变化时更新，避免打断正在进行的本地播放
+  useEffect(() => {
+    const next = validList(music)
+    if (next.length === 0) return
+    if (next.length !== list.length) {
+      setList(next)
+      setCurrentIndex(0)
+    }
+  }, [music])
+
   // Init audio element + restore volume
   useEffect(() => {
-    const audio = new Audio(music?.file ?? "/music/bg.mp3")
-    audio.loop = true
+    const audio = new Audio(FALLBACK_FILE)
+    audio.loop = false
     audio.preload = "auto"
     audioRef.current = audio
 
@@ -65,17 +97,20 @@ export function MusicPlayer({ music }: { music?: MusicConfig | null }) {
     }
   }, [])
 
-  // Switch track when music config changes (component stays mounted in layout)
+  // 当前曲目加载：currentIndex / list 变化时切换 audio.src
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
-    const src = music?.file ?? "/music/bg.mp3"
+    const track = list[currentIndex]
+    const src = track?.file || FALLBACK_FILE
     if (audio.getAttribute("src") === src) return
     const wasPlaying = !audio.paused && !audio.ended
     audio.src = src
     audio.load()
-    if (wasPlaying) audio.play().catch(() => {})
-  }, [music])
+    const shouldPlay = autoplayNextRef.current || wasPlaying
+    autoplayNextRef.current = false
+    if (shouldPlay) audio.play().catch(() => {})
+  }, [list, currentIndex])
 
   // Sync audio events + timeupdate
   useEffect(() => {
@@ -83,6 +118,11 @@ export function MusicPlayer({ music }: { music?: MusicConfig | null }) {
     if (!audio) return
     const onPlay = () => setIsPlaying(true)
     const onPause = () => setIsPlaying(false)
+    const onEnded = () => {
+      // 自动连播：末尾回第一首（循环）
+      autoplayNextRef.current = true
+      setCurrentIndex((i) => (i + 1) % Math.max(1, list.length))
+    }
     const onTimeUpdate = () => {
       // Direct DOM: smooth progress bar
       if (progressFillRef.current && audio.duration > 0) {
@@ -102,15 +142,17 @@ export function MusicPlayer({ music }: { music?: MusicConfig | null }) {
     }
     audio.addEventListener("play", onPlay)
     audio.addEventListener("pause", onPause)
+    audio.addEventListener("ended", onEnded)
     audio.addEventListener("timeupdate", onTimeUpdate)
     audio.addEventListener("loadedmetadata", onLoadedMeta)
     return () => {
       audio.removeEventListener("play", onPlay)
       audio.removeEventListener("pause", onPause)
+      audio.removeEventListener("ended", onEnded)
       audio.removeEventListener("timeupdate", onTimeUpdate)
       audio.removeEventListener("loadedmetadata", onLoadedMeta)
     }
-  }, [])
+  }, [list.length])
 
   // Initialize Web Audio spectrum analyser
   const initSpectrum = useCallback(() => {
@@ -196,6 +238,17 @@ export function MusicPlayer({ music }: { music?: MusicConfig | null }) {
       audio.play().catch(() => {})
     }
   }, [isPlaying, hasInteracted, initSpectrum])
+
+  // Next / prev track
+  const nextTrack = useCallback(() => {
+    if (list.length <= 1) return
+    setCurrentIndex((i) => (i + 1) % list.length)
+  }, [list.length])
+
+  const prevTrack = useCallback(() => {
+    if (list.length <= 1) return
+    setCurrentIndex((i) => (i - 1 + list.length) % list.length)
+  }, [list.length])
 
   // Apply volume
   const applyVolume = useCallback((v: number) => {
@@ -294,14 +347,21 @@ export function MusicPlayer({ music }: { music?: MusicConfig | null }) {
             boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
           }}
         >
-          {/* Track name */}
-          <span
-            key={music?.file ?? "default"}
-            className="text-xs truncate"
-            style={{ color: "var(--color-text-muted)" }}
-          >
-            {music?.artist ? `${music.artist} - ${music.trackName}` : (music?.trackName ?? "背景音乐")}
-          </span>
+          {/* Track name + playlist position */}
+          <div className="flex items-center justify-between gap-2">
+            <span
+              key={currentTrack?.file ?? "default"}
+              className="text-xs truncate"
+              style={{ color: "var(--color-text-muted)" }}
+            >
+              {trackLabel(currentTrack)}
+            </span>
+            {list.length > 1 && (
+              <span className="text-[10px] flex-shrink-0" style={{ color: "var(--color-text-muted)" }}>
+                {currentIndex + 1}/{list.length}
+              </span>
+            )}
+          </div>
 
           {/* Progress bar */}
           <div
@@ -335,8 +395,24 @@ export function MusicPlayer({ music }: { music?: MusicConfig | null }) {
             {formatTime(currentTime)} / {formatTime(duration)}
           </span>
 
-          {/* Controls row: play, spectrum, knob */}
+          {/* Controls row: prev, play, next, spectrum, knob */}
           <div className="flex items-center justify-between mt-1">
+            {/* Prev track */}
+            {list.length > 1 && (
+              <button
+                onClick={prevTrack}
+                className="flex items-center justify-center rounded-full transition-colors flex-shrink-0"
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  color: "var(--color-text-secondary)",
+                }}
+                aria-label="上一首"
+              >
+                <SkipBack size={16} />
+              </button>
+            )}
+
             {/* Play/Pause */}
             <button
               onClick={togglePlay}
@@ -351,6 +427,22 @@ export function MusicPlayer({ music }: { music?: MusicConfig | null }) {
             >
               {isPlaying ? <Pause size={18} /> : <Play size={18} />}
             </button>
+
+            {/* Next track */}
+            {list.length > 1 && (
+              <button
+                onClick={nextTrack}
+                className="flex items-center justify-center rounded-full transition-colors flex-shrink-0"
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  color: "var(--color-text-secondary)",
+                }}
+                aria-label="下一首"
+              >
+                <SkipForward size={16} />
+              </button>
+            )}
 
             {/* Spectrum bars */}
             <div

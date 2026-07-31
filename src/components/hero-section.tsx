@@ -161,15 +161,35 @@ export function HeroSection() {
   return (
     <section
       ref={containerRef}
-      className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center gap-8 pt-16 pb-8"
+      className="relative min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center gap-8 pt-16 pb-8"
     >
+      {/* 弥散光晕背景 — 暖橙 radial-gradient，纯装饰（zhheo 风格） */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+        <div
+          className="absolute left-1/2 top-[18%] -translate-x-1/2 w-[min(680px,90vw)] aspect-square rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(var(--color-accent-rgb), 0.18), transparent 62%)",
+            filter: "blur(40px)",
+          }}
+        />
+        <div
+          className="absolute right-[5%] bottom-[6%] w-[min(420px,58vw)] aspect-square rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(var(--color-accent-secondary-rgb), 0.12), transparent 62%)",
+            filter: "blur(52px)",
+          }}
+        />
+      </div>
+
       {/* Avatar + glow ring */}
-      <div ref={avatarRef}>
+      <div ref={avatarRef} className="relative">
         <AvatarGlow />
       </div>
 
       {/* Content block */}
-      <div ref={contentRef} className="flex flex-col items-center gap-5 max-w-lg text-center">
+      <div ref={contentRef} className="relative flex flex-col items-center gap-5 max-w-lg text-center">
         {/* Name */}
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
           {site.name}

@@ -9,6 +9,7 @@ import {
   Image,
   User,
   Music,
+  Settings as SettingsIcon,
   ArrowLeft,
 } from "lucide-react"
 import { LogoutButton } from "@/components/admin-logout-button"
@@ -20,6 +21,7 @@ const SIDEBAR_LINKS = [
   { href: "/admin/thoughts", label: "碎碎念", icon: MessageCircle },
   { href: "/admin/gallery", label: "相册", icon: Image },
   { href: "/admin/music", label: "音乐", icon: Music },
+  { href: "/admin/settings", label: "设置", icon: SettingsIcon },
   { href: "/admin/about", label: "关于", icon: User },
 ]
 
