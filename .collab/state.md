@@ -40,6 +40,12 @@
 [23:45] Hermes — 验证 REQ-005~009：build 通过，后台设置页/音乐页/Welcome 配置全部渲染正常。⚠️ 实测发现 REQ-010：音乐新增 API bug（cleanTrack 无条件生成 id → POST 永远走编辑分支 → 404）。已登记 board 待 Claude Code 修复
 [23:50] Hermes — 提交 be23540 (REQ-005~009 全部功能) → GitHub。REQ-010 未修复（Claude Code 这轮没做），board 仍待认领
 [23:55] Hermes — 实测发现 REQ-011：相册图片点击无放大（gallery-grid 未接现成 LightboxImage 组件）。已登记 board。素材已备好桌面(~/Desktop/blog-素材/：4 背景图 + 4 音乐)
+[00:05] Claude Code — ✅ REQ-010+011 修复完成：音乐新增 API（cleanTrack 不再生成 id + POST/PUT 正确分支）+ 相册 Lightbox 接入，tsc+build+curl 全通过
+[00:10] Hermes — 提交 0dd5e01 (REQ-010+011 修复) → GitHub，build 验证通过
+[00:20] Hermes — 部署 0dd5e01：git pull → docker build → blog-app-1 重启(Up 11s)。线上域名 / /gallery 200。直连容器验证：登录200、新增曲目200+id、列表200、删除200（REQ-010 修复生效）。测试数据已清理
+[00:35] Hermes — ⚠️ 部署素材时发现线上大 bug：/content/* 路径 404（Next.js standalone 不 serve content/ 目录）——所有上传图片(相册/背景/Welcome)线上全挂，从 AD-014 起一直是坏的。已登记 REQ-012(P0)。音乐文件 scp 到 public/music 但镜像不包含（需 rebuild），已另存 content/music/ 待 REQ-012 修复后走 /content 路径
+[00:45] Hermes — 更新 wiki：7/31 补 REQ-005~013 全部记录 + 素材库 + REQ-012 重大 bug + Phase 12 + 顶部摘要已知待修
+[07-31 23:43] Hermes — 升级 know-each-other 协议：新增时间戳强制规则（date 命令拿真实时间，禁 [--:--]，插当天区块末尾），同步到 skill + CLAUDE.md 第 6 条
 [23:30] Claude Code — 🔄 认领 REQ-005~009 (board ⏳→🔄)。开始 REQ-005 移动端菜单抽屉不透明化，涉及 glass-header.tsx
 [23:40] Claude Code — ✅ REQ-005 完成：移动端 drawer 背景 `var(--glass-bg-strong)`+blur → `var(--color-bg)` 实色，移除 backdrop-filter 依赖（drawer 本身 md:hidden，桌面端不变）。⚠️ 发布方注意：REQ-006(背景图) 会引入 settings.json 数据层，REQ-007(音乐多曲目) 会改 music.json 结构，两者均含向后兼容
 [23:42] Claude Code — 🔄 进入 team 模式：主会话实现 REQ-006(settings 数据层+背景层)，随后并行 subagent 实现 REQ-007/008/009

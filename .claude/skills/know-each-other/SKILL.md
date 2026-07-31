@@ -1,7 +1,7 @@
 ---
 name: know-each-other
 description: Hermes + Claude Code 协作协议。通过 .collab/ 共享文件实现任务分配和状态同步。每轮开始读 board.md 认领任务，结束时更新 state.md 记录进度。
-version: 1.0.0
+version: 1.1.0
 user-invocable: true
 ---
 
@@ -53,6 +53,21 @@ user-invocable: true
 - 每条一行，简洁可 grep
 - 时间格式 `[HH:MM]`
 - 状态标记：🔄 进行中 | ⚠️ 跨模块影响 | ✅ 完成
+
+## ⚠️ 时间戳规则（强制，v1.1.0）
+
+**写入 state.md 或 board.md 前，必须执行以下命令获取真实时间，禁止写 `[--:--]` 占位符：**
+
+```bash
+date "+%m-%d %H:%M"
+```
+
+1. 先跑 `date` 拿到真实月日和时间，再追加日志
+2. 追加位置：**永远插到当天 `## YYYY-MM-DD` 区块的末尾**（日期标题后面），不要新建 `(later)`/`(earlier)` 之类重复区块
+3. 若跨天（本地凌晨 00:00-06:00），用 `date` 返回的当前日期建新区块，标题格式 `## YYYY-MM-DD`（补零，如 `2026-08-01`）
+4. board.md 里标注时间处同样用 `date` 的真实时间，如 `(Claude Code, 08-01 00:30)`
+
+> 原因：日志时间用于 handoff 时判断活动顺序，`[--:--]` 和乱序区块会让同步报告失去参考价值。
 
 ## board.md 格式
 

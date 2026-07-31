@@ -5,21 +5,32 @@
 
 ## ⏳ 待认领
 
-### REQ-010 [P0] 修复音乐 API 新增曲目 bug（Hermes 实测发现）
+### REQ-012 [P0] /content 静态文件服务 — 修复上传图片线上 404（Hermes 部署实测发现）
 
-**位置：** `src/app/api/admin/music/route.ts`
+**Bug：** 上传接口写文件到 `content/uploads/` 并返回 `/content/uploads/xxx.jpg`，但 Next.js standalone **不 serve `/content/` 路径**——所有上传的图片线上 404（相册图、背景图、Welcome 动图全挂）。上传功能从 AD-014 起在线上一直是坏的。
 
-**Bug（Hermes 浏览器+curl 实测复现）：** 新增曲目返回 404「曲目不存在」，功能完全不可用。
+**修复：** 新建 catch-all route handler `src/app/content/[...path]/route.ts`：
+- 从 `process.cwd()/content/` 读取文件返回（`path.join` + 防目录穿越）
+- 设置正确 Content-Type（按扩展名，或 `mime` 库）
+- 复用现有鉴权？**不需要**——这是公开静态资源（相册图要公开访问）
+- 404 处理：文件不存在返回 404
 
-**根因：** `cleanTrack()` 第 17 行 `id: track.id ?? makeId()` 无条件生成 id。POST 第 49 行 `if (track.id)` 用它判断新增/编辑——新增时前端传 `id: undefined`，cleanTrack 补了随机 id（truthy）→ 永远走编辑分支 → 列表找不到 → 404。
+**验证：** 上传一张图 → curl `/content/uploads/xxx.jpg` 返回 200 + 正确 content-type；相册页图片正常显示。
 
-**修复：**
-1. `cleanTrack()` 的 id 改为 `track.id`（不生成，保持 undefined）
-2. POST 的 else（新增）分支里 `track.id = makeId()` 再 push
-3. PUT 数组整体替换路径：对无 id 的条目补 makeId()（保持兼容）
-4. 回归测试：curl 新增 → 返回 200 + id；编辑已有 id → 200；PUT 数组排序 → 200
+---
 
-**验证：** `npm run build` 通过 + curl 实测新增成功。
+### REQ-013 [P1] 音乐文件路径迁移到 content/（配合 REQ-012）
+
+**问题：** 音乐 mp3 放 `public/music/` 是 Docker build 时 COPY 进镜像的（非 volume），换歌必须 rebuild 镜像，体验差。
+
+**方案（推荐）：** 音乐文件移到 `content/music/`（volume 挂载，REQ-012 的 /content route 会 serve），前端路径改 `/content/music/xxx.mp3`：
+- 上传 API 已支持任意文件类型？——现有 upload API 只收图片。加一个音乐上传（或在 /admin/music 加文件上传）
+- 或最简单：**REQ-012 落地后，音乐文件手动放 content/music/，后台填路径 `/content/music/xxx.mp3`**，换歌无需 rebuild
+- 保留旧 `/music/bg.mp3` 兼容（public 里的旧文件仍在）
+
+**验证：** 添加曲目路径 `/content/music/xxx.mp3` → 播放器能播。
+
+---
 
 ## ✅ 最近完成
 

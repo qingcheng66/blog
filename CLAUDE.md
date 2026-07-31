@@ -13,6 +13,7 @@
 3. 改动影响其他模块时 → ⚠️ 前缀标注
 4. 完成任务 → board.md 移到 ✅，标注 commit hash
 5. 只维护 `.claude/project-memory.md` 记架构决策和踩坑
+6. **⚠️ 时间戳强制**：追加 `.collab/state.md` 或 board 前，先执行 `date "+%m-%d %H:%M"` 拿真实时间，禁止写 `[--:--]` 占位符；日志插到当天 `## YYYY-MM-DD` 区块末尾，不新建重复区块
 
 ---
 
