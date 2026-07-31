@@ -23,7 +23,8 @@
 
 ## ✅ 最近完成
 
-- **REQ-005 [P1] H5 适配 — 移动端菜单抽屉不透明化** (Claude Code, 7/31) — drawer 背景改实色 `var(--color-bg)`，移除 backdrop-filter 依赖（Safari iOS 支持差），桌面端不变
+- **REQ-010 [P0] 修复音乐 API 新增曲目 bug** (Claude Code, 7/31) — cleanTrack 改 `Omit<MusicTrack,"id">` 不再无条件生成 id；POST 用 body.id 判断新增/编辑（新增 makeId+push）；PUT 数组/单对象对无 id 条目补 makeId。tsc+build 通过，curl 实测新增 200+id/编辑 200/不存在 404/数组排序 count:2/删除 200
+- **REQ-011 [P1] 相册图片点击放大** (Claude Code subagent, 7/31) — gallery-grid 裸 `<img>` 换 `LightboxImage`（点击放大/滚轮缩放/触摸下滑关闭/body scroll lock），补 `.gallery-item button` 撑满样式；tsc+build 通过
 - **REQ-006 [P0] 背景图增强** (Claude Code, 7/31) — Settings 类型 + getSettings/saveSettings + GET/PUT `/api/admin/settings` + `/admin/settings` 后台页（上传+预览+遮罩+动效开关）+ BackgroundLayer 全屏背景 + Ken Burns 慢缩放（reduced-motion 禁用）+ sidebar「设置」
 - **REQ-007 [P1] 音乐播放器多曲目** (Claude Code, 7/31) — MusicTrack[] + getMusicList/saveMusicList（旧单对象兼容）+ music API 列表 CRUD + `/admin/music` 列表管理（增删改+上下移排序）+ 播放器连播/上一首/下一首 + layout 读全列表
 - **REQ-008 [P2] Welcome 后台可配置** (Claude Code, 7/31) — settings.json 加 welcome 区块 + PUT 改 spread 合并（AD-021 防丢失）+ `/admin/settings` 加 Welcome 卡片（开关/标题/副标题/动态图上传/微粒子开关）+ welcome-splash 读 props（enabled=false 不渲染、动态图+暗遮罩、微粒子开关），保留点击关闭+粒子

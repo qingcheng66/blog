@@ -5,6 +5,7 @@ import { useGSAP } from "@gsap/react"
 import { gsap } from "@/lib/gsap"
 import { Camera } from "lucide-react"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
+import { LightboxImage } from "@/components/lightbox"
 import type { GalleryItem } from "@/lib/content"
 
 export function GalleryGrid({ images }: { images: GalleryItem[] }) {
@@ -34,6 +35,11 @@ export function GalleryGrid({ images }: { images: GalleryItem[] }) {
             transform: translateY(-2px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
           }
+        }
+        .gallery-item button {
+          display: block;
+          width: 100%;
+          height: 100%;
         }
       `}</style>
 
@@ -72,7 +78,7 @@ export function GalleryGrid({ images }: { images: GalleryItem[] }) {
             style={{ background: "var(--glass-bg-strong)" }}
           >
             {item.src ? (
-              <img src={item.src} alt={item.label} className="w-full h-full object-cover" />
+              <LightboxImage src={item.src} alt={item.label} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center gap-2">
                 <Camera size={32} style={{ color: "var(--color-text-muted)", opacity: 0.4 }} />
