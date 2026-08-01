@@ -66,6 +66,11 @@
 
 [21:35] Hermes — handoff 同步：发现 REQ-012 图片修复代码 src/app/content/[...path]/route.ts 被 .gitignore `content/` 规则误伤（匹配了 src/app/content/ 源码目录），**从未进 git，线上 404 从未修复**。修复 .gitignore 改 `/content/` → 提交 4508333 纳入 route.ts → build 通过（/content/[...path] 已注册）。board：REQ-012 移 ✅（待部署），REQ-013 标注注意点（route 仅允许 uploads 子目录，content/music/ 需扩展）
 [21:48] Hermes — 用户需求登记：相册照片打不开（线上实测 /content/uploads/* 404，根因即 REQ-012 未部署，代码已就绪待部署）、碎碎念与文章合并+新排版（REQ-015，排版样例待用户提供）、Hero 口号「用代码让想法成真」改动态播放（REQ-016，截图方框圈出）、lint 15 errors 遗留登记 REQ-014
+[21:50] Hermes — 调研 aibrium.cn（暖纸色博客）：弹幕短语/草叶樱花/effects 性能分级/说说时间线/照片墙分册，报告存 .collab/调研/aibrium调研报告.md
+[22:02] Hermes — 用户调研报告归档：gyyra.cn-调研说明.md（WakaTime 编码状态驱动主题 + AI 周报塔罗 + Actions 全自动流水线）
+[22:10] Hermes — 用户调研报告归档：munan-ink-调研说明.md（Web Desktop 窗口系统 + 视频壁纸 + framer-motion spring）
+[22:13] Hermes — 用户覆盖更新 gyyra.cn-调研说明.md 为深度版（含源码仓库取证：auto-bing/daily-theme-update/deploy-server 三工作流）
+[22:15] Hermes — 三站对比提炼完成：.collab/调研/三站对比提炼.md（Tier1 对应现有需求/ Tier2 氛围新功能/ Tier3 系统级）。board 更新：REQ-015/016 补调研参考，新增 REQ-017（相册分组）、REQ-018（草叶装饰）、REQ-019（effects 性能分级）
 
 ## 2026-07-30
 

@@ -34,6 +34,10 @@
 
 **状态：** 🔄 排版方式待用户提供（用户说"具体排版方式我后面会给你"）——收到排版参考后再细化任务规格。
 
+**调研参考（Hermes 08-01，三站对比见 .collab/调研/三站对比提炼.md）：**
+- aibrium.cn /moments：紫色渐变时间线 + 圆点节点 + 玻璃卡片 + 心情标签胶囊（emo/大晴天/平静）——可参考但克制版建议「一行一条：日期+内容」
+- munan.ink 文章窗口：日/周/月/年/分类胶囊筛选，数据驱动——合并内容流后可加「全部/文章/碎碎念/按月份」筛选
+
 **初步方向（未定）：**
 - 现有 /articles 与 /thoughts 两个页面/数据源，合并后导航栏怎么处理？
 - 数据是否合并到一个 JSON？还是保留两个数据源前端统一渲染？
@@ -45,13 +49,54 @@
 
 **需求来源：** 用户 08-01 截图（/Users/apple/Pictures/截屏2026-08-01 21.43.51.png）方框圈出 Hero 区口号（橙色粗体 + 黑色细线框，当前静态文字）。
 
-**目标：** 方框内内容换成动态播放的那种（打字机逐字/轮播多句口号/流光描边？——具体动效风格待与用户确认，可先按打字机 + 多句口号轮播做）。
+**调研参考（Hermes 08-01）：**
+- aibrium.cn Hero：标题 JS 入场动画（初始 `opacity:0; transform:translateY(30px)` → 淡入上移）
+- aibrium.cn 弹幕层：6 条状态短语极淡粗体从右向左飘（`site-danmaku-travel` keyframes，24-34s 一圈，`color:#82746a1c` 约 11% 透明，z-[1] 内容下层 pointer-events-none）
+- gyyra.cn iUp：所有 .iUp 元素按 150ms 间隔依次上浮淡入
 
-**推荐方案（Hermes 08-01，用户暂未确认，可先按此实现）：** 多句口号轮播——一组口号（如「用代码让想法成真」「AI 全栈 · 构建与写作」等 2-4 句）循环播放，打字机逐字敲出 → 停留 → 逐字删除 → 下一句。保留黑色细线框 + 橙色粗体视觉框架。GSAP 或纯 CSS 均可，优先轻量实现。
+**推荐方案（Hermes 08-01，用户暂未确认，可先按此实现）：** 多句口号轮播——一组口号（如「用代码让想法成真」「AI 全栈 · 构建与写作」等 2-4 句）循环播放，打字机逐字敲出 → 停留 → 逐字删除 → 下一句。保留黑色细线框 + 橙色粗体视觉框架。GSAP 或纯 CSS 均可，优先轻量实现。首次进入可加淡入上移入场动画。
 
 **涉及文件：** src/components/hero-section.tsx（口号渲染处）
 
 **边界：** 保持方框视觉框架（黑色细线框 + 橙色粗体）或按动效需要微调；不引重型依赖（GSAP 已有）；`npm run build` 通过。
+
+---
+
+### REQ-017 [P2] 相册按「主题/城市」分组展示
+
+**调研参考：** aibrium.cn /photowall 按城市印象分册（奉化/长沙/哈尔滨/沈阳/川西），每册一个卡片组 + 搜索框。
+
+**方案：** 相册数据（content/gallery.json）加 `album` 字段，相册页按 album 分组渲染，每组一个玻璃卡片组 + 封面图。
+
+**涉及文件：** content/gallery.json、src/app/gallery/page.tsx、src/components/gallery-grid.tsx
+
+**边界：** 现有 Lightbox（REQ-011）保留；后台相册管理页若支持分组编辑更好（可选）；`npm run build` 通过。
+
+---
+
+### REQ-018 [P2] 底部草叶装饰层（纯 CSS 氛围动效）
+
+**调研参考：** aibrium.cn 底部 30 片草叶（`site-grass-sway` keyframes ±5° 摇摆，`--grass-left/width/height/duration/delay` CSS 变量随机，`linear-gradient(#5aa56a14,#5aa56a6b)` 淡绿）。
+
+**方案：** 首页/全站底部加 fixed 草叶层（`bottom-0 z-[5] h-24 overflow-hidden pointer-events-none`），10-16 片即可（aibrium 用 30 偏多），`prefers-reduced-motion` 禁用。
+
+**涉及文件：** src/app/globals.css（keyframes）、layout.tsx 或页面级组件
+
+**边界：** 纯 CSS 零依赖；暖纸色底配淡绿草叶；移动端砍数量；`npm run build` 通过。
+
+---
+
+### REQ-019 [P2] 动效性能分级 effects-high/low/static（技术债）
+
+**调研参考：** aibrium.cn 内联脚本：`prefers-reduced-motion` → static；屏幕 <768px 或 CPU ≤4 核 → low；否则 high。CSS 侧 `.effects-static .effect-* { animation:none }`、`.effects-static .effect-sakura-petal:nth-child(n+6){display:none}`（砍数量）。
+
+**问题：** 本站动效渐多（纸纹/光扫/微悬浮/弥散光晕/Ken Burns/微粒子），移动端性能无保护。
+
+**方案：** `html` 加 `effects-high/low/static` 类（JS 检测 reduced-motion + 屏幕宽度 + hardwareConcurrency），各动效组件按档位降级：static 关动画、low 砍数量/降强度。
+
+**涉及文件：** layout.tsx（内联脚本）、globals.css、各动效组件
+
+**边界：** 不动现有动效默认行为（默认 high 与现状一致）；`npm run build` 通过。
 
 ---
 
