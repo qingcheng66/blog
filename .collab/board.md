@@ -5,26 +5,12 @@
 
 ## ⏳ 待认领
 
-### REQ-012 [P0] /content 静态文件服务 — 修复上传图片线上 404（Hermes 部署实测发现）
-
-**Bug：** 上传接口写文件到 `content/uploads/` 并返回 `/content/uploads/xxx.jpg`，但 Next.js standalone **不 serve `/content/` 路径**——所有上传的图片线上 404（相册图、背景图、Welcome 动图全挂）。上传功能从 AD-014 起在线上一直是坏的。
-
-**修复：** 新建 catch-all route handler `src/app/content/[...path]/route.ts`：
-- 从 `process.cwd()/content/` 读取文件返回（`path.join` + 防目录穿越）
-- 设置正确 Content-Type（按扩展名，或 `mime` 库）
-- 复用现有鉴权？**不需要**——这是公开静态资源（相册图要公开访问）
-- 404 处理：文件不存在返回 404
-
-**验证：** 上传一张图 → curl `/content/uploads/xxx.jpg` 返回 200 + 正确 content-type；相册页图片正常显示。
-
----
-
 ### REQ-013 [P1] 音乐文件路径迁移到 content/（配合 REQ-012）
 
 **问题：** 音乐 mp3 放 `public/music/` 是 Docker build 时 COPY 进镜像的（非 volume），换歌必须 rebuild 镜像，体验差。
 
 **方案（推荐）：** 音乐文件移到 `content/music/`（volume 挂载，REQ-012 的 /content route 会 serve），前端路径改 `/content/music/xxx.mp3`：
-- 上传 API 已支持任意文件类型？——现有 upload API 只收图片。加一个音乐上传（或在 /admin/music 加文件上传）
+- ⚠️ **注意（Hermes 08-01）：** 现有 `src/app/content/[...path]/route.ts` 只允许 `uploads` 子目录（`segments[0] !== "uploads"` → 404）！若走 content/music/ 需扩展 route 白名单加 `music`（或音乐继续用其他方式）
 - 或最简单：**REQ-012 落地后，音乐文件手动放 content/music/，后台填路径 `/content/music/xxx.mp3`**，换歌无需 rebuild
 - 保留旧 `/music/bg.mp3` 兼容（public 里的旧文件仍在）
 
@@ -33,6 +19,8 @@
 ---
 
 ## ✅ 最近完成
+
+- **REQ-012 [P0] /content 静态文件服务 — 修复上传图片 404** (Claude Code 实现 + Hermes 修复 gitignore, 4508333, 08-01) — Claude Code 已写 `src/app/content/[...path]/route.ts`（仅 uploads 子目录 + path.resolve 防目录穿越 + Content-Type + immutable 缓存，本地验证 gif/png 200）**但 .gitignore 的 `content/` 规则误伤 `src/app/content/`，代码从未进 git，线上从未部署！** Hermes 修复 .gitignore（`/content/` 只匹配根数据目录）+ 提交 4508333 + build 通过。**待部署后线上图片才恢复**
 
 - **REQ-010 [P0] 修复音乐 API 新增曲目 bug** (Claude Code, 7/31) — cleanTrack 改 `Omit<MusicTrack,"id">` 不再无条件生成 id；POST 用 body.id 判断新增/编辑（新增 makeId+push）；PUT 数组/单对象对无 id 条目补 makeId。tsc+build 通过，curl 实测新增 200+id/编辑 200/不存在 404/数组排序 count:2/删除 200
 - **REQ-011 [P1] 相册图片点击放大** (Claude Code subagent, 7/31) — gallery-grid 裸 `<img>` 换 `LightboxImage`（点击放大/滚轮缩放/触摸下滑关闭/body scroll lock），补 `.gallery-item button` 撑满样式；tsc+build 通过

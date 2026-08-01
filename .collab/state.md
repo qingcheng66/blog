@@ -46,6 +46,7 @@
 [00:35] Hermes — ⚠️ 部署素材时发现线上大 bug：/content/* 路径 404（Next.js standalone 不 serve content/ 目录）——所有上传图片(相册/背景/Welcome)线上全挂，从 AD-014 起一直是坏的。已登记 REQ-012(P0)。音乐文件 scp 到 public/music 但镜像不包含（需 rebuild），已另存 content/music/ 待 REQ-012 修复后走 /content 路径
 [00:45] Hermes — 更新 wiki：7/31 补 REQ-005~013 全部记录 + 素材库 + REQ-012 重大 bug + Phase 12 + 顶部摘要已知待修
 [07-31 23:43] Hermes — 升级 know-each-other 协议：新增时间戳强制规则（date 命令拿真实时间，禁 [--:--]，插当天区块末尾），同步到 skill + CLAUDE.md 第 6 条
+[07-31 23:44] Hermes — 提交 4a6b786 (know-each-other v1.1.0 时间戳规则) → GitHub + 更新 wiki 协议章节
 [23:30] Claude Code — 🔄 认领 REQ-005~009 (board ⏳→🔄)。开始 REQ-005 移动端菜单抽屉不透明化，涉及 glass-header.tsx
 [23:40] Claude Code — ✅ REQ-005 完成：移动端 drawer 背景 `var(--glass-bg-strong)`+blur → `var(--color-bg)` 实色，移除 backdrop-filter 依赖（drawer 本身 md:hidden，桌面端不变）。⚠️ 发布方注意：REQ-006(背景图) 会引入 settings.json 数据层，REQ-007(音乐多曲目) 会改 music.json 结构，两者均含向后兼容
 [23:42] Claude Code — 🔄 进入 team 模式：主会话实现 REQ-006(settings 数据层+背景层)，随后并行 subagent 实现 REQ-007/008/009
@@ -61,7 +62,11 @@
 [--:--] Claude Code — ✅ REQ-010 修复完成：cleanTrack 改 Omit<MusicTrack,"id"> 不生成 id，POST 用 body.id 判断新增/编辑（新增 makeId+push、编辑保留原 id），PUT 数组/单对象对无 id 条目补 makeId。tsc + build 通过，curl 实测：新增 200+id、编辑 200、不存在 id 404、PUT 数组 count:2、DELETE 200，测试数据已清理
 [--:--] Claude Code — ✅ REQ-011 相册 Lightbox 完成 (subagent)：gallery-grid 裸 img 换 LightboxImage，补 .gallery-item button 撑满样式，tsc + build 通过，/gallery 200。board REQ-010/011 移 ✅
 
-## 2026-07-30 (earlier)
+## 2026-08-01
+
+[21:35] Hermes — handoff 同步：发现 REQ-012 图片修复代码 src/app/content/[...path]/route.ts 被 .gitignore `content/` 规则误伤（匹配了 src/app/content/ 源码目录），**从未进 git，线上 404 从未修复**。修复 .gitignore 改 `/content/` → 提交 4508333 纳入 route.ts → build 通过（/content/[...path] 已注册）。board：REQ-012 移 ✅（待部署），REQ-013 标注注意点（route 仅允许 uploads 子目录，content/music/ 需扩展）
+
+## 2026-07-30
 
 [--:--] Claude Code — AD-022: 5 页面 force-dynamic 即时生效，articles/thoughts/projects/gallery/about 从 ○ Static → ƒ Dynamic
 [--:--] Claude Code — AD-023: 碎碎念日期含时间(7月29日 14:30) + 同日内倒序 + 后台自动填入当前时间 + 列表客户端排序
