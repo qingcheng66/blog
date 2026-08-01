@@ -18,6 +18,41 @@
 
 ---
 
+### REQ-014 [P2] 清理 lint 遗留 15 errors（Claude Code 既有代码）
+
+**现状：** `npm run lint` 全量 15 errors + 292 warnings，均为既有遗留（与 Hermes 本轮 .gitignore/route.ts 改动无关）。分布：use-touch-device.ts、use-theme.tsx、use-reduced-motion.ts、welcome-splash.tsx、table-of-contents.tsx、music-player.tsx(86:5, 68:7)、code-block.tsx(21:34)、bg-style-sheet.tsx、article-editor.tsx(49:5)、app/error.tsx、admin/login/page.tsx
+
+**目标：** 消灭 errors（warnings 可酌情）。多为 react-hooks/set-state-in-effect 类（如 `const mq = window.matchMedia(...)` 放 effect 外）。
+
+**验证：** `npm run lint` 0 errors（warnings 不计）。
+
+---
+
+### REQ-015 [P1] 碎碎念与文章合并 + 新排版方式
+
+**需求来源：** 用户 08-01 决定把「碎碎念」和「文章」合并为单一内容流，用新的排版方式展示。
+
+**状态：** 🔄 排版方式待用户提供（用户说"具体排版方式我后面会给你"）——收到排版参考后再细化任务规格。
+
+**初步方向（未定）：**
+- 现有 /articles 与 /thoughts 两个页面/数据源，合并后导航栏怎么处理？
+- 数据是否合并到一个 JSON？还是保留两个数据源前端统一渲染？
+- 等用户给排版样例
+
+---
+
+### REQ-016 [P2] Hero 口号「用代码让想法成真」改动态播放效果
+
+**需求来源：** 用户 08-01 截图（/Users/apple/Pictures/截屏2026-08-01 21.43.51.png）方框圈出 Hero 区口号（橙色粗体 + 黑色细线框，当前静态文字）。
+
+**目标：** 方框内内容换成动态播放的那种（打字机逐字/轮播多句口号/流光描边？——具体动效风格待与用户确认，可先按打字机 + 多句口号轮播做）。
+
+**涉及文件：** src/components/hero-section.tsx（口号渲染处）
+
+**边界：** 保持方框视觉框架（黑色细线框 + 橙色粗体）或按动效需要微调；不引重型依赖（GSAP 已有）；`npm run build` 通过。
+
+---
+
 ## ✅ 最近完成
 
 - **REQ-012 [P0] /content 静态文件服务 — 修复上传图片 404** (Claude Code 实现 + Hermes 修复 gitignore, 4508333, 08-01) — Claude Code 已写 `src/app/content/[...path]/route.ts`（仅 uploads 子目录 + path.resolve 防目录穿越 + Content-Type + immutable 缓存，本地验证 gif/png 200）**但 .gitignore 的 `content/` 规则误伤 `src/app/content/`，代码从未进 git，线上从未部署！** Hermes 修复 .gitignore（`/content/` 只匹配根数据目录）+ 提交 4508333 + build 通过。**待部署后线上图片才恢复**
