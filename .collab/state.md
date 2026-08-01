@@ -78,6 +78,7 @@
 [22:49] Hermes — ⚠️ 分发规则确认：协议文档独立仓库 qingcheng66/know-each-other.git（main），blog 仓库只放 .collab/ 实例。v2.0 三份文档（README/SKILL/claude-code）已推送到独立仓库 ab48d58（此前误以为只有 blog 仓库，实际独立仓库也是分发源）。skill 内新增「分发规则（强制）」章节，memory 已记录
 [22:54] Hermes — 协议文档通用化 v2.0.1：应用户要求去掉项目个性内容（REQ 编号/具体文件路径/claude-a 命名）→ 文件域改为按项目结构自定义+通用示例、升级背景保留四类竞争共性现象、会话名改 agent-a/agent-b。同步三处（Hermes skill + 项目 .claude/skills + 独立仓库），独立仓库推送 d8976b7
 [22:55] Hermes — 分层修正 v2.0.1-blog：用户明确「独立仓库保持共性，项目侧保留个性」。分工定稿：① 独立仓库 know-each-other.git + Hermes skill = 通用协议（无项目内容）② 项目 .claude/skills/know-each-other/SKILL.md = 共性协议 + blog 实例（文件域清单含 REQ 映射、claude-a/claude-b 命名、冲突热点 REQ-018/019 共享 globals.css+layout.tsx、REQ-014 碰全仓）。项目侧已恢复实例版 c2ef258
+[22:59] Hermes — 分发流程定稿 v2.0.2：用户再次澄清「更新 skill 先提取共性推 know-each-other 仓库；项目开发形成的个性保持不动、随项目仓库正常推送；以后任何项目都如此」。已固化：skill 分发规则改双层结构（共性→独立仓库+Hermes skill，个性→留项目），独立仓库推 6c6adfd，memory 更新。项目侧实例版不受影响
 
 ## 2026-07-30
 
