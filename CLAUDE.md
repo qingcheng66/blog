@@ -6,14 +6,18 @@
 
 ---
 
-## 🔴 协作协议（know-each-other）
+## 🔴 协作协议（know-each-other v2.0 — 支持双 Claude 并发）
 
-1. 每轮开始前读 `.collab/board.md`，认领 ⏳ 任务 → 标记 🔄
-2. 任务开始/结束时 → 追加 `.collab/state.md`
-3. 改动影响其他模块时 → ⚠️ 前缀标注
-4. 完成任务 → board.md 移到 ✅，标注 commit hash
-5. 只维护 `.claude/project-memory.md` 记架构决策和踩坑
-6. **⚠️ 时间戳强制**：追加 `.collab/state.md` 或 board 前，先执行 `date "+%m-%d %H:%M"` 拿真实时间，禁止写 `[--:--]` 占位符；日志插到当天 `## YYYY-MM-DD` 区块末尾，不新建重复区块
+0. **启动**：读 `.collab/sessions/` + `.collab/locks/` 看谁活着、哪些文件域被锁；写自己的注册文件 `.collab/sessions/<会话名>.md`（会话名由用户指定，如 claude-a / claude-b）
+1. 读 `.collab/board.md` 认领 ⏳ 任务 → 标记 🔄 + 会话名；**board 变更必须跟一次 git commit**（防双会话覆盖）
+2. **动文件前申请文件域锁**（强制）：`mkdir .collab/locks/<文件域>.lock`（成功=拿到锁，`mkdir: File exists`=被占→换域做或等释放），写入 owner，用完 `rm -rf` 释放。**只碰自己锁的域**
+3. 任务开始/结束时 → 追加 `.collab/state.md`（**会话名前缀** + 真实时间戳）
+4. 改动影响其他模块时 → ⚠️ 前缀标注
+5. 完成任务 → board.md 移到 ✅，标注 commit hash
+6. **提交纪律**：开工前 `git status` 必须干净（有别人未提交的改动先停下）；push 前必 `git pull --rebase`；一个会话一个端口（第一个 dev 3000，第二个 `npm run dev -- -p 3001`）；别同时 `npm run build`（.next 会被踩）
+7. 会话结束：释放自己所有锁 + 删除注册文件 + 带会话名写 state
+
+文件域定义：`styles`(globals.css/tailwind) | `layout`(layout.tsx/根组件) | `content-data`(content.ts/content/*.json) | `components`(src/components/) | `pages`(src/app/) | `admin`(后台+API) | `infra`(Dockerfile/CLAUDE.md/配置) | `collab`(.collab/自身)
 
 ---
 

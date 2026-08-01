@@ -2,31 +2,18 @@
 
 > Hermes 分配 → Claude Code 认领 → 做完移 ✅
 > 状态：⏳ 待认领 | 🔄 进行中 | ✅ 完成 | ❌ 放弃
+> **v2.0 并发规则**：双 Claude 会话时，认领标注会话名（claude-a/claude-b），动文件前 `mkdir .collab/locks/<文件域>.lock` 申请锁（失败=被占），board 变更跟 commit。详见 `.claude/skills/know-each-other/SKILL.md`
+
+## ✅ 最近完成
+
+- **REQ-013 [P1] 音乐文件路径迁移到 content/** (Claude Code, 08-01 22:43) — route.ts 白名单加 `music` + `getMusicDir()` + MIME 类型支持 mp3/m4a/ogg/wav/webm/flac + build 通过
+- **REQ-014 [P2] 清理 lint 遗留 15 errors** (Claude Code, 08-01 22:43) — 0 errors / 293 warnings：set-state-in-effect → lazy initializer / eslint-disable + code-block memoization 修复 + login page `<a>` → `<Link>` + `any` → 类型约束 + `let` → `const` + build 通过
+- **REQ-016 [P2] Hero 口号打字机轮播** (Claude Code subagent, 08-01 22:43) — TypewriterSlogan 组件：3 句口号循环（打字 110ms/字 → 停留 1.8s → 删除 55ms/字 → 下一句）+ GSAP 淡入上移入场 + 闪烁光标 + reducedMotion 降级 + build 通过
+- **REQ-017 [P2] 相册按 album 分组** (Claude Code subagent, 08-01 22:43) — GalleryItem 加 `album?` 字段 + 按 album 分组渲染（玻璃胶囊标题 + 计数）+ 无 album 归「未分类」+ Lightbox 保留 + build 通过
+- **REQ-018 [P2] 底部草叶装饰层** (Claude Code subagent, 08-01 22:43) — 12 片草叶 `grass-sway` ±5° 摇摆 + CSS 变量随机化位置/尺寸/速度 + 移动端 effects-low 砍至 6 片 + prefers-reduced-motion 禁用 + build 通过
+- **REQ-019 [P2] 动效性能分级 effects-high/low/static** (Claude Code subagent, 08-01 22:43) — `<head>` 内联脚本检测 reduced-motion/屏幕宽度/CPU 核心 → `html` 类 + CSS 规则 static 关动画 / low 降强度 + 默认 high 不变 + build 通过
 
 ## ⏳ 待认领
-
-### REQ-013 [P1] 音乐文件路径迁移到 content/（配合 REQ-012）
-
-**问题：** 音乐 mp3 放 `public/music/` 是 Docker build 时 COPY 进镜像的（非 volume），换歌必须 rebuild 镜像，体验差。
-
-**方案（推荐）：** 音乐文件移到 `content/music/`（volume 挂载，REQ-012 的 /content route 会 serve），前端路径改 `/content/music/xxx.mp3`：
-- ⚠️ **注意（Hermes 08-01）：** 现有 `src/app/content/[...path]/route.ts` 只允许 `uploads` 子目录（`segments[0] !== "uploads"` → 404）！若走 content/music/ 需扩展 route 白名单加 `music`（或音乐继续用其他方式）
-- 或最简单：**REQ-012 落地后，音乐文件手动放 content/music/，后台填路径 `/content/music/xxx.mp3`**，换歌无需 rebuild
-- 保留旧 `/music/bg.mp3` 兼容（public 里的旧文件仍在）
-
-**验证：** 添加曲目路径 `/content/music/xxx.mp3` → 播放器能播。
-
----
-
-### REQ-014 [P2] 清理 lint 遗留 15 errors（Claude Code 既有代码）
-
-**现状：** `npm run lint` 全量 15 errors + 292 warnings，均为既有遗留（与 Hermes 本轮 .gitignore/route.ts 改动无关）。分布：use-touch-device.ts、use-theme.tsx、use-reduced-motion.ts、welcome-splash.tsx、table-of-contents.tsx、music-player.tsx(86:5, 68:7)、code-block.tsx(21:34)、bg-style-sheet.tsx、article-editor.tsx(49:5)、app/error.tsx、admin/login/page.tsx
-
-**目标：** 消灭 errors（warnings 可酌情）。多为 react-hooks/set-state-in-effect 类（如 `const mq = window.matchMedia(...)` 放 effect 外）。
-
-**验证：** `npm run lint` 0 errors（warnings 不计）。
-
----
 
 ### REQ-015 [P1] 碎碎念与文章合并 + 新排版方式
 

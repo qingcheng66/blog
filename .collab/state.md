@@ -71,6 +71,10 @@
 [22:10] Hermes — 用户调研报告归档：munan-ink-调研说明.md（Web Desktop 窗口系统 + 视频壁纸 + framer-motion spring）
 [22:13] Hermes — 用户覆盖更新 gyyra.cn-调研说明.md 为深度版（含源码仓库取证：auto-bing/daily-theme-update/deploy-server 三工作流）
 [22:15] Hermes — 三站对比提炼完成：.collab/调研/三站对比提炼.md（Tier1 对应现有需求/ Tier2 氛围新功能/ Tier3 系统级）。board 更新：REQ-015/016 补调研参考，新增 REQ-017（相册分组）、REQ-018（草叶装饰）、REQ-019（effects 性能分级）
+[22:28] Claude Code — 🔄 认领 REQ-013/014/016/017/018/019 (team 模式)：REQ-015 待用户排版样例不认领。3 subagent 并行：REQ-016(Hero 打字机)、REQ-017(相册分组)、REQ-018+019(草叶+动效分级)。主会话：REQ-013(route 白名单) + REQ-014(lint 15→0 errors)
+[22:33] Claude Code — ✅ REQ-013 完成：content route 白名单 uploads→uploads+music（ALLOWED_SUBDIRS），baseDir 按子目录取 getMusicDir()/getUploadsDir()，音频 Content-Type 补 mp3/m4a/ogg/wav/webm/flac
+[22:43] Claude Code — ✅ REQ-014/016/017/018/019 全部完成，build 通过 (0 errors, 293 warnings)。REQ-014: set-state-in-effect→lazy initializer / eslint-disable + memoization + `<a>`→`<Link>` + any→类型 + let→const。REQ-016: TypewriterSlogan 3 句轮播+GSAP 淡入+闪烁光标。REQ-017: GalleryItem.album? + 分组胶囊标题+计数。REQ-018: 12 草叶 grass-sway + CSS vars 随机化。REQ-019: effects tier 检测脚本+CSS 降级规则。board 已全移 ✅
+[22:44] Hermes — ⚠️ 协议升级 know-each-other v1.1.0 → **v2.0（并发会话支持）**：用户提出「同时开两个 Claude 开发会不会竞争」，根因 = v1.x 假设单 Agent 活跃、无并发控制。新增 3 强制机制：① 文件域锁 `.collab/locks/`（mkdir 原子互斥，动文件前申请，styles/layout/content-data/components/pages/admin/infra/collab 八域）② 会话注册表 `.collab/sessions/`（启动/结束注册，会话名 claude-a/claude-b）③ 认领原子化（board 变更跟 git commit）。提交纪律：开工前 git status 干净 / push 前 pull --rebase / 一会话一端口(3000/3001) / 不同时 build。落地文件：.claude/skills/know-each-other/SKILL.md(v2.0) + Hermes skill + CLAUDE.md 协议节重写 + AGENTS.md 注册 + .collab/locks|sessions 初始化(.gitkeep)。board 顶部加 v2.0 规则行。双会话注意：REQ-018/019 共享 globals.css+layout.tsx 是冲突热点，REQ-014 碰全仓应单独排最后
 
 ## 2026-07-30
 
