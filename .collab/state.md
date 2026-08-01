@@ -77,6 +77,7 @@
 [22:44] Hermes — ⚠️ 协议升级 know-each-other v1.1.0 → **v2.0（并发会话支持）**：用户提出「同时开两个 Claude 开发会不会竞争」，根因 = v1.x 假设单 Agent 活跃、无并发控制。新增 3 强制机制：① 文件域锁 `.collab/locks/`（mkdir 原子互斥，动文件前申请，styles/layout/content-data/components/pages/admin/infra/collab 八域）② 会话注册表 `.collab/sessions/`（启动/结束注册，会话名 claude-a/claude-b）③ 认领原子化（board 变更跟 git commit）。提交纪律：开工前 git status 干净 / push 前 pull --rebase / 一会话一端口(3000/3001) / 不同时 build。落地文件：.claude/skills/know-each-other/SKILL.md(v2.0) + Hermes skill + CLAUDE.md 协议节重写 + AGENTS.md 注册 + .collab/locks|sessions 初始化(.gitkeep)。board 顶部加 v2.0 规则行。双会话注意：REQ-018/019 共享 globals.css+layout.tsx 是冲突热点，REQ-014 碰全仓应单独排最后
 [22:49] Hermes — ⚠️ 分发规则确认：协议文档独立仓库 qingcheng66/know-each-other.git（main），blog 仓库只放 .collab/ 实例。v2.0 三份文档（README/SKILL/claude-code）已推送到独立仓库 ab48d58（此前误以为只有 blog 仓库，实际独立仓库也是分发源）。skill 内新增「分发规则（强制）」章节，memory 已记录
 [22:54] Hermes — 协议文档通用化 v2.0.1：应用户要求去掉项目个性内容（REQ 编号/具体文件路径/claude-a 命名）→ 文件域改为按项目结构自定义+通用示例、升级背景保留四类竞争共性现象、会话名改 agent-a/agent-b。同步三处（Hermes skill + 项目 .claude/skills + 独立仓库），独立仓库推送 d8976b7
+[22:55] Hermes — 分层修正 v2.0.1-blog：用户明确「独立仓库保持共性，项目侧保留个性」。分工定稿：① 独立仓库 know-each-other.git + Hermes skill = 通用协议（无项目内容）② 项目 .claude/skills/know-each-other/SKILL.md = 共性协议 + blog 实例（文件域清单含 REQ 映射、claude-a/claude-b 命名、冲突热点 REQ-018/019 共享 globals.css+layout.tsx、REQ-014 碰全仓）。项目侧已恢复实例版 c2ef258
 
 ## 2026-07-30
 
