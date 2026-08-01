@@ -26,4 +26,4 @@ npm-debug.log*
 .turbo/
 cloudflared/*.json
 tsconfig.tsbuildinfo
-content/
+/content/
