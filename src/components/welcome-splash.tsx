@@ -16,7 +16,10 @@ export function WelcomeSplash({
 }
 
 function WelcomeSplashInner({ welcome }: { welcome?: WelcomeConfig | null }) {
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(() => {
+    if (typeof window === "undefined") return false
+    return !sessionStorage.getItem("welcome-dismissed")
+  })
   const [fadeOut, setFadeOut] = useState(false)
 
   // 从配置读取，fallback 到原有硬编码值
@@ -26,11 +29,7 @@ function WelcomeSplashInner({ welcome }: { welcome?: WelcomeConfig | null }) {
   const showParticles = welcome?.showParticles ?? true
 
   useEffect(() => {
-    // sessionStorage — only show once per session
-    const dismissed = sessionStorage.getItem("welcome-dismissed")
-    if (dismissed) return
-
-    setVisible(true)
+    if (!visible) return
 
     // Auto-dismiss after 2.5s
     const timer = setTimeout(() => {
@@ -42,7 +41,7 @@ function WelcomeSplashInner({ welcome }: { welcome?: WelcomeConfig | null }) {
     }, 2500)
 
     return () => clearTimeout(timer)
-  }, [])
+  }, [visible])
 
   if (!visible) return null
 
@@ -147,7 +146,7 @@ function WelcomeParticles() {
       {PARTICLES.map((p, i) => (
         <span
           key={i}
-          className="absolute rounded-full"
+          className="absolute rounded-full effect-animate"
           style={{
             left: p.left,
             top: p.top,

@@ -60,15 +60,21 @@ export function MusicPlayer({ music }: { music?: MusicTrack[] | null }) {
   }, [list.length])
 
   // 服务端数据变化时同步播放列表（组件常驻 layout）
-  // 仅当长度变化时更新，避免打断正在进行的本地播放
+  // 仅当 track 内容变化时更新，避免打断正在进行的本地播放
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const next = validList(music)
     if (next.length === 0) return
-    if (next.length !== list.length) {
-      setList(next)
-      setCurrentIndex(0)
-    }
+    setList((prev) => {
+      // 深比较：仅当 track 列表内容真正变化才更新
+      const sameLength = prev.length === next.length
+      const sameContent = sameLength && prev.every((t, i) =>
+        t.id === next[i].id && t.file === next[i].file && t.trackName === next[i].trackName && t.artist === next[i].artist
+      )
+      return sameContent ? prev : next
+    })
   }, [music])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Init audio element + restore volume
   useEffect(() => {
@@ -83,6 +89,7 @@ export function MusicPlayer({ music }: { music?: MusicTrack[] | null }) {
       if (stored !== null) v = parseFloat(stored)
     } catch {}
     audio.volume = v
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time mount init from localStorage
     setVolume(v)
 
     return () => {
@@ -159,7 +166,7 @@ export function MusicPlayer({ music }: { music?: MusicTrack[] | null }) {
     const audio = audioRef.current
     if (!audio || spectrumConnectedRef.current) return
     try {
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
       audioCtxRef.current = audioCtx
       const analyser = audioCtx.createAnalyser()
       analyser.fftSize = 64
@@ -265,7 +272,7 @@ export function MusicPlayer({ music }: { music?: MusicTrack[] | null }) {
     const rect = el.getBoundingClientRect()
     const cx = rect.left + rect.width / 2
     const cy = rect.top + rect.height / 2
-    let angle = Math.atan2(-(clientY - cy), clientX - cx) * (180 / Math.PI)
+    const angle = Math.atan2(-(clientY - cy), clientX - cx) * (180 / Math.PI)
     return ((angle % 360) + 360) % 360
   }, [])
 

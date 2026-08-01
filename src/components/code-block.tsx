@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, type ReactNode } from "react"
+import { useState, useCallback, useMemo, type ReactNode } from "react"
 import { Check, Copy } from "lucide-react"
 
 interface CodeBlockProps {
@@ -13,10 +13,12 @@ export function CodeBlock({ className, children, ...props }: CodeBlockProps) {
   const match = className?.match(/language-(\w+)/)
   const lang = match?.[1] ?? ""
 
-  const codeContent = extractText(children)
-  const lines = codeContent.split("\n")
-  // Remove trailing empty line
-  if (lines[lines.length - 1] === "") lines.pop()
+  const codeContent = useMemo(() => extractText(children), [children])
+  const lines = useMemo(() => {
+    const ls = codeContent.split("\n")
+    if (ls[ls.length - 1] === "") ls.pop()
+    return ls
+  }, [codeContent])
 
   const handleCopy = useCallback(async () => {
     if (!codeContent) return

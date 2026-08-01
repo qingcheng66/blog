@@ -67,6 +67,8 @@ export interface GalleryItem {
   id: string
   src: string
   label: string
+  /** 可选分组名（如「苏州」「长沙」「旅行」）；缺省时归入「未分类」组 */
+  album?: string
 }
 
 export interface About {
@@ -337,4 +339,8 @@ export async function saveUpload(
 
 export function getUploadsDir(): string {
   return UPLOADS_DIR
+}
+
+export function getMusicDir(): string {
+  return path.join(CONTENT_DIR, "music")
 }

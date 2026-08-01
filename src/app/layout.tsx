@@ -7,6 +7,7 @@ import { GlassHeader } from "@/components/glass-header"
 import { Footer } from "@/components/footer"
 import { MusicPlayer } from "@/components/music-player"
 import { BackgroundLayer } from "@/components/background-layer"
+import { GrassLayer } from "@/components/grass-layer"
 import { getMusicList, getSettings } from "@/lib/content"
 import { site } from "@/data/site"
 import "./globals.css"
@@ -44,10 +45,36 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             `,
           }}
         />
+        {/* Performance tier detection — runs before first paint */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+                  if (mq.matches) {
+                    document.documentElement.classList.add('effects-static');
+                    return;
+                  }
+                  var isMobile = window.innerWidth < 768;
+                  var cores = navigator.hardwareConcurrency || 4;
+                  if (isMobile || cores <= 4) {
+                    document.documentElement.classList.add('effects-low');
+                  } else {
+                    document.documentElement.classList.add('effects-high');
+                  }
+                } catch(e) {
+                  document.documentElement.classList.add('effects-high');
+                }
+              })();
+            `,
+          }}
+        />
       </head>
       <body className="min-h-screen flex flex-col font-sans antialiased">
         <BackgroundLayer background={settings.background} />
         <div className="paper-grain" aria-hidden />
+        <GrassLayer />
         <ThemeProvider>
           <AdminGate><SearchModal /></AdminGate>
           <AdminGate><ScrollToTop /></AdminGate>

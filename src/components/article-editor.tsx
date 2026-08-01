@@ -44,26 +44,28 @@ export default function ArticleEditor({
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
 
-  // Sync tagsInput → meta.tags
-  useEffect(() => {
-    setMeta((m) => ({
-      ...m,
-      tags: tagsInput
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
-    }))
-  }, [tagsInput])
+  // 按需从 tagsInput 解析 tags 数组（避免 effect 中同步 setState）
+  function resolveTags(): string[] {
+    return tagsInput
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean)
+  }
 
-  // Auto-generate slug from title (only for new articles)
+  // Auto-generate slug from title 按需取值（避免 effect 中同步 setState）
+  function resolveSlug(title: string): string {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9一-鿿]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 80)
+  }
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
-    if (isNew && meta.title) {
-      const slug = meta.title
-        .toLowerCase()
-        .replace(/[^a-z0-9一-鿿]+/g, "-")
-        .replace(/^-|-$/g, "")
-        .slice(0, 80)
-      setMeta((m) => ({ ...m, slug }))
+    if (isNew && meta.title && !meta.slug) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMeta((m) => ({ ...m, slug: resolveSlug(meta.title) }))
     }
   }, [meta.title, isNew])
 
@@ -87,10 +89,14 @@ export default function ArticleEditor({
 
       const method = isNew ? "POST" : "PUT"
 
+      const resolvedMeta = { ...meta, tags: resolveTags() }
+      if (isNew && !resolvedMeta.slug) {
+        resolvedMeta.slug = resolveSlug(resolvedMeta.title)
+      }
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ meta, content }),
+        body: JSON.stringify({ meta: resolvedMeta, content }),
       })
 
       if (res.ok) {

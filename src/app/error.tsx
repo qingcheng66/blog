@@ -1,10 +1,10 @@
 "use client"
 
 export default function Error({
-  _error,
+  error: _unused,
   reset,
 }: {
-  _error: Error & { digest?: string }
+  error: Error & { digest?: string }
   reset: () => void
 }) {
   return (

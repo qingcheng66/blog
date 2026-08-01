@@ -30,6 +30,7 @@ export function BgStyleSheet({
 
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- open → mounted (for exit anim) + active (deferred for CSS transition)
       setMounted(true)
       requestAnimationFrame(() => setActive(true))
     } else {

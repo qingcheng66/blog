@@ -43,14 +43,22 @@ export function ThemeProvider({
   defaultTheme = "system",
   storageKey = "theme",
 }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme | "system">(defaultTheme ?? "system")
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme | undefined>(undefined)
+  const [theme, setThemeState] = useState<Theme | "system">(
+    () => getStoredTheme(storageKey) ?? defaultTheme
+  )
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme | undefined>(() => {
+    // During SSR: undefined; on client mount: resolve
+    if (typeof window === "undefined") return undefined
+    const resolved = getStoredTheme(storageKey) ?? defaultTheme ?? "system"
+    return resolved === "system" ? getSystemTheme() : resolved
+  })
   const [mounted, setMounted] = useState(false)
 
-  // Initialize from localStorage on mount
+  // Initialize on mount — apply theme to DOM
   useEffect(() => {
     const stored = getStoredTheme(storageKey)
     const initial = stored ?? defaultTheme
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time mount init from localStorage
     setThemeState(initial)
     const resolved = initial === "system" ? getSystemTheme() : initial
     setResolvedTheme(resolved)

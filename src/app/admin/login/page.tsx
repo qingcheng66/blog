@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Lock } from "lucide-react"
 
 export default function AdminLoginPage() {
@@ -99,9 +100,9 @@ export default function AdminLoginPage() {
         </form>
 
         <p className="text-xs text-center mt-6" style={{ color: "var(--color-text-muted)" }}>
-          <a href="/" className="hover:underline" style={{ color: "var(--color-accent)" }}>
+          <Link href="/" className="hover:underline" style={{ color: "var(--color-accent)" }}>
             ← 返回博客
-          </a>
+          </Link>
         </p>
       </div>
     </div>

@@ -37,20 +37,105 @@ function WeatherClock() {
   )
 }
 
-// ── 渐变个性签名 ──
-function GradientSignature() {
+// ── Typewriter slogan (REQ-016) ──
+const SLOGANS = [
+  "用代码让想法成真",
+  "AI 全栈 · 构建与写作",
+  "创造值得留存的事物",
+]
+const TYPE_MS = 80     // 逐字敲出
+const DELETE_MS = 50   // 逐字删除
+const HOLD_MS = 2000   // 敲满后停留
+const GAP_MS = 300     // 删完后暂停再进下一句
+
+function TypewriterSlogan() {
+  const reducedMotion = useReducedMotion()
+  const ref = useRef<HTMLHeadingElement>(null)
+  const [phraseIndex, setPhraseIndex] = useState(0)
+  const [charCount, setCharCount] = useState(0)
+  const [phase, setPhase] = useState<"enter" | "typing" | "holding" | "deleting" | "gap">("enter")
+
+  // Entrance: fade in + translateY for first appearance
+  useGSAP(() => {
+    if (reducedMotion) return
+    gsap.fromTo(ref.current,
+      { y: 30, opacity: 0 },
+      {
+        y: 0, opacity: 1, duration: 0.6, ease: "power2.out",
+        onComplete: () => setPhase("typing"),
+      },
+    )
+  }, { dependencies: [reducedMotion] })
+
+  // Typewriter state machine
+  useEffect(() => {
+    if (reducedMotion) return
+    if (phase === "enter") return // wait for entrance animation callback
+
+    const current = SLOGANS[phraseIndex]
+    let timer: ReturnType<typeof setTimeout> | undefined
+
+    if (phase === "typing") {
+      if (charCount < current.length) {
+        timer = setTimeout(() => setCharCount((c) => c + 1), TYPE_MS)
+      } else {
+        timer = setTimeout(() => setPhase("holding"), TYPE_MS)
+      }
+    } else if (phase === "holding") {
+      timer = setTimeout(() => setPhase("deleting"), HOLD_MS)
+    } else if (charCount > 0) {
+      timer = setTimeout(() => setCharCount((c) => c - 1), DELETE_MS)
+    } else {
+      // charCount === 0, just finished deleting → switch to gap
+      timer = setTimeout(() => {
+        setPhase("typing")
+        setPhraseIndex((i) => (i + 1) % SLOGANS.length)
+      }, GAP_MS)
+    }
+
+    return () => {
+      if (timer) clearTimeout(timer)
+    }
+  }, [phraseIndex, charCount, phase, reducedMotion])
+
+  const shownText = reducedMotion
+    ? SLOGANS[0]
+    : SLOGANS[phraseIndex].slice(0, charCount)
+  const showCaret = reducedMotion || phase !== "enter"
+
   return (
-    <h2
-      className="text-2xl sm:text-3xl md:text-4xl font-bold select-none"
-      style={{
-        background: `linear-gradient(135deg, var(--color-accent), var(--color-accent-secondary))`,
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent",
-        backgroundClip: "text",
-      }}
-    >
-      用代码让想法成真
-    </h2>
+    <>
+      <style>{`
+        .serenity-caret {
+          display: inline-block;
+          width: 2px;
+          height: 1.05em;
+          margin-left: 3px;
+          border-radius: 2px;
+          background: var(--color-accent);
+          vertical-align: -0.12em;
+          animation: serenity-caret-blink 1s step-end infinite;
+        }
+        @keyframes serenity-caret-blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+      `}</style>
+      <h2
+        ref={ref}
+        className="text-2xl sm:text-3xl md:text-4xl font-bold select-none"
+        style={{
+          opacity: reducedMotion ? 1 : 0, // hidden until entrance animation
+          background: `linear-gradient(135deg, var(--color-accent), var(--color-accent-secondary))`,
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
+        }}
+      >
+        <span>{shownText}</span>
+        {showCaret && <span className="serenity-caret" aria-hidden="true" />}
+      </h2>
+    </>
   )
 }
 
@@ -198,8 +283,8 @@ export function HeroSection() {
         {/* Weather + clock pill */}
         <WeatherClock />
 
-        {/* Gradient signature */}
-        <GradientSignature />
+        {/* Typewriter slogan */}
+        <TypewriterSlogan />
 
         {/* Bio */}
         <p style={{ color: "var(--color-text-secondary)" }} className="leading-relaxed text-sm sm:text-base">

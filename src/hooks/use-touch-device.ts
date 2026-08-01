@@ -7,20 +7,17 @@ import { useEffect, useState } from "react"
  * Returns false during SSR to avoid hydration mismatch.
  */
 export function useTouchDevice(): boolean {
-  const [isTouch, setIsTouch] = useState(false)
+  const [isTouch, setIsTouch] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      (window.matchMedia("(pointer: coarse)").matches || "ontouchstart" in window)
+  )
 
   useEffect(() => {
-    // Double-check: pointer:coarse covers most touch devices,
-    // ontouchstart covers older edge cases
-    const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches
-    const hasTouchStart = "ontouchstart" in window
-    setIsTouch(hasCoarsePointer || hasTouchStart)
-
-    // Listen for changes (e.g., docking/undocking a tablet)
-    const mq = window.matchMedia("(pointer: coarse)")
+    const mq2 = window.matchMedia("(pointer: coarse)")
     const handler = (e: MediaQueryListEvent) => setIsTouch(e.matches || "ontouchstart" in window)
-    mq.addEventListener("change", handler)
-    return () => mq.removeEventListener("change", handler)
+    mq2.addEventListener("change", handler)
+    return () => mq2.removeEventListener("change", handler)
   }, [])
 
   return isTouch

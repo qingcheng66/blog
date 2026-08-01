@@ -156,6 +156,39 @@
   100% { transform: scale(1.15); }
 }
 
+/* ── 底部草叶装饰层（受 effects 性能分级控制）── */
+.grass-layer {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  height: 240px;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+}
+@keyframes grass-sway {
+  0%, 100% { transform: rotate(-5deg); }
+  50%      { transform: rotate(5deg); }
+}
+
+.grass-leaf {
+  position: absolute;
+  bottom: 0;
+  left: var(--grass-left, 10%);
+  width: var(--grass-width, 4px);
+  height: var(--grass-height, 60px);
+  background: linear-gradient(#5aa56a14, #5aa56a6b);
+  border-radius: 50% 50% 0 0;
+  transform-origin: bottom center;
+  animation: grass-sway var(--grass-duration, 3s) ease-in-out infinite;
+  animation-delay: var(--grass-delay, 0s);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grass-leaf { animation: none; }
+}
+
 /* ── 自定义滚动条 ── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -207,3 +240,22 @@ input[type="range"]::-moz-range-thumb {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── 动效性能分级（自定义 class，由 inline <script> 在首次绘制前注入）── */
+
+/* Static tier: 禁用所有持续动画 */
+.effects-static .effect-animate,
+.effects-static .paper-grain,
+.effects-static .ken-burns,
+.effects-static .grass-leaf,
+.effects-static .project-card,
+.effects-static .article-row-card,
+.effects-static .glass {
+  animation: none !important;
+}
+
+/* Low tier: 减少页面上不可见的草叶（仅保留前 6 片），其余草叶不渲染 */
+.effects-low .grass-leaf:nth-child(n+7) { display: none; }
+
+/* Low tier: 纸纹仍显示但减少模糊计算开销 — 降低 opacity */
+.effects-low .paper-grain { opacity: 0.02; }

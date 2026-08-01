@@ -10,12 +10,13 @@ interface TocItem {
 
 export function TableOfContents() {
   const [activeId, setActiveId] = useState<string>("")
-  const [isDesktop, setIsDesktop] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(min-width: 1280px)").matches
+  )
 
   // Only run on xl+ screens (1280px+)
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1280px)")
-    setIsDesktop(mq.matches)
     const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
     mq.addEventListener("change", handler)
     return () => mq.removeEventListener("change", handler)
